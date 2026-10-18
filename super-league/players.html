@@ -9,6 +9,7 @@
 </style>
 </head><body><main>
 <div class="top"><div><div class="eyebrow">SUPER LEAGUE · SQUAD HUB</div><h1>선수 등록 센터</h1><p>팀별 코드를 입력하고 선수단을 등록하세요.</p></div><a class="back" href="./index.html">← 팀 목록</a></div>
+<section class="panel" id="publicRoster"><h2>공개 선수단</h2><p class="muted">팀을 선택하면 등록된 선수의 사진, 이름, 등번호, 포지션을 볼 수 있습니다.</p><div class="field"><label for="publicTeamSelect">팀 선택</label><select id="publicTeamSelect"></select></div><div id="publicStatus" class="hint">불러오는 중…</div><div id="publicPlayers" class="teamgrid"></div></section>
 <div id="login" class="panel"><h2>팀 접속</h2><p class="muted">본인 팀을 선택한 뒤 팀 코드를 입력하세요.</p><div class="row"><div class="field"><label for="teamSelect">팀 선택</label><select id="teamSelect"></select></div><div class="field"><label for="teamCode">팀 코드</label><input id="teamCode" autocomplete="off" placeholder="팀 코드 입력"></div></div><div style="margin-top:14px"><button id="loginBtn">팀 선수단 열기</button></div><div id="loginError" class="error"></div><p class="hint">주의: 현재 버전은 빠른 시범 운영용입니다. 코드는 브라우저 코드에서 확인될 수 있으며, 선수 정보는 현재 사용 중인 브라우저에만 저장됩니다. 모든 기기에서 공유하려면 Supabase 연결이 필요합니다.</p></div>
 <div id="dashboard" class="hidden">
 <div class="panel"><div class="top"><div><div class="eyebrow">TEAM WORKSPACE</div><h2 id="teamTitle" style="margin:8px 0"></h2><p class="muted">선수 추가 · 수정 · 삭제</p></div><button class="secondary" id="logoutBtn">팀 변경</button></div><div class="stats"><div class="stat" id="playerCount">등록 선수 0명</div></div>
@@ -21,7 +22,11 @@ const codes=["CEL1887","BAR26X","NOT417","INTN26","VIL926","FEN1907","BLUE711","
 const key='super-league-players-v1';
 let activeTeam=-1,editingId=null,currentPhoto='';
 const $=id=>document.getElementById(id);
-teams.forEach((name,i)=>{const o=document.createElement('option');o.value=i;o.textContent=String(i+1).padStart(2,'0')+' · '+name;$('teamSelect').append(o)});
+teams.forEach((name,i)=>{const o=document.createElement('option');o.value=i;o.textContent=String(i+1).padStart(2,'0')+' · '+name;$('teamSelect').append(o);$('publicTeamSelect').append(o.cloneNode(true))});
+const SUPABASE_URL='https://wqzgclafdorzrkawgvnx.supabase.co';const SUPABASE_KEY='sb_publishable_Gs0kLt97_kcBhFwbwKvJGQ_f7zaDF0T';const REST=SUPABASE_URL+'/rest/v1/super_league_players';let publicRows=[];
+async function loadPublic(){const r=await fetch(REST+'?select=*&order=team_index.asc,created_at.asc',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});if(!r.ok)throw new Error('load failed');publicRows=await r.json();renderPublic()}
+function renderPublic(){const i=Number($('publicTeamSelect').value||0);const rows=publicRows.filter(x=>Number(x.team_index)===i);$('publicStatus').textContent=rows.length?teams[i]+' · '+rows.length+'명':'아직 공개 등록된 선수가 없습니다.';$('publicPlayers').innerHTML='';rows.forEach(p=>{const card=document.createElement('div');card.className='team';const line=document.createElement('div');line.className='playerleft';if(p.photo){const img=document.createElement('img');img.className='playerphoto';img.src=p.photo;img.alt=p.name+' 사진';line.append(img)}const d=document.createElement('div');const n=document.createElement('strong');n.textContent=(p.shirt_number?'#'+p.shirt_number+' ':'')+p.name;const m=document.createElement('small');m.textContent=p.position;d.append(n,m);line.append(d);card.append(line);$('publicPlayers').append(card)})}
+$('publicTeamSelect').addEventListener('change',renderPublic);loadPublic().catch(()=>$('publicStatus').textContent='공개 선수단을 불러오지 못했습니다. 새로고침해 주세요.');
 function readAll(){try{return JSON.parse(localStorage.getItem(key)||'{}')}catch{return {}}}
 function writeAll(data){localStorage.setItem(key,JSON.stringify(data))}
 function login(){const idx=Number($('teamSelect').value);const entered=$('teamCode').value.trim().toUpperCase();if(entered!==codes[idx]){$('loginError').textContent='팀 코드가 올바르지 않습니다.';return}activeTeam=idx;$('loginError').textContent='';$('login').classList.add('hidden');$('dashboard').classList.remove('hidden');$('teamTitle').textContent=teams[idx];resetForm();renderPlayers()}
