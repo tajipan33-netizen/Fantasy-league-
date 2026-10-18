@@ -19,7 +19,7 @@ main{max-width:1180px;margin:auto;padding:30px 14px 56px}.eyebrow{font-size:12px
 <div class="foot">SUPER LEAGUE · LEAGUE TABLE v1.0</div>
 </main>
 <script>
-const teams=["셀틱FC","FC BARCELONA","노팅엄 실험실","마레스카나치오날레(인테르+뉴캐슬)","알 빌라 AL VILLA","알네르바체","영국 어느시의 푸른 도시(진)","진석축구단","코모쿠젠","해머스","헌럽 FC","xmc_1894","SKY CITY","Royal York Madrid","MSG","Les Bleus","FC Der Klassiker","FC DÉLPIO(존잘)","Chelsea","Atletico Milan","아스날FC"];
+const teams=["셀틱FC","FC BARCELONA","노팅엄 실험실","마레스카나치오날레(인테르+뉴캐슬)","알 빌라 AL VILLA","알네르바체","영국 어느시의 푸른 도시(진)","진석축구단","코모쿠젠","해머스","헌럽 FC","xmc_1894","SKY CITY","Royal York Madrid","MSG","Les Bleus","FC Der Klassiker","본덜랜드","Chelsea","Atletico Milan","아스날FC"];
 const tbody=document.getElementById("rows");
 teams.forEach((team,index)=>{const tr=document.createElement("tr");const values=[String(index+1),team,"0","0","0","0","0","0","0","0"];values.forEach((value,i)=>{const td=document.createElement("td");td.textContent=value;if(i===0)td.className="rank";if(i===1)td.className="team";if(i===9)td.className="points";if(i>=2&&i!==9)td.classList.add("zero");tr.appendChild(td)});tbody.appendChild(tr)});
 </script></body></html>
