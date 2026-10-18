@@ -13,7 +13,7 @@
 </main>
 <script>
 const base="https://wqzgclafdorzrkawgvnx.supabase.co",key="sb_publishable_Gs0kLt97_kcBhFwbwKvJGQ_f7zaDF0T",postsUrl=base+"/rest/v1/super_league_community_posts",commentsUrl=base+"/rest/v1/super_league_community_comments";
-const teams=["셀틱FC","FC BARCELONA","노팅엄 실험실","마레스카나치오날레(인테르+뉴캐슬)","알 빌라 AL VILLA","알네르바체","ASK로마사라이","진석축구단","코모쿠젠","해머스","헌라페FC","xmc_1894","SKY CITY","Royal York Madrid","MSG","Les Bleus","FC Der Klassiker","FC DÉLPIO(존잘)","Chelsea","Atletico Milan","아스날FC"];
+const teams=["셀틱FC","FC BARCELONA","노팅엄 실험실","마레스카나치오날레(인테르+뉴캐슬)","알 빌라 AL VILLA","알네르바체","ASK로마사라이","진석축구단","코모쿠젠","해머스","헌라페FC","xmc_1894","SKY CITY","Royal York Madrid","MSG","Les Bleus","FC Der Klassiker","본덜랜드","Chelsea","Atletico Milan","아스날FC"];
 const $=id=>document.getElementById(id);let currentType="community",loading=false;
 teams.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;$("teamName").append(o)});
 const headers={"apikey":key,"Authorization":"Bearer "+key};
