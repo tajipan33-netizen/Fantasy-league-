@@ -1,0 +1,89 @@
+{
+  "league": "SUPER LEAGUE",
+  "teams": [
+    {
+      "id": 1,
+      "name": "셀틱FC"
+    },
+    {
+      "id": 2,
+      "name": "FC BARCELONA"
+    },
+    {
+      "id": 3,
+      "name": "노팅엄 실험실"
+    },
+    {
+      "id": 4,
+      "name": "마레스카나치오날레(인테르+뉴캐슬)"
+    },
+    {
+      "id": 5,
+      "name": "알 빌라 AL VILLA"
+    },
+    {
+      "id": 6,
+      "name": "알네르바체"
+    },
+    {
+      "id": 7,
+      "name": "영국 어느시의 푸른 도시(진)"
+    },
+    {
+      "id": 8,
+      "name": "진석축구단"
+    },
+    {
+      "id": 9,
+      "name": "코모쿠젠"
+    },
+    {
+      "id": 10,
+      "name": "해머스"
+    },
+    {
+      "id": 11,
+      "name": "헌럽 FC"
+    },
+    {
+      "id": 12,
+      "name": "xmc_1894"
+    },
+    {
+      "id": 13,
+      "name": "SKY CITY"
+    },
+    {
+      "id": 14,
+      "name": "Royal York Madrid"
+    },
+    {
+      "id": 15,
+      "name": "MSG"
+    },
+    {
+      "id": 16,
+      "name": "Les Bleus"
+    },
+    {
+      "id": 17,
+      "name": "FC Der Klassiker"
+    },
+    {
+      "id": 18,
+      "name": "FC DÉLPIO(존잘)"
+    },
+    {
+      "id": 19,
+      "name": "Chelsea"
+    },
+    {
+      "id": 20,
+      "name": "Atletico Milan"
+    },
+    {
+      "id": 21,
+      "name": "아스날FC"
+    }
+  ]
+}
