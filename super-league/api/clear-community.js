@@ -23,7 +23,6 @@ module.exports = async (req, res) => {
       method: 'DELETE',
       headers: {
         apikey: SUPABASE_KEY,
-        Authorization: 'Bearer ' + SUPABASE_KEY,
         Prefer: 'return=representation'
       }
     });
