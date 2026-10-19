@@ -82,7 +82,6 @@ module.exports = async function handler(req, res) {
   target.search = params.toString();
   const headers = {
     "apikey": SUPABASE_KEY,
-    "Authorization": "Bearer " + SUPABASE_KEY,
     "Accept": "application/json"
   };
   if (method === "POST" || method === "PATCH") headers["Content-Type"] = "application/json";
