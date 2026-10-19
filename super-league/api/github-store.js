@@ -112,6 +112,8 @@ function matches(row, params) {
   return true;
 }
 
+const { verifySession } = require("./_admin-auth");
+
 module.exports = async function handler(req, res) {
   const url = new URL(String(req.url || "/"), "https://vercel.local");
   const collection = String(url.searchParams.get("collection") || "").trim();
@@ -120,6 +122,9 @@ module.exports = async function handler(req, res) {
   if (method === "OPTIONS") {
     res.setHeader("Allow", "GET, POST, PATCH, DELETE, OPTIONS");
     return send(res, 204);
+  }
+  if (["POST", "PATCH", "DELETE"].includes(method) && !verifySession(req)) {
+    return send(res, 401, { error: "관리자 로그인이 필요합니다.", login: "/admin-login.html" });
   }
   if (!["GET", "POST", "PATCH", "DELETE"].includes(method)) {
     res.setHeader("Allow", "GET, POST, PATCH, DELETE, OPTIONS");
