@@ -1,117 +1,115 @@
-// GitHub-backed JSON store for the SUPER LEAGUE static app.
-// Vercel environment variable required: GITHUB_TOKEN (repo Contents read/write).
-// GitHub token remains server-side; never put it in browser code.
-const OWNER = "tajipan33-netizen";
-const REPO = "Fantasy-league-";
-const BRANCH = "main";
-const ALLOWED = new Set(["players","community-posts","community-comments","news","transfers","team-profiles","staff-youth","match-stats"]);
+// SUPER LEAGUE Supabase REST adapter.
+// Uses only the project's public publishable key; RLS remains enabled in Supabase.
+const SUPABASE_URL = "https://itytyqeemfbgfcaqqyoq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_du3C3wU4-pxfmMjymhfQ2g_wycjYBF3";
+const TABLES = {
+  "players": "super_league_players",
+  "community-posts": "super_league_community_posts",
+  "community-comments": "super_league_community_comments",
+  "news": "super_league_news",
+  "transfers": "super_league_transfers",
+  "team-profiles": "super_league_team_profiles",
+  "staff-youth": "super_league_staff_youth",
+  "match-stats": "super_league_match_stats"
+};
+
 function send(res, status, body) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
-  res.end(JSON.stringify(body));
+  if (status === 204 || body === undefined || body === null) return res.end();
+  return res.end(JSON.stringify(body));
 }
-async function github(path, options = {}) {
-  const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + path, {
-    ...options,
-    headers: {"Accept":"application/vnd.github+json","Authorization":"Bearer "+process.env.GITHUB_TOKEN,"X-GitHub-Api-Version":"2022-11-28",...(options.headers||{})}
-  });
-  const text = await r.text(); let data = {};
-  try { data = text ? JSON.parse(text) : {}; } catch {}
-  if (!r.ok) { const e = new Error(data.message || "GitHub storage request failed"); e.status = r.status; throw e; }
-  return data;
+
+function normalizeRequestUrl(input) {
+  const raw = String(input || "/");
+  const first = raw.indexOf("?");
+  return first < 0 ? raw : raw.slice(0, first + 1) + raw.slice(first + 1).replace(/\?/g, "&");
 }
-async function read(path) {
-  try {
-    const file = await github(path);
-    return { rows: JSON.parse(Buffer.from(file.content || "", "base64").toString("utf8") || "[]"), sha:file.sha };
-  } catch (e) { if (e.status === 404) return {rows:[],sha:null}; throw e; }
-}
-async function write(path, rows, sha, collection) {
-  const encoded = Buffer.from(JSON.stringify(rows, null, 2) + "\n", "utf8").toString("base64");
-  return github(path, {method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({
-    message:"Update SUPER LEAGUE data: "+collection, content:encoded, branch:BRANCH, ...(sha?{sha}:{})
-  })});
-}
-function matches(row, params) {
-  for (const [key, raw] of params.entries()) {
-    if (["collection","select","order","limit","offset","on_conflict","Prefer"].includes(key)) continue;
-    const match = raw.match(/^(eq|neq|gt|gte|lt|lte|is|in)\.(.*)$/);
-    if (!match) continue;
-    const op=match[1], val=match[2], actual=row[key];
-    if(op==="eq" && String(actual)!==val) return false;
-    if(op==="neq" && String(actual)===val) return false;
-    if(op==="is" && val==="null" && actual!=null) return false;
-    if(op==="gt" && !(actual>val)) return false;
-    if(op==="gte" && !(actual>=val)) return false;
-    if(op==="lt" && !(actual<val)) return false;
-    if(op==="lte" && !(actual<=val)) return false;
-    if(op==="in") { const vals=val.replace(/^\(|\)$/g,"").split(",").map(x=>x.replace(/^"|"$/g,"")); if(!vals.includes(String(actual))) return false; }
+
+function toSupabaseRecord(record, collection) {
+  if (!record || typeof record !== "object" || Array.isArray(record)) return record;
+  const row = { ...record };
+  if (collection === "news" && Object.prototype.hasOwnProperty.call(row, "imageUrl")) {
+    row.image_url = row.imageUrl || "";
+    delete row.imageUrl;
   }
-  return true;
+  return row;
 }
-module.exports = async function handler(req,res) {
-  // Some existing static pages append filters with a second "?" to a URL
-  // that already contains ?collection=... . Normalize those to "&" so all
-  // filters (select/order/id/etc.) are parsed instead of corrupting collection.
-  const rawUrl = String(req.url || "/");
-  const firstQuery = rawUrl.indexOf("?");
-  const normalizedUrl = firstQuery < 0
-    ? rawUrl
-    : rawUrl.slice(0, firstQuery + 1) + rawUrl.slice(firstQuery + 1).replace(/\?/g, "&");
-  const url = new URL(normalizedUrl, "https://vercel.local");
+
+function fromSupabaseRecord(record, collection) {
+  if (!record || typeof record !== "object" || Array.isArray(record)) return record;
+  const row = { ...record };
+  if (collection === "news") row.imageUrl = row.imageUrl || row.image_url || "";
+  return row;
+}
+
+module.exports = async function handler(req, res) {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  const url = new URL(normalizeRequestUrl(req.url), "https://vercel.local");
   const params = url.searchParams;
   const collection = String(params.get("collection") || "");
-  if (!ALLOWED.has(collection)) return send(res,400,{error:"Unknown collection"});
-  if (!process.env.GITHUB_TOKEN) return send(res,503,{error:"GitHub storage is not configured. Add GITHUB_TOKEN in Vercel Environment Variables, then redeploy."});
-  const path="super-league/data/"+collection+".json";
+  const table = TABLES[collection];
+  if (!table) return send(res, 400, { error: "Unknown collection" });
+  params.delete("collection");
+
+  const method = String(req.method || "GET").toUpperCase();
+  if (!["GET", "POST", "PATCH", "DELETE", "OPTIONS"].includes(method)) {
+    res.setHeader("Allow", "GET, POST, PATCH, DELETE, OPTIONS");
+    return send(res, 405, { error: "Method not allowed" });
+  }
+  if (method === "OPTIONS") {
+    res.setHeader("Allow", "GET, POST, PATCH, DELETE, OPTIONS");
+    return send(res, 204);
+  }
+
+  let prefer = req.headers && req.headers.prefer ? String(req.headers.prefer) : "";
+  if (method === "POST" && params.has("on_conflict") && !prefer.includes("resolution=")) {
+    prefer = [prefer, "resolution=merge-duplicates"].filter(Boolean).join(",");
+  }
+
+  let body = req.body;
+  if (typeof body === "string") {
+    try { body = body ? JSON.parse(body) : undefined; } catch { return send(res, 400, { error: "Invalid JSON body" }); }
+  }
+  if (method === "POST" && body !== undefined) {
+    body = Array.isArray(body) ? body.map(row => toSupabaseRecord(row, collection)) : toSupabaseRecord(body, collection);
+  } else if (method === "PATCH" && body !== undefined) {
+    body = toSupabaseRecord(body, collection);
+  }
+
+  const target = new URL(SUPABASE_URL + "/rest/v1/" + table);
+  target.search = params.toString();
+  const headers = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": "Bearer " + SUPABASE_KEY,
+    "Accept": "application/json"
+  };
+  if (method === "POST" || method === "PATCH") headers["Content-Type"] = "application/json";
+  if (prefer) headers["Prefer"] = prefer;
   try {
-    const {rows:original,sha}=await read(path);
-    if(!Array.isArray(original)) throw new Error("Stored collection is not an array");
-    if(req.method==="GET") {
-      let rows=original.filter(r=>matches(r,params));
-      const order=params.get("order");
-      if(order) for(const part of order.split(",").reverse()) {
-        const [key,dir]=part.split(".");
-        rows.sort((a,b)=>a[key]==null?1:b[key]==null?-1:(a[key]<b[key]?-1:a[key]>b[key]?1:0)*(dir==="desc"?-1:1));
-      }
-      const offset=Math.max(0,Number(params.get("offset"))||0);
-      const limit=Math.min(1000,Math.max(0,Number(params.get("limit"))||1000));
-      rows=rows.slice(offset,offset+limit);
-      const select=params.get("select");
-      if(select && select!=="*") { const fields=select.split(","); rows=rows.map(r=>Object.fromEntries(fields.filter(f=>Object.prototype.hasOwnProperty.call(r,f)).map(f=>[f,r[f]]))); }
-      return send(res,200,rows);
+    const upstream = await fetch(target.toString(), {
+      method,
+      headers,
+      ...(body !== undefined && (method === "POST" || method === "PATCH") ? { body: JSON.stringify(body) } : {})
+    });
+    const raw = await upstream.text();
+    let data = null;
+    if (raw) {
+      try { data = JSON.parse(raw); } catch { data = { error: raw.slice(0, 500) }; }
     }
-    let body=req.body;
-    if(typeof body==="string"){try{body=JSON.parse(body)}catch{body=null}}
-    if(req.method==="POST") {
-      const incoming=Array.isArray(body)?body:[body];
-      if(!body || !incoming.length || incoming.some(x=>!x||typeof x!=="object"||Array.isArray(x))) return send(res,400,{error:"Invalid JSON record"});
-      if(original.length+incoming.length>5000) return send(res,413,{error:"Collection limit reached"});
-      const now=new Date().toISOString();
-      const records=incoming.map((x,i)=>({...x,id:x.id??(Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9)+"-"+i),created_at:x.created_at||now,updated_at:x.updated_at||now}));
-      let next=original;
-      const conflict=params.get("on_conflict");
-      if(conflict) {
-        next=[...original];
-        for(const record of records) { const index=next.findIndex(r=>String(r[conflict])===String(record[conflict])); if(index>=0) next[index]={...next[index],...record}; else next.push(record); }
-      } else next=[...original,...records];
-      await write(path,next,sha,collection);
-      return send(res,200,records);
+    if (!upstream.ok) {
+      return send(res, upstream.status, {
+        error: data && (data.message || data.error || data.hint) || ("Supabase request failed (" + upstream.status + ")"),
+        code: data && data.code,
+        details: data && data.details
+      });
     }
-    if(req.method==="PATCH") {
-      if(!body||typeof body!=="object"||Array.isArray(body)) return send(res,400,{error:"Invalid update"});
-      const next=original.map(r=>matches(r,params)?{...r,...body,updated_at:new Date().toISOString()}:r);
-      await write(path,next,sha,collection);
-      return send(res,200,next.filter(r=>matches(r,params)));
-    }
-    if(req.method==="DELETE") {
-      const removed=original.filter(r=>matches(r,params));
-      const next=original.filter(r=>!matches(r,params));
-      await write(path,next,sha,collection);
-      return send(res,200,removed);
-    }
-    res.setHeader("Allow","GET, POST, PATCH, DELETE");
-    return send(res,405,{error:"Method not allowed"});
-  } catch(e) { return send(res,e.status||500,{error:e.message||"GitHub storage error"}); }
+    if (upstream.status === 204) return send(res, 204);
+    if (Array.isArray(data)) data = data.map(row => fromSupabaseRecord(row, collection));
+    else if (data && typeof data === "object") data = fromSupabaseRecord(data, collection);
+    return send(res, upstream.status, data === null ? [] : data);
+  } catch (error) {
+    return send(res, 502, { error: error && error.message ? error.message : "Supabase connection failed" });
+  }
 };
