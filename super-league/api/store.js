@@ -34,6 +34,10 @@ function toSupabaseRecord(record, collection) {
     row.shirt_number = String(row.number || "");
     delete row.number;
   }
+  if (collection === "players" && Object.prototype.hasOwnProperty.call(row, "number")) {
+    row.shirt_number = String(row.number || "");
+    delete row.number;
+  }
   if (collection === "news" && Object.prototype.hasOwnProperty.call(row, "imageUrl")) {
     row.image_url = row.imageUrl || "";
     delete row.imageUrl;
@@ -44,6 +48,7 @@ function toSupabaseRecord(record, collection) {
 function fromSupabaseRecord(record, collection) {
   if (!record || typeof record !== "object" || Array.isArray(record)) return record;
   const row = { ...record };
+  if (collection === "players") row.number = row.shirt_number || "";
   if (collection === "players") row.number = row.shirt_number || "";
   if (collection === "news") row.imageUrl = row.imageUrl || row.image_url || "";
   return row;
