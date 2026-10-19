@@ -15,7 +15,7 @@ const NEWS_API='/api/store?collection=news';
 let isAdmin=false,editingId=null,publicPhoto='',remoteNews=[],remoteLoading=false;
 const sbHeaders={};
 async function fetchRemoteNews(){remoteLoading=true;try{const r=await fetch(NEWS_API+'?select=*&order=created_at.desc',{cache:'no-store'});const raw=await r.text();let rows=[];try{rows=raw?JSON.parse(raw):[]}catch{}if(!r.ok)throw new Error((rows&&rows.error)||('뉴스 불러오기 실패 ('+r.status+')'));remoteNews=rows.map(a=>({id:String(a.id),dbId:a.id,title:a.title,category:a.category,author:a.author||a.author_name||'운영진',content:a.content,imageUrl:a.imageUrl||a.image_url||'',photo:'',createdAt:Date.parse(a.created_at)||Number(a.createdAt)||Date.now(),updatedAt:Date.parse(a.updated_at)||Date.now(),remote:true}));}catch(e){console.error(e);$('connectionStatus').textContent='공용 뉴스 연결에 실패했어요: '+e.message;}finally{remoteLoading=false;render()}}
-async function uploadNewsPhoto(dataUrl){if(!dataUrl)return '';throw new Error('Supabase 이미지 저장은 제거되었습니다. 이미지 없이 게시해 주세요.')}
+async function uploadNewsPhoto(dataUrl){return dataUrl||''}
 async function submitRemoteNews(article){const r=await fetch(NEWS_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:article.title,category:article.category,author:article.author,content:article.content,imageUrl:article.imageUrl||'',created_at:new Date().toISOString()})});const raw=await r.text();let data=[];try{data=raw?JSON.parse(raw):[]}catch{}if(!r.ok)throw new Error((data&&data.error)||('뉴스 저장 실패 ('+r.status+')'));return data}
 const $=id=>document.getElementById(id);
 function load(){try{return JSON.parse(localStorage.getItem(STORAGE)||'[]')}catch{return []}}
