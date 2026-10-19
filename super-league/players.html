@@ -27,10 +27,35 @@ let activeTeam=-1,editingId=null,currentPhoto='';
 const $=id=>document.getElementById(id);
 teams.forEach((name,i)=>{const o=document.createElement('option');o.value=i;o.textContent=String(i+1).padStart(2,'0')+' · '+name;$('teamSelect').append(o);$('publicTeamSelect').append(o.cloneNode(true))});
 let publicRows=[];
-function remotePlayer(p,idx){return {id:String(p.id),team_index:idx,name:p.name,shirt_number:String(p.number||''),position:p.position||'GK',notes:p.notes||'',photo:p.photo||''}}
-function localPlayer(p){return {id:p.id,name:p.name,number:p.shirt_number||'',position:p.position||'GK',notes:p.notes||'',photo:p.photo||''}}
-function loadPublic(){const all=readAll();publicRows=teams.flatMap((name,i)=>(all[i]||[]).map(p=>({...remotePlayer(p,i),id:String(p.id)})));renderPublic()}
-function renderPublic(){const i=Number($('publicTeamSelect').value||0);const rows=publicRows.filter(x=>Number(x.team_index)===i);$('publicStatus').textContent=rows.length?teams[i]+' · '+rows.length+'명':'아직 공개 등록된 선수가 없습니다.';$('publicPlayers').innerHTML='';rows.forEach(p=>{const card=document.createElement('div');card.className='team';const line=document.createElement('div');line.className='playerleft';if(p.photo){const img=document.createElement('img');img.className='playerphoto';img.src=p.photo;img.alt=p.name+' 사진';line.append(img)}const d=document.createElement('div');const n=document.createElement('strong');n.textContent=(p.shirt_number?'#'+p.shirt_number+' ':'')+p.name;const m=document.createElement('small');m.textContent=p.position;d.append(n,m);line.append(d);card.append(line);$('publicPlayers').append(card)})}
+function remotePlayer(p,idx){return {id:String(p.id),team_index:idx,name:p.name||'',shirt_number:String(p.shirt_number??p.number??''),position:p.position||'GK',notes:p.notes||'',photo:p.photo||''}}
+async function loadPublic(){
+  $('publicStatus').textContent='공용 선수단 불러오는 중…';
+  try{
+    const r=await fetch('/api/store?collection=players&select=*',{cache:'no-store'});
+    if(!r.ok)throw new Error('공용 선수단을 불러오지 못했습니다.');
+    const rows=await r.json();
+    if(!Array.isArray(rows))throw new Error('선수단 데이터 형식이 올바르지 않습니다.');
+    publicRows=rows.map(p=>{
+      const teamLabel=p.team_name||p.team||p.club_name||'';
+      const rawIndex=p.team_index;
+      const idx=rawIndex!==undefined&&rawIndex!==null&&rawIndex!==''?Number(rawIndex):teams.findIndex(t=>t===teamLabel);
+      return {...remotePlayer(p,idx),team_index:idx};
+    }).filter(p=>Number.isInteger(p.team_index)&&p.team_index>=0&&p.team_index<teams.length);
+    renderPublic();
+  }catch(err){
+    const all=readAll();
+    publicRows=teams.flatMap((name,i)=>(all[i]||[]).map(p=>({...remotePlayer(p,i),team_index:i})));
+    renderPublic();
+    $('publicStatus').textContent='공용 저장소 연결 실패 — 현재 기기에 저장된 선수만 표시됩니다.';
+  }
+}
+function renderPublic(){
+  const i=Number($('publicTeamSelect').value||0);
+  const rows=publicRows.filter(x=>Number(x.team_index)===i);
+  if(!$('publicStatus').textContent.startsWith('공용 저장소 연결 실패'))$('publicStatus').textContent=rows.length?teams[i]+' · '+rows.length+'명':'등록된 공개 선수가 없습니다.';
+  $('publicPlayers').innerHTML='';
+  rows.forEach(p=>{const card=document.createElement('div');card.className='team';const line=document.createElement('div');line.className='playerleft';if(p.photo){const img=document.createElement('img');img.className='playerphoto';img.src=p.photo;img.alt=p.name+' 사진';line.append(img)}const d=document.createElement('div');const n=document.createElement('strong');n.textContent=(p.shirt_number?'#'+p.shirt_number+' ':'')+p.name;const m=document.createElement('small');m.textContent=p.position;d.append(n,m);line.append(d);card.append(line);$('publicPlayers').append(card)})
+}
 $('publicTeamSelect').addEventListener('change',renderPublic);loadPublic();
 function readAll(){try{return JSON.parse(localStorage.getItem(key)||'{}')}catch{return {}}}
 function writeAll(data){localStorage.setItem(key,JSON.stringify(data))}
