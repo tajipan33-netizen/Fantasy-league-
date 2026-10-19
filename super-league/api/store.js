@@ -49,6 +49,8 @@ function fromSupabaseRecord(record, collection) {
   return row;
 }
 
+const { verifySession } = require("./_admin-auth");
+
 module.exports = async function handler(req, res) {
   res.setHeader("X-Content-Type-Options", "nosniff");
   const url = new URL(normalizeRequestUrl(req.url), "https://vercel.local");
@@ -63,6 +65,9 @@ module.exports = async function handler(req, res) {
   params.delete("table");
 
   const method = String(req.method || "GET").toUpperCase();
+  if (["POST", "PATCH", "DELETE"].includes(method) && !verifySession(req)) {
+    return send(res, 401, { error: "관리자 로그인이 필요합니다.", login: "/admin-login.html" });
+  }
   if (![ "GET", "POST", "PATCH", "DELETE", "OPTIONS" ].includes(method)) {
     res.setHeader("Allow", "GET, POST, PATCH, DELETE, OPTIONS");
     return send(res, 405, { error: "Method not allowed" });
