@@ -51,7 +51,15 @@ function matches(row, params) {
   return true;
 }
 module.exports = async function handler(req,res) {
-  const url = new URL(req.url, "https://vercel.local");
+  // Some existing static pages append filters with a second "?" to a URL
+  // that already contains ?collection=... . Normalize those to "&" so all
+  // filters (select/order/id/etc.) are parsed instead of corrupting collection.
+  const rawUrl = String(req.url || "/");
+  const firstQuery = rawUrl.indexOf("?");
+  const normalizedUrl = firstQuery < 0
+    ? rawUrl
+    : rawUrl.slice(0, firstQuery + 1) + rawUrl.slice(firstQuery + 1).replace(/\?/g, "&");
+  const url = new URL(normalizedUrl, "https://vercel.local");
   const params = url.searchParams;
   const collection = String(params.get("collection") || "");
   if (!ALLOWED.has(collection)) return send(res,400,{error:"Unknown collection"});
