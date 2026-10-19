@@ -10,9 +10,9 @@
 <p class="muted" style="font-size:12px;line-height:1.6">모든 기록은 공용 데이터베이스에 저장됩니다. 라운드 MOM은 경기별로 등록하세요. 여러 경기의 MOM을 기록하면 해당 라운드의 경기별 MOM을 모두 볼 수 있습니다.</p>
 </main><script>
 const teams=["셀틱FC","FC BARCELONA","노팅엄 실험실","마레스카나치오날레(인테르+뉴캐슬)","알 빌라 AL VILLA","알네르바체","ASK로마사라이","진석축구단","코모쿠젠","해머스","헌라페FC","xmc_1894","SKY CITY","Royal York Madrid","MSG","Les Bleus","FC Der Klassiker","본덜랜드","Chelsea","Atletico Milan","아스날FC"];
-const URL="https://wqzgclafdorzrkawgvnx.supabase.co/rest/v1/super_league_player_match_stats",KEY="sb_publishable_Gs0kLt97_kcBhFwbwKvJGQ_f7zaDF0T";const $=id=>document.getElementById(id);
+const URL="/api/store?collection=match-stats";const $=id=>document.getElementById(id);
 teams.forEach((n,i)=>{const o=new Option(String(i+1).padStart(2,"0")+" · "+n,i);$("team").append(o)});
-async function api(path="",opts={}){const r=await fetch(URL+path,{...opts,headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",Prefer:"return=representation",...(opts.headers||{})}});if(!r.ok)throw Error("요청 실패 ("+r.status+")");return r.status===204?[]:r.json()}
+async function api(path="",opts={}){const q=path?(path.startsWith('?')?path.slice(1):path):'';const r=await fetch(URL+(q?'&'+q:''),{...opts,headers:{"Content-Type":"application/json",...(opts.headers||{})}});if(!r.ok)throw Error("요청 실패 ("+r.status+")");return r.status===204?[]:r.json()}
 let records=[],tab="goals";const num=v=>Number(v)||0;function td(tr,v){const d=document.createElement("td");d.textContent=v;tr.append(d)}
 async function load(){try{records=await api("?select=*&order=round_number.asc,created_at.asc");render();$("status").textContent=""}catch(e){$("status").textContent="기록을 불러오지 못했습니다. DB 권한을 확인해 주세요.";$("tbody").innerHTML='<tr><td colspan="4">데이터를 불러오지 못했습니다.</td></tr>'}}
 function render(){const totals={};records.forEach(r=>{const k=r.player_name+"|||"+r.team_index;if(!totals[k])totals[k]={name:r.player_name,team:r.team_index,goals:0,assists:0,saves:0,mom:0};totals[k].goals+=num(r.goals);totals[k].assists+=num(r.assists);totals[k].saves+=num(r.saves);if(r.is_mom)totals[k].mom++});
