@@ -11,13 +11,13 @@
 <div class="notice">공용 뉴스 데이터베이스 연결됨: 제출된 뉴스와 사진은 다른 기기에서도 볼 수 있습니다. 공개 등록은 즉시 게시되므로 개인정보나 민감한 정보는 올리지 마세요. 운영자 비밀번호는 서버 환경변수로 관리해야 합니다.</div><p id="connectionStatus" class="small" role="status">공용 뉴스 불러오는 중…</p>
 </main><script>
 const STORAGE='super-league-news-v1';
-const SUPABASE_URL='https://wqzgclafdorzrkawgvnx.supabase.co';
-const SUPABASE_KEY='sb_publishable_Gs0kLt97_kcBhFwbwKvJGQ_f7zaDF0T';
+const STORE='/api/store?collection=news';
+
 let isAdmin=false,editingId=null,publicPhoto='',remoteNews=[],remoteLoading=false;
-const sbHeaders={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
-async function fetchRemoteNews(){remoteLoading=true;try{const r=await fetch(SUPABASE_URL+'/rest/v1/super_league_news?select=id,title,category,author_name,content,image_url,created_at&order=created_at.desc',{headers:sbHeaders,cache:'no-store'});if(!r.ok)throw new Error('뉴스 불러오기 실패 ('+r.status+')');const rows=await r.json();remoteNews=rows.map(a=>({id:'db-'+a.id,dbId:a.id,title:a.title,category:a.category,author:a.author_name,content:a.content,imageUrl:a.image_url||'',photo:'',createdAt:Date.parse(a.created_at),updatedAt:Date.parse(a.created_at),remote:true}));}catch(e){console.error(e);$('connectionStatus').textContent='공용 뉴스 연결에 실패했어요. 잠시 후 새로고침해 주세요.';}finally{remoteLoading=false;render()}}
-async function uploadNewsPhoto(dataUrl){if(!dataUrl)return '';const response=await fetch(dataUrl);const blob=await response.blob();if(blob.size>5*1024*1024)throw new Error('압축된 사진이 5MB를 넘어요. 더 작은 사진을 선택해 주세요.');const path=Date.now()+'-'+crypto.randomUUID()+'.jpg';const r=await fetch(SUPABASE_URL+'/storage/v1/object/super-league-news/'+path,{method:'POST',headers:{...sbHeaders,'Content-Type':'image/jpeg','x-upsert':'false'},body:blob});if(!r.ok){let msg='사진 업로드 실패';try{msg=(await r.json()).message||msg}catch{}throw new Error(msg)}return SUPABASE_URL+'/storage/v1/object/public/super-league-news/'+path}
-async function submitRemoteNews(article){const r=await fetch(SUPABASE_URL+'/rest/v1/super_league_news',{method:'POST',headers:{...sbHeaders,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify({title:article.title,category:article.category,author_name:article.author,content:article.content,image_url:article.imageUrl||null})});if(!r.ok){let msg='뉴스 저장 실패 ('+r.status+')';try{msg=(await r.json()).message||msg}catch{}throw new Error(msg)}return r.json()}
+const sbHeaders={};
+async function fetchRemoteNews(){remoteLoading=true;try{const r=await fetch(STORE+'&select=*&order=created_at.desc',{cache:'no-store'});if(!r.ok)throw new Error('뉴스 불러오기 실패 ('+r.status+')');const rows=await r.json();remoteNews=rows.map(a=>({id:'db-'+a.id,dbId:a.id,title:a.title,category:a.category,author:a.author_name||a.author||'운영진',content:a.content,imageUrl:a.image_url||a.imageUrl||'',photo:'',createdAt:Date.parse(a.created_at)||Number(a.createdAt)||Date.now(),updatedAt:Date.parse(a.updated_at||a.created_at)||Number(a.updatedAt)||Date.now(),remote:true}));}catch(e){console.error(e);$('connectionStatus').textContent='GitHub 공용 뉴스 연결에 실패했어요. Vercel 환경 변수 설정을 확인해 주세요.';}finally{remoteLoading=false;render()}}
+async function uploadNewsPhoto(dataUrl){if(!dataUrl)return '';if(dataUrl.length>450000)throw new Error('사진이 너무 커요. 더 작은 사진을 선택해 주세요.');return dataUrl}
+async function submitRemoteNews(article){const r=await fetch(STORE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:article.title,category:article.category,author_name:article.author,content:article.content,image_url:article.imageUrl||'',created_at:new Date().toISOString()})});if(!r.ok){let msg='뉴스 저장 실패 ('+r.status+')';try{msg=(await r.json()).error||msg}catch{}throw new Error(msg)}return r.json()}
 const $=id=>document.getElementById(id);
 function load(){try{return JSON.parse(localStorage.getItem(STORAGE)||'[]')}catch{return []}}
 function allNews(){return [...remoteNews,...load()].sort((a,b)=>b.createdAt-a.createdAt)}
