@@ -1,13 +1,13 @@
 // SUPER LEAGUE Supabase REST adapter.
-// Uses only the project's public publishable key; RLS remains enabled in Supabase.
+// Uses the project's public publishable key; RLS remains enabled in Supabase.
 const SUPABASE_URL = "https://itytyqeemfbgfcaqqyoq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_du3C3wU4-pxfmMjymhfQ2g_wycjYBF3";
 const TABLES = {
-  "players": "super_league_players",
+  players: "super_league_players",
   "community-posts": "super_league_community_posts",
   "community-comments": "super_league_community_comments",
-  "news": "super_league_news",
-  "transfers": "super_league_transfers",
+  news: "super_league_news",
+  transfers: "super_league_transfers",
   "team-profiles": "super_league_team_profiles",
   "staff-youth": "super_league_staff_youth",
   "match-stats": "super_league_match_stats"
@@ -31,11 +31,7 @@ function toSupabaseRecord(record, collection) {
   if (!record || typeof record !== "object" || Array.isArray(record)) return record;
   const row = { ...record };
   if (collection === "players" && Object.prototype.hasOwnProperty.call(row, "number")) {
-    row.shirt_number = String(row.number || "");
-    delete row.number;
-  }
-  if (collection === "players" && Object.prototype.hasOwnProperty.call(row, "number")) {
-    row.shirt_number = String(row.number || "");
+    row.shirt_number = String(row.number ?? "");
     delete row.number;
   }
   if (collection === "news" && Object.prototype.hasOwnProperty.call(row, "imageUrl")) {
@@ -48,8 +44,7 @@ function toSupabaseRecord(record, collection) {
 function fromSupabaseRecord(record, collection) {
   if (!record || typeof record !== "object" || Array.isArray(record)) return record;
   const row = { ...record };
-  if (collection === "players") row.number = row.shirt_number || "";
-  if (collection === "players") row.number = row.shirt_number || "";
+  if (collection === "players") row.number = row.shirt_number ?? "";
   if (collection === "news") row.imageUrl = row.imageUrl || row.image_url || "";
   return row;
 }
@@ -58,13 +53,17 @@ module.exports = async function handler(req, res) {
   res.setHeader("X-Content-Type-Options", "nosniff");
   const url = new URL(normalizeRequestUrl(req.url), "https://vercel.local");
   const params = url.searchParams;
-  const collection = String(params.get("collection") || "");
+  // Be tolerant of malformed/legacy query strings such as
+  // collection=players?select=..., which otherwise becomes an unknown collection.
+  const rawCollection = String(params.get("collection") || params.get("table") || "");
+  const collection = rawCollection.split("?")[0].split("&")[0].trim();
   const table = TABLES[collection];
-  if (!table) return send(res, 400, { error: "Unknown collection" });
+  if (!table) return send(res, 400, { error: "Unknown collection", collection: rawCollection });
   params.delete("collection");
+  params.delete("table");
 
   const method = String(req.method || "GET").toUpperCase();
-  if (!["GET", "POST", "PATCH", "DELETE", "OPTIONS"].includes(method)) {
+  if (![ "GET", "POST", "PATCH", "DELETE", "OPTIONS" ].includes(method)) {
     res.setHeader("Allow", "GET, POST, PATCH, DELETE, OPTIONS");
     return send(res, 405, { error: "Method not allowed" });
   }
@@ -80,7 +79,8 @@ module.exports = async function handler(req, res) {
 
   let body = req.body;
   if (typeof body === "string") {
-    try { body = body ? JSON.parse(body) : undefined; } catch { return send(res, 400, { error: "Invalid JSON body" }); }
+    try { body = body ? JSON.parse(body) : undefined; }
+    catch { return send(res, 400, { error: "Invalid JSON body" }); }
   }
   if (method === "POST" && body !== undefined) {
     body = Array.isArray(body) ? body.map(row => toSupabaseRecord(row, collection)) : toSupabaseRecord(body, collection);
@@ -91,12 +91,13 @@ module.exports = async function handler(req, res) {
   const target = new URL(SUPABASE_URL + "/rest/v1/" + table);
   target.search = params.toString();
   const headers = {
-    "apikey": SUPABASE_KEY,
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0eXR5cWVlbWZiZ2ZjYXFxeW9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1MjM0MzgsImV4cCI6MjEwNzA5OTQzOH0.PeEaIXT84fEsCg-MTMi1QmH3tYORlr7d4R-6Zmv31iY",
-    "Accept": "application/json"
+    apikey: SUPABASE_KEY,
+    Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0eXR5cWVlbWZiZ2ZjYXFxeW9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1MjM0MzgsImV4cCI6MjEwNzA5OTQzOH0.PeEaIXT84fEsCg-MTMi1QmH3tYORlr7d4R-6Zmv31iY",
+    Accept: "application/json"
   };
   if (method === "POST" || method === "PATCH") headers["Content-Type"] = "application/json";
-  if (prefer) headers["Prefer"] = prefer;
+  if (prefer) headers.Prefer = prefer;
+
   try {
     const upstream = await fetch(target.toString(), {
       method,
@@ -106,7 +107,8 @@ module.exports = async function handler(req, res) {
     const raw = await upstream.text();
     let data = null;
     if (raw) {
-      try { data = JSON.parse(raw); } catch { data = { error: raw.slice(0, 500) }; }
+      try { data = JSON.parse(raw); }
+      catch { data = { error: raw.slice(0, 500) }; }
     }
     if (!upstream.ok) {
       return send(res, upstream.status, {
