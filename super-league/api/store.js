@@ -30,6 +30,10 @@ function normalizeRequestUrl(input) {
 function toSupabaseRecord(record, collection) {
   if (!record || typeof record !== "object" || Array.isArray(record)) return record;
   const row = { ...record };
+  if (collection === "players" && Object.prototype.hasOwnProperty.call(row, "number")) {
+    row.shirt_number = String(row.number || "");
+    delete row.number;
+  }
   if (collection === "news" && Object.prototype.hasOwnProperty.call(row, "imageUrl")) {
     row.image_url = row.imageUrl || "";
     delete row.imageUrl;
@@ -40,6 +44,7 @@ function toSupabaseRecord(record, collection) {
 function fromSupabaseRecord(record, collection) {
   if (!record || typeof record !== "object" || Array.isArray(record)) return record;
   const row = { ...record };
+  if (collection === "players") row.number = row.shirt_number || "";
   if (collection === "news") row.imageUrl = row.imageUrl || row.image_url || "";
   return row;
 }
@@ -82,6 +87,7 @@ module.exports = async function handler(req, res) {
   target.search = params.toString();
   const headers = {
     "apikey": SUPABASE_KEY,
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0eXR5cWVlbWZiZ2ZjYXFxeW9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1MjM0MzgsImV4cCI6MjEwNzA5OTQzOH0.PeEaIXT84fEsCg-MTMi1QmH3tYORlr7d4R-6Zmv31iY",
     "Accept": "application/json"
   };
   if (method === "POST" || method === "PATCH") headers["Content-Type"] = "application/json";
