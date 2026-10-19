@@ -12,11 +12,11 @@
 <p class="small">커뮤니티 이용 안내: 개인정보, 욕설·괴롭힘, 도배, 확인되지 않은 루머를 사실처럼 단정하는 글은 올리지 마세요. 현재는 누구나 게시·댓글 작성이 가능하며 계정 인증 및 신고/운영자 삭제 기능은 아직 없습니다.</p>
 </main>
 <script>
-const base="https://wqzgclafdorzrkawgvnx.supabase.co",key="sb_publishable_Gs0kLt97_kcBhFwbwKvJGQ_f7zaDF0T",postsUrl=base+"/rest/v1/super_league_community_posts",commentsUrl=base+"/rest/v1/super_league_community_comments";
+const postsUrl="/api/store?collection=community-posts",commentsUrl="/api/store?collection=community-comments";
 const teams=["셀틱FC","FC BARCELONA","노팅엄 실험실","마레스카나치오날레(인테르+뉴캐슬)","알 빌라 AL VILLA","알네르바체","ASK로마사라이","진석축구단","코모쿠젠","해머스","헌라페FC","xmc_1894","SKY CITY","Royal York Madrid","MSG","Les Bleus","FC Der Klassiker","본덜랜드","Chelsea","Atletico Milan","아스날FC"];
 const $=id=>document.getElementById(id);let currentType="community",loading=false;
 teams.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;$("teamName").append(o)});
-const headers={"apikey":key,"Authorization":"Bearer "+key};
+const headers={};
 function escText(parent,tag,text,cls){const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=text;parent.append(el);return el}
 function formatDate(v){return new Date(v).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}
 function labelFor(type){return type==="rumor"?"루머":type==="chat"?"채팅":"자유글"}
