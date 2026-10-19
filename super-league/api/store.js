@@ -73,6 +73,9 @@ module.exports = async function handler(req, res) {
   }
 
   let prefer = req.headers && req.headers.prefer ? String(req.headers.prefer) : "";
+  if ((method === "POST" || method === "PATCH" || method === "DELETE") && !prefer.includes("return=")) {
+    prefer = [prefer, "return=minimal"].filter(Boolean).join(",");
+  }
   if (method === "POST" && params.has("on_conflict") && !prefer.includes("resolution=")) {
     prefer = [prefer, "resolution=merge-duplicates"].filter(Boolean).join(",");
   }
@@ -114,7 +117,10 @@ module.exports = async function handler(req, res) {
       return send(res, upstream.status, {
         error: data && (data.message || data.error || data.hint) || ("Supabase request failed (" + upstream.status + ")"),
         code: data && data.code,
-        details: data && data.details
+        details: data && data.details,
+        hint: data && data.hint,
+        table: table,
+        method: method
       });
     }
     if (upstream.status === 204) return send(res, 204);
