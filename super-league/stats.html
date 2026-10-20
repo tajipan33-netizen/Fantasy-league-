@@ -9,7 +9,7 @@
 <section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">전체 경기 기록</h2><button id="refresh" type="button">새로고침</button></div><div class="tablewrap"><table><thead><tr><th>라운드</th><th>경기</th><th>구단</th><th>선수</th><th>득점</th><th>어시</th><th>선방</th><th>MOM</th><th>관리</th></tr></thead><tbody id="allRows"></tbody></table></div></section>
 <p class="muted" style="font-size:12px;line-height:1.6">모든 기록은 공용 데이터베이스에 저장됩니다. 라운드 MOM은 경기별로 등록하세요. 여러 경기의 MOM을 기록하면 해당 라운드의 경기별 MOM을 모두 볼 수 있습니다.</p>
 </main><script>
-const teams=["셀틱FC","FC BARCELONA","노팅엄 실험실","마레스카나치오날레(인테르+뉴캐슬)","알 빌라 AL VILLA","알네르바체","ASK로마사라이","진석축구단","코모쿠젠","해머스","헌라페FC","xmc_1894","SKY CITY","Royal York Madrid","MSG","Les Bleus","FC Der Klassiker","본덜랜드","Chelsea","Atletico Milan","아스날FC"];
+const teams=["셀틱FC","FC BARCELONA","노팅엄 실험실","마레스카나치오날레(인테르+뉴캐슬)","알 빌라 AL VILLA","알네르바체","ASK로마사라이","진석축구단","코모쿠젠","해머스","헌라페FC","xmc_1894","SKY CITY","Royal York Madrid","MSG","Les Bleus","FC Der Klassiker","본덜랜드","Chelsea","Atletico Milan","아스날FC","NAPLESEA FC"];
 const URL="/api/store?collection=match-stats";const $=id=>document.getElementById(id);
 teams.forEach((n,i)=>{const o=new Option(String(i+1).padStart(2,"0")+" · "+n,i);$("team").append(o)});
 async function api(path="",opts={}){const r=await fetch(URL+path,{...opts,headers:{"Content-Type":"application/json",...(opts.headers||{})}});const raw=await r.text();let data=[];try{data=raw?JSON.parse(raw):[]}catch{}if(!r.ok){if(r.status===401){location.href="/admin-login.html";throw Error("관리자 로그인이 필요합니다.")}throw Error((data&&data.error)||("요청 실패 ("+r.status+")"))}return data}
