@@ -7,6 +7,8 @@
 body{background:radial-gradient(ellipse at 12% 0%,rgba(113,140,255,.18),transparent 38%),radial-gradient(ellipse at 88% 12%,rgba(185,255,74,.06),transparent 34%),linear-gradient(180deg,#17192a,#10111b 58%,#0b0c14)!important;background-attachment:fixed!important} :root{--line:#353958;--muted:#aab1cc;--gold:#718cff;--accent:#718cff} .panel,.person{background:linear-gradient(145deg,#20213a,#17192a)!important;border-color:#353958!important}input,select,textarea{background:#111322!important;border-color:#353958!important}button,.tab.active{background:#718cff!important;color:#0b0d19!important}button:hover,.tab.active:hover{background:#b9ff4a!important;color:#11150a!important}a,.eyebrow,.status{color:#b9ff4a!important}.tab,.person{border-color:#353958!important}
 </style></head><body><main>
 <div class="eyebrow">SUPER LEAGUE · CLUB STAFF HUB</div><header><div><h1>감독 · 코치진 · 유스</h1><p>구단별 스태프와 유스 선수단을 등록하고 함께 확인하세요.</p></div><a href="./index.html">← 메인으로</a></header>
+<section class="panel" id="publicStaffSection"><div class="eyebrow">PUBLIC CLUB DIRECTORY</div><h2>공개 명단 · 누구나 열람 가능</h2><p>등록된 감독·코치진·유스 명단과 사진을 로그인 없이 볼 수 있습니다.</p><div class="row"><div class="field"><label for="publicFilterTeam">구단</label><select id="publicFilterTeam"></select></div><div class="field"><label for="publicFilterCategory">유형</label><select id="publicFilterCategory"><option value="">전체 유형</option><option>감독</option><option>코치진</option><option>유스</option></select></div></div><div id="publicStatus" class="status">공개 명단 불러오는 중…</div><div id="publicList" class="list"></div><button type="button" id="refreshPublic" class="secondary">공개 명단 새로고침</button></section>
+<section class="panel"><h2>구단 관리 · 등록/수정</h2><p class="muted">기존 브라우저에 저장된 기록은 그대로 유지됩니다. 공개 명단에 반영하려면 관리자 로그인 후 기존 기록 동기화를 실행하세요.</p><button type="button" id="syncPublic" class="secondary">기존 기록 공개 동기화</button><div id="syncStatus" class="status"></div></section>
 <section class="panel"><h2>인원 등록</h2><form id="form"><div class="row"><div class="field"><label for="team">구단</label><select id="team"></select></div><div class="field"><label for="category">등록 유형</label><select id="category"><option>감독</option><option>코치진</option><option>유스</option></select></div></div><div class="row"><div class="field"><label for="name">이름 *</label><input id="name" required maxlength="100" placeholder="이름 입력"></div><div class="field"><label for="role">직책 / 포지션</label><input id="role" maxlength="100" placeholder="예: 수석 코치 / ST"></div><div class="field"><label for="age">나이</label><input id="age" type="number" min="1" max="100" placeholder="선택"></div></div><div class="row"><div class="field"><label for="notes">메모</label><textarea id="notes" rows="2" maxlength="500" placeholder="경력, 유스 팀, 특징 등 (선택)"></textarea></div><div class="field"><label for="photo">인물 사진 (선택)</label><input id="photo" type="file" accept="image/*"><div class="filehint">감독·코치진·유스 사진을 추가할 수 있어요. 사진은 자동 압축됩니다.</div><div id="photoPreview" class="preview hidden"><img id="photoPreviewImg" alt="사진 미리보기"><button type="button" class="secondary" id="removePhoto">사진 제거</button></div></div></div><button type="submit" id="submitBtn">등록하기</button><button type="button" class="secondary hidden" id="cancelEdit">수정 취소</button><div id="status" class="status"></div></form></section>
 <section class="panel"><h2>등록 명단</h2><div class="row"><div class="field"><label for="filterTeam">구단 필터</label><select id="filterTeam"></select></div><div class="field"><label for="filterCategory">유형 필터</label><select id="filterCategory"><option value="">전체 유형</option><option>감독</option><option>코치진</option><option>유스</option></select></div></div><div id="list" class="list"></div></section>
 <p class="muted" style="font-size:12px;line-height:1.6">등록 내용은 현재 브라우저에 저장됩니다. 등록·삭제는 서버 연결 없이 사용할 수 있으며, 다른 기기와 자동 공유되지는 않습니다.</p>
@@ -16,9 +18,40 @@ const STORAGE_KEY="super-league-staff-youth-v1";
 const $=id=>document.getElementById(id);
 function fill(sel){teams.forEach((n,i)=>{const o=document.createElement("option");o.value=i;o.textContent=String(i+1).padStart(2,"0")+" · "+n;$(sel).append(o)})}
 fill("team");fill("filterTeam");$("filterTeam").insertBefore(new Option("전체 구단",""),$("filterTeam").firstChild);
+fill("publicFilterTeam");$("publicFilterTeam").insertBefore(new Option("전체 구단",""),$("publicFilterTeam").firstChild);
 function readRecords(){try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");return Array.isArray(v)?v:[]}catch{return []}}
 function saveRecords(){localStorage.setItem(STORAGE_KEY,JSON.stringify(records))}
 let records=readRecords(),editingId=null,currentPhoto="";
+let publicRecords=[];
+async function loadPublicRecords(){
+  $("publicStatus").textContent="공개 명단 불러오는 중…";
+  try{
+    const r=await fetch("/api/store?collection=staff-youth&select=*&order=created_at.desc",{cache:"no-store"});
+    if(!r.ok)throw new Error("공개 명단을 불러오지 못했습니다. ("+r.status+")");
+    const rows=await r.json();
+    if(!Array.isArray(rows))throw new Error("공개 명단 형식이 올바르지 않습니다.");
+    publicRecords=rows.filter(x=>Number.isInteger(Number(x.team_index))&&Number(x.team_index)>=0&&Number(x.team_index)<teams.length);
+    renderPublicRecords();
+  }catch(err){$("publicStatus").textContent=(err.message||"공개 명단 연결 실패")+" · 관리자에게 확인해 주세요.";$("publicList").innerHTML="";}
+}
+function renderPublicRecords(){
+  const t=$("publicFilterTeam").value,c=$("publicFilterCategory").value;
+  const rows=publicRecords.filter(x=>(t===""||String(x.team_index)===t)&&(!c||x.category===c));
+  $("publicList").innerHTML="";
+  $("publicStatus").textContent="공개 명단 "+rows.length+"명 · 로그인 없이 열람 가능";
+  if(!rows.length){$("publicList").innerHTML='<div class="empty">공개 등록된 인원이 없습니다. 기존 기록은 관리자 로그인 후 동기화할 수 있습니다.</div>';return}
+  rows.forEach(x=>{
+    const d=document.createElement("article");d.className="person";
+    const head=document.createElement("div");head.className="personhead";
+    if(x.photo){const img=document.createElement("img");img.className="personphoto";img.src=x.photo;img.alt=(x.name||"인물")+" 사진";head.append(img)}
+    const info=document.createElement("div");const h=document.createElement("strong");h.textContent=x.name||"이름 없음";
+    const sm=document.createElement("small");sm.textContent=teams[Number(x.team_index)]+" · "+(x.category||"")+(x.role?" · "+x.role:"")+(x.age?" · "+x.age+"세":"");
+    info.append(h,sm);head.append(info);d.append(head);
+    if(x.notes){const p=document.createElement("p");p.textContent=x.notes;d.append(p)}
+    $("publicList").append(d);
+  });
+}
+
 function showPhoto(src){currentPhoto=src||"";$("photoPreview").classList.toggle("hidden",!currentPhoto);if(currentPhoto)$("photoPreviewImg").src=currentPhoto;else $("photoPreviewImg").removeAttribute("src")}
 async function compressPhoto(file){if(!file.type.startsWith("image/"))throw new Error("이미지 파일을 선택해 주세요.");const bitmap=await createImageBitmap(file);const max=360;const scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));const ctx=canvas.getContext("2d");ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();return canvas.toDataURL("image/jpeg",0.72)}
 $("photo").addEventListener("change",async()=>{const file=$("photo").files&&$("photo").files[0];if(!file)return;try{if(file.size>12*1024*1024)throw new Error("사진 파일은 12MB 이하로 선택해 주세요.");showPhoto(await compressPhoto(file));$("status").textContent="사진 준비 완료"}catch(err){$("photo").value="";$("status").textContent=err.message||"사진을 불러오지 못했습니다."}});
@@ -27,7 +60,20 @@ function resetForm(){editingId=null;$("form").reset();showPhoto("");$("submitBtn
 function load(){records=readRecords();render();if(!editingId)$("status").textContent=""}
 function render(){const t=$("filterTeam").value,c=$("filterCategory").value;const rows=records.filter(x=>(t===""||String(x.team_index)===t)&&(!c||x.category===c));$("list").innerHTML="";if(!rows.length){$("list").innerHTML='<div class="empty">등록된 인원이 없습니다.</div>';return}rows.forEach(x=>{const d=document.createElement("article");d.className="person";const head=document.createElement("div");head.className="personhead";if(x.photo){const img=document.createElement("img");img.className="personphoto";img.src=x.photo;img.alt=x.name+" 사진";head.append(img)}const info=document.createElement("div");const h=document.createElement("strong");h.textContent=x.name;const sm=document.createElement("small");sm.textContent=teams[x.team_index]+" · "+x.category+(x.role?" · "+x.role:"")+(x.age?" · "+x.age+"세":"");info.append(h,sm);head.append(info);const p=document.createElement("p");p.textContent=x.notes||"추가 메모 없음";const actions=document.createElement("div");actions.className="person-actions";const edit=document.createElement("button");edit.className="secondary";edit.textContent="수정 / 사진 추가";edit.onclick=()=>editRecord(x.id);const del=document.createElement("button");del.className="danger";del.textContent="삭제";del.onclick=()=>{if(!confirm(x.name+" 기록을 삭제할까요?"))return;records=readRecords().filter(r=>String(r.id)!==String(x.id));try{saveRecords();load();$("status").textContent="삭제 완료"}catch(err){$("status").textContent="저장 실패: "+err.message}};actions.append(edit,del);d.append(head,p,actions);$("list").append(d)})}
 function editRecord(id){const x=records.find(r=>String(r.id)===String(id));if(!x)return;editingId=x.id;$("team").value=String(x.team_index);$("category").value=x.category;$("name").value=x.name||"";$("role").value=x.role||"";$("age").value=x.age||"";$("notes").value=x.notes||"";$("photo").value="";showPhoto(x.photo||"");$("submitBtn").textContent="수정 저장";$("cancelEdit").classList.remove("hidden");$("status").textContent="기존 기록을 유지한 채 수정할 수 있습니다.";$("form").scrollIntoView({behavior:"smooth",block:"start"})}
+$("publicFilterTeam").addEventListener("change",renderPublicRecords);$("publicFilterCategory").addEventListener("change",renderPublicRecords);$("refreshPublic").addEventListener("click",loadPublicRecords);
+$("syncPublic").addEventListener("click",async()=>{
+  const local=readRecords();if(!local.length){$("syncStatus").textContent="동기화할 기존 기록이 없습니다.";return}
+  const btn=$("syncPublic");btn.disabled=true;$("syncStatus").textContent="기존 기록을 공개 저장소에 동기화 중…";
+  try{
+    const r=await fetch("/api/store?collection=staff-youth&on_conflict=id",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(local)});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(data.error||("동기화 실패 ("+r.status+")"));
+    $("syncStatus").textContent="동기화 완료! 기존 "+local.length+"개 기록을 공개 명단에 반영했습니다.";
+    await loadPublicRecords();
+  }catch(err){$("syncStatus").textContent=(err.message||"동기화 실패")+" · 먼저 관리자 로그인 후 다시 시도해 주세요."}
+  finally{btn.disabled=false}
+});
 $("form").addEventListener("submit",e=>{e.preventDefault();const data={id:editingId||("staff-"+Date.now()+"-"+Math.random().toString(16).slice(2,8)),team_index:Number($("team").value),category:$("category").value,name:$("name").value.trim(),role:$("role").value.trim(),age:$("age").value?Number($("age").value):null,notes:$("notes").value.trim(),photo:currentPhoto,created_at:new Date().toISOString()};if(!data.name){$("status").textContent="이름을 입력해 주세요.";return}const before=readRecords();if(editingId){const old=before.find(r=>String(r.id)===String(editingId));if(old){data.created_at=old.created_at||data.created_at;before[before.findIndex(r=>String(r.id)===String(editingId))]=data}else before.unshift(data)}else before.unshift(data);try{localStorage.setItem(STORAGE_KEY,JSON.stringify(before));records=before;resetForm();$("status").textContent="등록 완료!";load()}catch(err){$("status").textContent="저장 실패: 사진 용량이 큽니다. 다른 사진을 선택해 주세요."}});
 $("cancelEdit").addEventListener("click",()=>{resetForm();$("status").textContent="수정을 취소했습니다."});
-$("filterTeam").addEventListener("change",render);$("filterCategory").addEventListener("change",render);load();
+$("filterTeam").addEventListener("change",render);$("filterCategory").addEventListener("change",render);load();loadPublicRecords();
 </script></body></html>
