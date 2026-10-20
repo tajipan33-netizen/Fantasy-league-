@@ -3,41 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080808">
+<meta name="theme-color" content="#10111b">
 <title>SUPER LEAGUE | Teams</title>
 <style>
-:root{color-scheme:dark;--bg:#050b14;--panel:#141414;--line:#3a3325;--muted:#91a3b8;--accent:#e5c16b;--accent2:#a77b28}
+:root{color-scheme:dark;--bg:#10111b;--panel:#191b2b;--line:#343958;--muted:#a7acc7;--accent:#b9ff4a;--accent2:#557cff;--electric:#718cff}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at 12% 0%,rgba(229,193,107,.10) 0%,transparent 36%),linear-gradient(180deg,#101010 0%,#080808 54%,#030303 100%);background-attachment:fixed;color:#f3f7fc;font-family:Inter,system-ui,sans-serif;min-height:100vh}
+body{margin:0;background:radial-gradient(ellipse at 12% 0%,rgba(113,140,255,.20) 0%,transparent 38%),radial-gradient(ellipse at 88% 18%,rgba(185,255,74,.08) 0%,transparent 30%),linear-gradient(180deg,#151626 0%,#10111b 54%,#0a0b12 100%);background-attachment:fixed;color:#f5f6ff;font-family:Inter,system-ui,sans-serif;min-height:100vh}
 main{max-width:1100px;margin:auto;padding:22px 18px 60px}
 .eyebrow{font-size:10px;letter-spacing:.24em;color:var(--accent);font-weight:850}
-.hero{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:16px 0 22px;padding:34px 28px;border:1px solid #29475b;border-radius:22px;background:linear-gradient(100deg,#050c17,#071422,#071824)}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:16px 0 22px;padding:34px 28px;border:1px solid #414b82;border-radius:22px;background:radial-gradient(ellipse at 90% 10%,#718cff24,transparent 42%),linear-gradient(110deg,#20213a,#17192a 60%,#1a2033);box-shadow:0 18px 50px #0003}
 h1{font-size:clamp(36px,7vw,72px);line-height:.98;margin:13px 0 12px;letter-spacing:-.065em;font-weight:950}
 h1 span{color:var(--accent)}
 .hero p{color:#b7c6d7;margin:0;font-size:clamp(14px,2.5vw,19px)}
-.count{border:1px solid #32614f;background:#0b2822;border-radius:999px;padding:9px 14px;color:var(--accent);font-size:12px;font-weight:900;white-space:nowrap;letter-spacing:.04em}
+.count{border:1px solid #b9ff4a66;background:#b9ff4a12;border-radius:999px;padding:9px 14px;color:var(--accent);font-size:12px;font-weight:900;white-space:nowrap;letter-spacing:.04em}
 .toolbar{display:flex;gap:10px;margin-bottom:18px}
-input{width:100%;background:#0a1422;border:1px solid #38332a;border-radius:14px;padding:16px 17px;color:white;font-size:15px;outline:none}
-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #e5c16b22}
+input{width:100%;background:#17192a;border:1px solid #343958;border-radius:14px;padding:16px 17px;color:white;font-size:15px;outline:none}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #b9ff4a24}
 .navgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:26px}
-.navcard{display:flex;align-items:center;gap:10px;min-height:70px;padding:10px 13px;border-radius:13px;border:1px solid #263b52;background:linear-gradient(130deg,#101f31,#0a1422);color:#f5f8fc;text-decoration:none;transition:transform .15s,border-color .15s}
-.navcard:hover{transform:translateY(-2px);border-color:#4b8b79}
-.navcard.primary{background:linear-gradient(125deg,#4b3818,#211a0d);border-color:#a77b28}
-.navicon{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:10px;background:#ffffff0b;color:var(--accent);font-size:19px}
+.navcard{display:flex;align-items:center;gap:10px;min-height:70px;padding:10px 13px;border-radius:13px;border:1px solid #343958;background:linear-gradient(130deg,#20223a,#17192a);color:#f5f6ff;text-decoration:none;transition:transform .15s,border-color .15s,box-shadow .15s}
+.navcard:hover{transform:translateY(-2px);border-color:var(--electric);box-shadow:0 8px 24px #718cff1b}
+.navcard.primary{background:linear-gradient(125deg,#2c3559,#20213a 70%,#242d43);border-color:#718cff;box-shadow:inset 3px 0 0 var(--accent)}
+.navicon{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:10px;background:#b9ff4a12;color:var(--accent);font-size:19px}
 .navcopy{min-width:0;flex:1}
 .navcopy strong{display:block;font-size:clamp(13px,1.8vw,16px)}
-.navcopy small{display:block;color:#91a6b9;font-size:11px;margin-top:3px}
+.navcopy small{display:block;color:#a7acc7;font-size:11px;margin-top:3px}
 .arrow{font-size:20px;color:#c4d6e4}
 .sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 4px 13px}
 .sectionhead h2{font-size:22px;margin:0}
 .sectionhead span{font-size:12px;color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.team{display:flex;align-items:center;gap:13px;padding:13px 15px;background:linear-gradient(110deg,#0d1929,#091321);border:1px solid #302b22;border-radius:17px;min-height:80px}
-.num{display:grid;place-items:center;flex:0 0 48px;height:54px;border-radius:12px;background:#292216;color:var(--accent);font-weight:900}
-.crest{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border-radius:50%;border:1px solid #ffffff16;background:#1a1916;color:#b9f9de;font-weight:900;font-size:11px}
+.team{display:flex;align-items:center;gap:13px;padding:13px 15px;background:linear-gradient(110deg,#1b1d30,#151725);border:1px solid #30344f;border-radius:17px;min-height:80px;transition:transform .15s,border-color .15s} .team:hover{transform:translateY(-2px);border-color:#718cff}
+.num{display:grid;place-items:center;flex:0 0 48px;height:54px;border-radius:12px;background:#b9ff4a12;color:var(--accent);font-weight:900}
+.crest{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border-radius:50%;border:1px solid #718cff55;background:#262941;color:#b9ff4a;font-weight:900;font-size:11px}
 .name{font-weight:780;overflow-wrap:anywhere;flex:1;font-size:15px}
-.teamarrow{color:#8ea3b8;font-size:22px}
-.foot{margin-top:30px;padding-top:18px;border-top:1px solid #1b2a3b;color:#63788c;font-size:11px;text-align:center}
+.teamarrow{color:#9da6d2;font-size:22px}
+.foot{margin-top:30px;padding-top:18px;border-top:1px solid #30344f;color:#777e9f;font-size:11px;text-align:center}
 @media(max-width:620px){
 main{padding:14px 10px 30px}
 .hero{padding:21px 17px;gap:12px;margin:12px 0 16px}
