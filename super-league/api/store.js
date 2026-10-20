@@ -65,9 +65,6 @@ module.exports = async function handler(req, res) {
   params.delete("table");
 
   const method = String(req.method || "GET").toUpperCase();
-  if (["POST", "PATCH", "DELETE"].includes(method) && !verifySession(req)) {
-    return send(res, 401, { error: "관리자 로그인이 필요합니다.", login: "/admin-login.html" });
-  }
   if (![ "GET", "POST", "PATCH", "DELETE", "OPTIONS" ].includes(method)) {
     res.setHeader("Allow", "GET, POST, PATCH, DELETE, OPTIONS");
     return send(res, 405, { error: "Method not allowed" });
@@ -94,6 +91,29 @@ module.exports = async function handler(req, res) {
     body = Array.isArray(body) ? body.map(row => toSupabaseRecord(row, collection)) : toSupabaseRecord(body, collection);
   } else if (method === "PATCH" && body !== undefined) {
     body = toSupabaseRecord(body, collection);
+  }
+
+  // Team-code protected mutations for squad and club-profile tools; other collections remain admin-only.
+  if (["POST", "PATCH", "DELETE"].includes(method) && !verifySession(req)) {
+    const teamCollections = ["players", "team-profiles"];
+    if (!teamCollections.includes(collection)) return send(res, 401, { error: "관리자 로그인이 필요합니다.", login: "/admin-login.html" });
+    const teams = ["CEL1887","BAR26X","NOT417","INTN26","VIL926","FEN1907","BLUE711","JIN204","COM026","HAM1895","HUN628","XMC894","SKY619","RYM1902","MSG527","BLEU314","KLS2026","DEL189","CHEL905","ATM732","ARS1886"];
+    const supplied = String(req.headers && req.headers["x-team-code"] || "").trim().toUpperCase();
+    const row = Array.isArray(body) ? body[0] : body;
+    const idxRaw = method === "POST" ? (row && row.team_index) : params.get("team_index");
+    const idx = Number(idxRaw);
+    if (!Number.isInteger(idx) || idx < 0 || idx >= teams.length || teams[idx] !== supplied) {
+      return send(res, 403, { error: "팀 코드 또는 팀 권한이 올바르지 않습니다." });
+    }
+    if (collection === "players" && method === "POST" && Array.isArray(body) && body.some(x => Number(x.team_index) !== idx)) {
+      return send(res, 403, { error: "다른 팀 선수는 등록할 수 없습니다." });
+    }
+    if (collection === "players" && method === "POST" && row && Number(row.team_index) !== idx) {
+      return send(res, 403, { error: "다른 팀 선수는 등록할 수 없습니다." });
+    }
+    if (collection === "team-profiles" && method === "POST" && row && Number(row.team_index) !== idx) {
+      return send(res, 403, { error: "다른 팀 프로필은 수정할 수 없습니다." });
+    }
   }
 
   const target = new URL(SUPABASE_URL + "/rest/v1/" + table);
