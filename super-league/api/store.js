@@ -93,26 +93,41 @@ module.exports = async function handler(req, res) {
     body = toSupabaseRecord(body, collection);
   }
 
-  // Team-code protected mutations for squad and club-profile tools; other collections remain admin-only.
+  // Team-code protected mutations for squads, club profiles, and transfers.
   if (["POST", "PATCH", "DELETE"].includes(method) && !verifySession(req)) {
-    const teamCollections = ["players", "team-profiles"];
+    const teamCollections = ["players", "team-profiles", "transfers"];
     if (!teamCollections.includes(collection)) return send(res, 401, { error: "관리자 로그인이 필요합니다.", login: "/admin-login.html" });
-    const teams = ["CEL1887","BAR26X","NOT417","INTN26","VIL926","FEN1907","BLUE711","JIN204","COM026","HAM1895","HUN628","XMC894","SKY619","RYM1902","MSG527","BLEU314","KLS2026","DEL189","CHEL905","ATM732","ARS1886"];
+    const teamCodes = ["CEL1887","BAR26X","NOT417","INTN26","VIL926","FEN1907","BLUE711","JIN204","COM026","HAM1895","HUN628","XMC894","SKY619","RYM1902","MSG527","BLEU314","KLS2026","DEL189","CHEL905","ATM732","ARS1886"];
     const supplied = String(req.headers && req.headers["x-team-code"] || "").trim().toUpperCase();
+    const idx = teamCodes.indexOf(supplied);
+    if (idx < 0) return send(res, 403, { error: "팀 코드가 올바르지 않습니다." });
     const row = Array.isArray(body) ? body[0] : body;
-    const idxRaw = method === "POST" ? (row && row.team_index) : params.get("team_index");
-    const idx = Number(idxRaw);
-    if (!Number.isInteger(idx) || idx < 0 || idx >= teams.length || teams[idx] !== supplied) {
-      return send(res, 403, { error: "팀 코드 또는 팀 권한이 올바르지 않습니다." });
+    if (collection === "players" || collection === "team-profiles") {
+      const idxRaw = method === "POST" ? (row && row.team_index) : params.get("team_index");
+      if (Number(idxRaw) !== idx) return send(res, 403, { error: "다른 팀 데이터는 수정할 수 없습니다." });
+      if (method === "POST" && Array.isArray(body) && body.some(x => Number(x.team_index) !== idx)) {
+        return send(res, 403, { error: "다른 팀 데이터는 등록할 수 없습니다." });
+      }
     }
-    if (collection === "players" && method === "POST" && Array.isArray(body) && body.some(x => Number(x.team_index) !== idx)) {
-      return send(res, 403, { error: "다른 팀 선수는 등록할 수 없습니다." });
-    }
-    if (collection === "players" && method === "POST" && row && Number(row.team_index) !== idx) {
-      return send(res, 403, { error: "다른 팀 선수는 등록할 수 없습니다." });
-    }
-    if (collection === "team-profiles" && method === "POST" && row && Number(row.team_index) !== idx) {
-      return send(res, 403, { error: "다른 팀 프로필은 수정할 수 없습니다." });
+    if (collection === "transfers") {
+      if (method === "POST") {
+        const rows = Array.isArray(body) ? body : [body];
+        if (rows.some(x => Number(x.from_team_index) !== idx && Number(x.to_team_index) !== idx)) {
+          return send(res, 403, { error: "본인 구단이 보내는 구단 또는 받는 구단에 포함된 거래만 등록할 수 있습니다." });
+        }
+      } else {
+        const idFilter = params.get("id") || "";
+        const id = idFilter.startsWith("eq.") ? idFilter.slice(3) : "";
+        if (!id) return send(res, 400, { error: "거래 ID가 필요합니다." });
+        const checkUrl = new URL(SUPABASE_URL + "/rest/v1/" + table);
+        checkUrl.searchParams.set("select", "from_team_index,to_team_index");
+        checkUrl.searchParams.set("id", "eq." + id);
+        const check = await fetch(checkUrl.toString(), { headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY, Accept: "application/json" } });
+        const checkRows = check.ok ? await check.json() : [];
+        if (!Array.isArray(checkRows) || !checkRows.length || checkRows.some(x => Number(x.from_team_index) !== idx && Number(x.to_team_index) !== idx)) {
+          return send(res, 403, { error: "본인 구단이 관련된 거래만 수정하거나 삭제할 수 있습니다." });
+        }
+      }
     }
   }
 
