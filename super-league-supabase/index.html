@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10111b">
+<title>SUPER LEAGUE — Squad Center</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0d15;--panel:#151a2b;--line:#303854;--muted:#9ca8c5;--violet:#7d91ff;--lime:#c3ff63;--white:#f5f7ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#7d91ff20,transparent 38%),linear-gradient(180deg,#111526,#0b0d15 60%);color:var(--white);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.wrap{max-width:1120px;margin:auto;padding:18px}.hero{border:1px solid #444e83;border-radius:22px;background:linear-gradient(115deg,#202544,#171a2e);padding:27px;margin:10px 0 20px}.eyebrow{font-size:11px;letter-spacing:.2em;color:var(--lime);font-weight:900}.hero h1{font-size:clamp(32px,7vw,61px);letter-spacing:-.06em;line-height:.98;margin:12px 0}.hero p{color:#bdc6e0;margin:0}.pill{border:1px solid #59669c;border-radius:99px;padding:6px 10px;color:var(--lime);font-size:11px;font-weight:800}.nav{display:flex;gap:7px;overflow:auto;margin:15px 0}.nav button{border:1px solid var(--line);border-radius:10px;padding:9px 13px;background:#171b2d;color:#c6cde1;white-space:nowrap}.nav button.active{border-color:var(--violet);color:var(--lime);background:#252a48}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:16px 0}.stat,.card{background:#151a2b;border:1px solid var(--line);border-radius:15px;padding:16px}.stat strong{font-size:25px;display:block}.stat span{font-size:11px;color:var(--muted)}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.field{border:1px solid #3a4363;background:#0c1020;border-radius:10px;padding:11px;color:var(--white);min-width:0}.toolbar input{flex:1;min-width:170px}.btn{background:var(--lime);color:#101726;border:0;border-radius:10px;padding:11px 14px;font-size:12px;font-weight:900}.btn.secondary{background:#222844;color:#dce2f7;border:1px solid #414967}.btn:disabled{opacity:.55;cursor:wait}.section{display:none}.section.active{display:block}.sectionhead{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:23px 0 11px}.sectionhead h2{margin:0;font-size:21px}.sectionhead p{color:var(--muted);font-size:12px;margin:4px 0 0}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:11px}table{width:100%;border-collapse:collapse;min-width:650px;font-size:12px}th,td{text-align:left;padding:12px;border-bottom:1px solid #2d3550;white-space:nowrap}th{color:var(--lime);font-size:10px;background:#1c2238}tr:last-child td{border-bottom:0}.teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.team{background:#171b2d;border:1px solid var(--line);border-radius:12px;padding:13px;display:flex;align-items:center;gap:12px}.teamnum{width:40px;height:42px;border-radius:9px;background:#7d91ff20;color:var(--lime);display:grid;place-items:center;font-weight:900}.teamname{font-size:13px;font-weight:800;overflow-wrap:anywhere}.muted{color:var(--muted)}.empty{padding:24px;text-align:center;color:var(--muted);font-size:12px}.status{border:1px solid #496b54;border-radius:99px;padding:4px 8px;color:#c7ffcf;font-size:10px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.formfield{display:grid;gap:6px}.formfield label{font-size:11px;color:#cbd2e8;font-weight:750}.formfield input,.formfield select{width:100%}.formfield.full{grid-column:1/-1}.notice{color:#eadba9;background:#282518;border-left:3px solid #d9bd70;border-radius:0 9px 9px 0;padding:11px 13px;font-size:12px}.danger{color:#ffadb4}.foot{font-size:10px;color:#7883a5;margin-top:25px;border-top:1px solid var(--line);padding-top:14px}.hide{display:none!important}
+@media(max-width:650px){.wrap{padding:12px}.hero{padding:20px}.stats{grid-template-columns:repeat(3,1fr)}.stat{padding:12px}.stat strong{font-size:21px}.teams{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.formfield.full{grid-column:auto}.sectionhead h2{font-size:18px}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="hero"><div class="eyebrow">OFFICIAL FANTASY FOOTBALL PLATFORM</div><h1>SUPER <span style="color:var(--lime)">LEAGUE</span></h1><p>구단 · 등록 선수단 · 경기 결과를 한곳에서 관리하는 새 센터</p><div style="margin-top:16px"><span class="pill">SUPABASE DATABASE</span></div></header>
+<nav class="nav" aria-label="메뉴"><button class="active" data-tab="overview">개요</button><button data-tab="clubs">구단</button><button data-tab="squad">등록 선수단</button><button data-tab="matches">경기 결과</button><button data-tab="add">선수 등록</button></nav>
+<section id="overview" class="section active">
+<div class="stats"><div class="stat"><strong id="clubCount">—</strong><span>등록 구단</span></div><div class="stat"><strong id="rosterCount">—</strong><span>선수단 항목</span></div><div class="stat"><strong id="matchCount">—</strong><span>경기 기록</span></div></div>
+<div class="card"><div class="sectionhead" style="margin-top:0"><div><h2>시스템 상태</h2><p id="connection">Supabase 연결을 확인하고 있습니다.</p></div><button class="btn secondary" id="refresh">새로고침</button></div><div id="message" class="notice">기존 기록은 자동으로 삭제하거나 변경하지 않습니다.</div></div>
+<div class="sectionhead"><div><h2>최근 경기</h2><p>데이터베이스 기록 기준</p></div><button class="btn secondary" data-jump="matches">경기 보기</button></div><div class="card" id="recentMatches"><div class="empty">불러오는 중…</div></div>
+</section>
+<section id="clubs" class="section"><div class="sectionhead"><div><h2>구단 목록</h2><p>Supabase의 clubs 테이블</p></div></div><div class="toolbar"><input id="clubSearch" class="field" placeholder="구단 이름 검색"></div><div id="clubList" class="teams"><div class="empty">불러오는 중…</div></div></section>
+<section id="squad" class="section"><div class="sectionhead"><div><h2>등록 선수단</h2><p>구단을 선택해서 선수와 스태프 명단을 확인합니다.</p></div></div><div class="toolbar"><select id="squadClub" class="field" aria-label="구단 선택"></select><select id="entryType" class="field"><option value="">모든 항목</option><option>선수</option><option>유스</option><option>감독</option><option>코치</option><option>스태프</option></select><input id="rosterSearch" class="field" placeholder="이름·포지션 검색"></div><div class="card"><div class="tablewrap"><table><thead><tr><th>등번호</th><th>이름</th><th>구분</th><th>포지션</th><th>OVR</th><th>국적</th></tr></thead><tbody id="rosterRows"><tr><td colspan="6" class="empty">불러오는 중…</td></tr></tbody></table></div></div></section>
+<section id="matches" class="section"><div class="sectionhead"><div><h2>경기 결과</h2><p>저장된 경기 결과 및 라운드</p></div></div><div class="toolbar"><input id="matchSearch" class="field" placeholder="팀 이름 또는 라운드 검색"></div><div class="card"><div class="tablewrap"><table><thead><tr><th>날짜</th><th>라운드</th><th>홈팀</th><th>스코어</th><th>원정팀</th><th>MOM</th></tr></thead><tbody id="matchRows"><tr><td colspan="6" class="empty">불러오는 중…</td></tr></tbody></table></div></div></section>
+<section id="add" class="section"><div class="sectionhead"><div><h2>선수·스태프 등록</h2><p>로그인과 팀 권한을 연결하기 전에는 조회 전용으로 작동합니다.</p></div></div><div class="card"><div class="notice">현재 새 앱은 안전한 조회 전용 단계입니다. 등록/수정은 누구나 쓸 수 있는 공개 권한으로 열지 않으며, 관리자 인증과 구단별 쓰기 권한을 연결한 뒤 활성화합니다.</div><form id="rosterForm" class="formgrid" style="margin-top:15px"><div class="formfield"><label>구단</label><select id="formClub" class="field" required></select></div><div class="formfield"><label>구분</label><select id="formType" class="field"><option>선수</option><option>유스</option><option>감독</option><option>코치</option><option>스태프</option></select></div><div class="formfield"><label>이름</label><input id="formName" class="field" required maxlength="100"></div><div class="formfield"><label>포지션 / 역할</label><input id="formPosition" class="field" maxlength="100"></div><div class="formfield"><label>등번호 (0–99)</label><input id="formNumber" class="field" type="number" min="0" max="99"></div><div class="formfield"><label>OVR (1–99)</label><input id="formOvr" class="field" type="number" min="1" max="99" value="70" required></div><div class="formfield"><label>국적</label><input id="formNation" class="field" maxlength="80"></div><div class="formfield"><label>사진 URL (선택)</label><input id="formPhoto" class="field" type="url"></div><div class="formfield full"><button class="btn" type="submit" disabled>등록 저장 (인증 설정 대기)</button></div></form><p class="muted" style="font-size:11px">폼은 현재 비활성화 상태이며, 공개 데이터베이스 쓰기 권한은 부여하지 않습니다.</p></div></section>
+<footer class="foot">SUPER LEAGUE · NEW SEPARATE APP · RLS ENABLED</footer>
+</main>
+<script type="module">
+const SUPABASE_URL = "https://fdszmpirncjkznjciikz.supabase.co";
+const SUPABASE_KEY = "sb_publishable_QAEojvwsfeDz_xcZn831ug_zaEHy9di";
+const $ = id => document.getElementById(id);
+let clubs=[], roster=[], matches=[];
+function h(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+async function readTable(table, query="select=*"){
+  const response=await fetch(SUPABASE_URL+"/rest/v1/"+table+"?"+query,{headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"},cache:"no-store"});
+  const payload=await response.json().catch(()=>[]);
+  if(!response.ok)throw new Error(payload.message||payload.details||"Supabase 조회 오류 ("+response.status+")");
+  return payload;
+}
+function optionList(){
+  for(const id of ["squadClub","formClub"]){const sel=$(id);sel.innerHTML="";clubs.forEach(c=>{const o=document.createElement("option");o.value=c.id;o.textContent=c.name;sel.append(o)})}
+}
+function renderClubs(){
+  const q=$("clubSearch").value.trim().toLocaleLowerCase();
+  const rows=clubs.filter(c=>c.name.toLocaleLowerCase().includes(q));
+  $("clubList").innerHTML=rows.length?rows.map((c,i)=>'<article class="team"><span class="teamnum">'+String(i+1).padStart(2,"0")+'</span><span class="teamname">'+h(c.name)+'</span></article>').join(""):'<div class="empty">검색 결과가 없습니다.</div>';
+}
+function renderRoster(){
+  const clubId=$("squadClub").value,type=$("entryType").value,q=$("rosterSearch").value.trim().toLocaleLowerCase();
+  const rows=roster.filter(p=>(!clubId||p.club_id===clubId)&&(!type||p.entry_type===type)&&((p.name+" "+p.position+" "+p.nationality).toLocaleLowerCase().includes(q)));
+  $("rosterRows").innerHTML=rows.length?rows.map(p=>'<tr><td>'+(p.shirt_number??"—")+'</td><td><strong>'+h(p.name)+'</strong></td><td>'+h(p.entry_type)+'</td><td>'+h(p.position||"—")+'</td><td>'+h(p.ovr)+'</td><td>'+h(p.nationality||"—")+'</td></tr>').join(""):'<tr><td colspan="6" class="empty">등록된 항목이 없습니다.</td></tr>';
+}
+function renderMatches(){
+ const q=$("matchSearch").value.trim().toLocaleLowerCase();
+ const rows=matches.filter(m=>(m.home_team+" "+m.away_team+" "+m.competition_round).toLocaleLowerCase().includes(q));
+ $("matchRows").innerHTML=rows.length?rows.map(m=>'<tr><td>'+h(m.match_date||"미정")+'</td><td>'+h(m.competition_round||"—")+'</td><td>'+h(m.home_team)+'</td><td><strong>'+(m.home_score??"—")+" - "+(m.away_score??"—")+'</strong></td><td>'+h(m.away_team)+'</td><td>'+h(m.mom||"—")+'</td></tr>').join(""):'<tr><td colspan="6" class="empty">경기 기록이 없습니다.</td></tr>';
+ $("recentMatches").innerHTML=rows.length?rows.slice(0,4).map(m=>'<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="muted" style="font-size:10px">'+h(m.competition_round||"경기 결과")+' · '+h(m.match_date||"날짜 미정")+'</div><strong>'+h(m.home_team)+' &nbsp; '+(m.home_score??"—")+' : '+(m.away_score??"—")+' &nbsp; '+h(m.away_team)+'</strong></div>').join(""):'<div class="empty">저장된 경기 결과가 없습니다.</div>';
+}
+async function load(){
+ $("connection").textContent="Supabase에 연결 중…";$("message").textContent="데이터를 불러오는 중입니다.";
+ try{
+  const results=await Promise.all([readTable("clubs","select=id,name&order=name.asc"),readTable("roster_entries","select=*&order=created_at.desc"),readTable("matches","select=*&order=match_date.desc.nullslast,created_at.desc")]);
+  clubs=results[0];roster=results[1];matches=results[2];
+  $("clubCount").textContent=clubs.length;$("rosterCount").textContent=roster.length;$("matchCount").textContent=matches.length;
+  optionList();renderClubs();renderRoster();renderMatches();
+  $("connection").textContent="연결됨 · Supabase REST API";$("message").textContent="데이터 조회에 성공했습니다. 변경 및 삭제 작업은 수행하지 않았습니다.";
+ }catch(e){$("connection").textContent="연결 실패";$("message").textContent=e.message+" — 프로젝트의 Data API 권한 및 RLS 정책을 확인하세요."; $("message").className="notice danger";}
+}
+document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id===b.dataset.tab))}));
+document.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>document.querySelector('[data-tab="'+b.dataset.jump+'"]').click()));
+$("refresh").addEventListener("click",load);$("clubSearch").addEventListener("input",renderClubs);$("squadClub").addEventListener("change",renderRoster);$("entryType").addEventListener("change",renderRoster);$("rosterSearch").addEventListener("input",renderRoster);$("matchSearch").addEventListener("input",renderMatches);
+$("rosterForm").addEventListener("submit",e=>{e.preventDefault()});
+load();
+</script></body></html>
