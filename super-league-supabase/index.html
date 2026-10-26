@@ -21,7 +21,7 @@
 <section id="clubs" class="section"><div class="sectionhead"><div><h2>구단 목록</h2><p>Supabase의 clubs 테이블</p></div></div><div class="toolbar"><input id="clubSearch" class="field" placeholder="구단 이름 검색"></div><div id="clubList" class="teams"><div class="empty">불러오는 중…</div></div></section>
 <section id="squad" class="section"><div class="sectionhead"><div><h2>등록 선수단</h2><p>구단을 선택해서 선수와 스태프 명단을 확인합니다.</p></div></div><div class="toolbar"><select id="squadClub" class="field" aria-label="구단 선택"></select><select id="entryType" class="field"><option value="">모든 항목</option><option>선수</option><option>유스</option><option>감독</option><option>코치</option><option>스태프</option></select><input id="rosterSearch" class="field" placeholder="이름·포지션 검색"></div><div class="card"><div class="tablewrap"><table><thead><tr><th>등번호</th><th>이름</th><th>구분</th><th>포지션</th><th>OVR</th><th>국적</th></tr></thead><tbody id="rosterRows"><tr><td colspan="6" class="empty">불러오는 중…</td></tr></tbody></table></div></div></section>
 <section id="matches" class="section"><div class="sectionhead"><div><h2>경기 결과</h2><p>저장된 경기 결과 및 라운드</p></div></div><div class="toolbar"><input id="matchSearch" class="field" placeholder="팀 이름 또는 라운드 검색"></div><div class="card"><div class="tablewrap"><table><thead><tr><th>날짜</th><th>라운드</th><th>홈팀</th><th>스코어</th><th>원정팀</th><th>MOM</th></tr></thead><tbody id="matchRows"><tr><td colspan="6" class="empty">불러오는 중…</td></tr></tbody></table></div></div></section>
-<section id="add" class="section"><div class="sectionhead"><div><h2>선수·스태프 등록</h2><p>로그인과 팀 권한을 연결하기 전에는 조회 전용으로 작동합니다.</p></div></div><div class="card"><div class="notice">현재 새 앱은 안전한 조회 전용 단계입니다. 등록/수정은 누구나 쓸 수 있는 공개 권한으로 열지 않으며, 관리자 인증과 구단별 쓰기 권한을 연결한 뒤 활성화합니다.</div><form id="rosterForm" class="formgrid" style="margin-top:15px"><div class="formfield"><label>구단</label><select id="formClub" class="field" required></select></div><div class="formfield"><label>구분</label><select id="formType" class="field"><option>선수</option><option>유스</option><option>감독</option><option>코치</option><option>스태프</option></select></div><div class="formfield"><label>이름</label><input id="formName" class="field" required maxlength="100"></div><div class="formfield"><label>포지션 / 역할</label><input id="formPosition" class="field" maxlength="100"></div><div class="formfield"><label>등번호 (0–99)</label><input id="formNumber" class="field" type="number" min="0" max="99"></div><div class="formfield"><label>OVR (1–99)</label><input id="formOvr" class="field" type="number" min="1" max="99" value="70" required></div><div class="formfield"><label>국적</label><input id="formNation" class="field" maxlength="80"></div><div class="formfield"><label>사진 URL (선택)</label><input id="formPhoto" class="field" type="url"></div><div class="formfield full"><button class="btn" type="submit" disabled>등록 저장 (인증 설정 대기)</button></div></form><p class="muted" style="font-size:11px">폼은 현재 비활성화 상태이며, 공개 데이터베이스 쓰기 권한은 부여하지 않습니다.</p></div></section>
+<section id="add" class="section"><div class="sectionhead"><div><h2>선수·스태프 등록</h2><p>구단을 선택하고 선수·유스·감독·코치·스태프를 바로 등록할 수 있습니다.</p></div></div><div class="card"><div id="formNotice" class="notice">등록 버튼을 누르면 Supabase 데이터베이스에 저장되고 선수단 목록에 바로 반영됩니다. 현재는 신규 등록만 가능하며 수정·삭제는 잠겨 있습니다.</div><form id="rosterForm" class="formgrid" style="margin-top:15px"><div class="formfield"><label>구단</label><select id="formClub" class="field" required></select></div><div class="formfield"><label>구분</label><select id="formType" class="field"><option>선수</option><option>유스</option><option>감독</option><option>코치</option><option>스태프</option></select></div><div class="formfield"><label>이름</label><input id="formName" class="field" required maxlength="100"></div><div class="formfield"><label>포지션 / 역할</label><input id="formPosition" class="field" maxlength="100"></div><div class="formfield"><label>등번호 (0–99)</label><input id="formNumber" class="field" type="number" min="0" max="99"></div><div class="formfield"><label>OVR (1–99)</label><input id="formOvr" class="field" type="number" min="1" max="99" value="70" required></div><div class="formfield"><label>국적</label><input id="formNation" class="field" maxlength="80"></div><div class="formfield"><label>사진 URL (선택)</label><input id="formPhoto" class="field" type="url"></div><div class="formfield full"><button class="btn" id="saveRoster" type="submit">선수단 등록하기</button></div></form><p class="muted" style="font-size:11px">안전을 위해 신규 등록만 허용하고 수정·삭제 권한은 공개하지 않았습니다. 공개 등록 폼이므로 링크를 아는 사람은 새 항목을 추가할 수 있습니다.</p></div></section>
 <footer class="foot">SUPER LEAGUE · NEW SEPARATE APP · RLS ENABLED</footer>
 </main>
 <script type="module">
@@ -30,6 +30,12 @@ const SUPABASE_KEY = "sb_publishable_QAEojvwsfeDz_xcZn831ug_zaEHy9di";
 const $ = id => document.getElementById(id);
 let clubs=[], roster=[], matches=[];
 function h(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+async function insertRow(table, row){
+  const response=await fetch(SUPABASE_URL+"/rest/v1/"+table,{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",Prefer:"return=representation"},body:JSON.stringify(row)});
+  const payload=await response.json().catch(()=>[]);
+  if(!response.ok)throw new Error(payload.message||payload.details||payload.hint||"Supabase 저장 오류 ("+response.status+")");
+  return payload;
+}
 async function readTable(table, query="select=*"){
   const response=await fetch(SUPABASE_URL+"/rest/v1/"+table+"?"+query,{headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"},cache:"no-store"});
   const payload=await response.json().catch(()=>[]);
@@ -68,6 +74,25 @@ async function load(){
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id===b.dataset.tab))}));
 document.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>document.querySelector('[data-tab="'+b.dataset.jump+'"]').click()));
 $("refresh").addEventListener("click",load);$("clubSearch").addEventListener("input",renderClubs);$("squadClub").addEventListener("change",renderRoster);$("entryType").addEventListener("change",renderRoster);$("rosterSearch").addEventListener("input",renderRoster);$("matchSearch").addEventListener("input",renderMatches);
-$("rosterForm").addEventListener("submit",e=>{e.preventDefault()});
+$("rosterForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const button=$("saveRoster"),notice=$("formNotice");
+ const name=$("formName").value.trim(),clubId=$("formClub").value,ovr=Number($("formOvr").value);
+ if(!clubId){notice.textContent="먼저 구단을 선택하세요.";notice.className="notice danger";return}
+ if(!name){notice.textContent="이름을 입력하세요.";notice.className="notice danger";return}
+ if(!Number.isInteger(ovr)||ovr<1||ovr>99){notice.textContent="OVR은 1~99 사이로 입력하세요.";notice.className="notice danger";return}
+ const numberValue=$("formNumber").value===""?null:Number($("formNumber").value);
+ if(numberValue!==null&&(!Number.isInteger(numberValue)||numberValue<0||numberValue>99)){notice.textContent="등번호는 0~99 사이로 입력하세요.";notice.className="notice danger";return}
+ const row={club_id:clubId,entry_type:$("formType").value,name,position:$("formPosition").value.trim()||null,shirt_number:numberValue,ovr,nationality:$("formNation").value.trim()||null,photo_url:$("formPhoto").value.trim()||null};
+ button.disabled=true;button.textContent="저장 중…";notice.className="notice";notice.textContent="Supabase에 저장 중입니다…";
+ try{
+  await insertRow("roster_entries",row);
+  $("formName").value="";$("formPosition").value="";$("formNumber").value="";$("formOvr").value="70";$("formNation").value="";$("formPhoto").value="";
+  await load();$("squadClub").value=clubId;renderRoster();
+  notice.className="notice";notice.textContent="등록 완료! "+name+" 항목이 데이터베이스에 저장되었습니다.";
+  $("connection").textContent="연결됨 · 방금 등록한 데이터 저장 완료";
+ }catch(err){notice.className="notice danger";notice.textContent="등록 실패: "+err.message}
+ finally{button.disabled=false;button.textContent="선수단 등록하기"}
+});
 load();
 </script></body></html>
