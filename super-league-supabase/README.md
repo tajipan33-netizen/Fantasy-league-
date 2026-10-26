@@ -21,3 +21,6 @@ RLS remains enabled. Public SELECT policies are applied to these tables; public 
 
 ## Deployment note
 The existing Vercel projects have deployment protection and project-scope access restrictions. This file is committed on the `super-league-supabase-rebuild` branch for review and does not replace the existing production entrypoint. Link a separate Vercel project to this repo/branch and set the root directory to `super-league-supabase` to deploy this as a separate app.
+
+
+Roster registration is enabled through the Supabase REST API. The app currently permits new roster entries only; update/delete remain disabled.
