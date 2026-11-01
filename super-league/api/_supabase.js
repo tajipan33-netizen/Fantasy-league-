@@ -1,8 +1,8 @@
-const URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "https://fdszmpirncjkznjciikz.supabase.co";
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "https://fdszmpirncjkznjciikz.supabase.co";
 const KEY = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || "";
 async function db(table, query="", options={}) {
   if (!KEY) throw new Error("Supabase publishable key is not configured");
-  const url = new URL(URL + "/rest/v1/" + table);
+  const url = new globalThis.URL(SUPABASE_URL + "/rest/v1/" + table);
   if (query) url.search = query.startsWith("?") ? query.slice(1) : query;
   const headers = { apikey: KEY, Authorization: "Bearer " + KEY, Accept: "application/json", ...(options.headers || {}) };
   if (options.body !== undefined) headers["Content-Type"] = "application/json";
