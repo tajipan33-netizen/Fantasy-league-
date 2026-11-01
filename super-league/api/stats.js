@@ -1,0 +1,9 @@
+const {db,send}=require("./_supabase");
+module.exports=async function(req,res){
+ if(req.method!=="GET")return send(res,405,{error:"Method not allowed"});
+ try{
+  const [clubs,matches]=await Promise.all([db("clubs","select=id,name,team_index"),db("matches","select=scorers,assists,saves")]);
+  const totals={};for(const m of matches||[])for(const kind of ["scorers","assists","saves"])for(const v of (Array.isArray(m[kind])?m[kind]:[])){const club=clubs.find(c=>c.name===(v.club||v.team));if(!club)continue;const key=club.id+"|"+(v.name||v.player);totals[key]||={name:v.name||v.player,club_name:club.name,goals:0,assists:0,saves:0};totals[key][kind==="scorers"?"goals":kind]+=Number(v.count)||1;}
+  return send(res,200,{stats:Object.values(totals)});
+ }catch(e){return send(res,e.status||500,{error:e.message});}
+};

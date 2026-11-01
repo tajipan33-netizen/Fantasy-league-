@@ -21,7 +21,7 @@
 <div class="foot">SUPER LEAGUE · OFFICIAL FANTASY FOOTBALL PLATFORM</div>
 </main><script>
 const $=id=>document.getElementById(id);let clubs=[];
-async function load(){const r=await fetch('/api/leagues/clubs',{cache:'no-store'});const j=await r.json();if(!r.ok)throw Error(j.error||'구단을 불러오지 못했습니다.');clubs=j.clubs||[];$('clubCount').textContent=clubs.length+' CLUBS';$('clubMeta').textContent=clubs.length+' CLUBS';render()}
+async function load(){const r=await fetch('/api/clubs',{cache:'no-store'});const j=await r.json();if(!r.ok)throw Error(j.error||'구단을 불러오지 못했습니다.');clubs=j.clubs||[];$('clubCount').textContent=clubs.length+' CLUBS';$('clubMeta').textContent=clubs.length+' CLUBS';render()}
 function render(){const q=$('search').value.trim().toLowerCase();$('clubs').replaceChildren();clubs.filter(c=>c.name.toLowerCase().includes(q)).forEach(c=>{const card=document.createElement('article');card.className='team';const crest=document.createElement('div');crest.className='crest';crest.textContent=(c.short_name||c.name.replace(/[^A-Za-z가-힣]/g,'').slice(0,3)||'FC').slice(0,3).toUpperCase();const label=document.createElement('div');label.className='teamname';label.textContent=c.name;const id=document.createElement('small');id.textContent=c.roster_count+'명 등록';label.append(id);card.append(crest,label);$('clubs').append(card)})}
 $('search').addEventListener('input',render);$('refresh').onclick=()=>load().catch(e=>alert(e.message));load().catch(e=>{$('clubCount').textContent='연결 오류';$('clubs').textContent=e.message});
 </script></body></html>
