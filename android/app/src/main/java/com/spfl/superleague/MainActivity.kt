@@ -25,6 +25,8 @@ class MainActivity : Activity() {
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.settings.allowFileAccess = false
+        // Android 사진 선택기의 content:// URI를 WebView가 읽을 수 있도록 허용합니다.
+        webView.settings.allowContentAccess = true
         webView.settings.javaScriptCanOpenWindowsAutomatically = false
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
@@ -36,7 +38,10 @@ class MainActivity : Activity() {
                 fileCallback?.onReceiveValue(null)
                 fileCallback = callback
                 return try {
-                    startActivityForResult(params.createIntent(), filePickerRequest)
+                    val pickerIntent = params.createIntent().apply {
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    startActivityForResult(pickerIntent, filePickerRequest)
                     true
                 } catch (_: Exception) {
                     fileCallback = null
