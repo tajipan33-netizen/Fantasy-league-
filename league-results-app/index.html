@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101018"><title>SUPER LEAGUE</title><style>
 :root{color-scheme:dark;--bg:#0d0d12;--panel:#17171f;--line:#2b2b37;--muted:#9999aa;--gold:#d7b45a;--purple:#8d71d6}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#211b32 0,#0d0d12 42%);color:#f7f6fb;font-family:Inter,system-ui,-apple-system,sans-serif}header{max-width:1040px;margin:auto;padding:32px 20px 18px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.28em;font-weight:800}h1{font-size:clamp(30px,6vw,48px);margin:8px 0 4px;letter-spacing:-.04em}.sub{color:var(--muted);font-size:13px}.wrap{max-width:1040px;margin:auto;padding:0 20px 50px}.tabs{display:flex;gap:8px;margin:18px 0 20px;overflow:auto}.tab{border:1px solid var(--line);background:#17171f;color:#bdbbc9;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer;white-space:nowrap}.tab.active{background:var(--gold);color:#17130a;border-color:var(--gold)}.panel{background:linear-gradient(145deg,#1a1a24,#14141b);border:1px solid var(--line);border-radius:16px;padding:18px;margin:12px 0;box-shadow:0 12px 36px #0003}.section-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 16px;gap:10px}.section-head h2{font-size:18px;margin:0}.hint{color:var(--muted);font-size:12px}.match{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:16px 4px;border-bottom:1px solid var(--line)}.match:last-child{border:0}.team{font-weight:750}.right{text-align:right}.score{font-size:22px;font-weight:900;letter-spacing:.1em;white-space:nowrap}.meta{color:var(--muted);font-size:11px;margin-top:5px}.empty{text-align:center;color:var(--muted);padding:36px 10px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:540px}th,td{text-align:center;padding:13px 10px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:700;font-size:11px}td:first-child,th:first-child{text-align:left}td.club{font-weight:750}.rank{color:var(--gold);font-weight:900}.top{color:var(--gold)}footer{text-align:center;padding:25px;color:#777587;font-size:11px;letter-spacing:.12em}.hidden{display:none}.login-panel{display:grid;grid-template-columns:1.2fr 1fr auto;gap:10px;align-items:end}.field label{display:block;color:var(--muted);font-size:11px;margin:0 0 7px}.field input,.field select{width:100%;min-width:0;background:#101018;border:1px solid var(--line);border-radius:9px;padding:12px;color:#fff;font:inherit}.action{border:0;border-radius:9px;padding:12px 18px;background:var(--gold);color:#17130a;font-weight:850;cursor:pointer}.login-status{grid-column:1/-1;color:var(--muted);font-size:12px}.login-status strong{color:var(--gold)}.roster-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.roster-form .wide{grid-column:1/-1}.roster-form button{justify-self:start}.roster-list{display:grid;gap:9px}.person-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#101018}.person-main{min-width:0;display:flex;align-items:center;gap:12px}.person-photo{width:58px;height:58px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#242431;flex-shrink:0}.person-photo-placeholder{width:58px;height:58px;border-radius:10px;background:#242431;display:grid;place-items:center;color:var(--muted);font-size:10px;flex-shrink:0}.person-name{font-weight:800}.public-roster-tools{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.public-roster-tools .field{flex:1;min-width:200px}.photo-preview{width:76px;height:76px;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:none;margin-top:8px}.public-person-card{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#101018}.public-person-card .person-main{flex:1}.photo-help{font-size:11px;color:var(--muted);margin-top:6px}.person-meta{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.5}.person-type{color:var(--gold);font-size:11px;font-weight:800}.delete-btn{background:transparent;border:1px solid #65404a;color:#f09aa7;border-radius:8px;padding:8px 10px;cursor:pointer;flex-shrink:0}.roster-group{margin:14px 0}.roster-group h3{font-size:13px;color:var(--gold);margin:0 0 8px}.form-note{font-size:11px;color:var(--muted);grid-column:1/-1}.submit-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.submit-row .login-status{grid-column:auto}@media(max-width:520px){.login-panel{grid-template-columns:1fr}.login-status{grid-column:1}.roster-form{grid-template-columns:repeat(2,minmax(0,1fr))}.roster-form .wide{grid-column:1/-1}.person-card{align-items:flex-start}header{padding-top:24px}.panel{padding:14px}.match{gap:7px}.team{font-size:13px}.score{font-size:19px}.tab{padding:11px 14px}}
-</style></head><body><header><div class="eyebrow">SPFL · OFFICIAL LEAGUE CENTER</div><h1>SUPER LEAGUE</h1><div class="sub">경기 결과 · 리그 순위 · 득점 순위</div></header><main class="wrap"><nav class="tabs" aria-label="리그 메뉴"><button class="tab active" data-tab="results">경기 결과</button><button class="tab" data-tab="table">리그 순위</button><button class="tab" data-tab="scorers">득점 순위</button></nav>
+
+.transfer-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.transfer-offer{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0;background:#101018}.transfer-offer h3{margin:0 0 7px;font-size:15px}.transfer-meta{font-size:12px;color:var(--muted);line-height:1.7}.transfer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.transfer-actions button{padding:9px 12px}.transfer-status{display:inline-block;border:1px solid var(--line);border-radius:7px;padding:4px 7px;font-size:11px;color:var(--gold)}.transfer-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.transfer-form .wide{grid-column:1/-1}.admin-panel{border-color:#68532a;background:linear-gradient(145deg,#211b10,#14141b)}.admin-code-row{display:flex;gap:8px;flex-wrap:wrap}.admin-code-row input{flex:1;min-width:160px}.transfer-note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:8px}@media(max-width:620px){.transfer-grid,.transfer-form{grid-template-columns:1fr}.transfer-form .wide{grid-column:auto}}
+</style></head><body><header><div class="eyebrow">SPFL · OFFICIAL LEAGUE CENTER</div><h1>SUPER LEAGUE</h1><div class="sub">경기 결과 · 리그 순위 · 득점 순위</div></header><main class="wrap"><nav class="tabs" aria-label="리그 메뉴"><button class="tab active" data-tab="results">경기 결과</button><button class="tab" data-tab="table">리그 순위</button><button class="tab" data-tab="scorers">득점 순위</button><button class="tab" data-tab="transfers">이적시장</button></nav>
 <section id="team-login"><div class="panel"><div class="section-head"><h2>팀 로그인</h2><span class="hint">TEAM ACCESS</span></div><div class="login-panel"><div class="field"><label for="teamSelect">소속 팀</label><select id="teamSelect"><option value="">팀을 선택하세요</option></select></div><div class="field"><label for="teamCode">팀 로그인 코드</label><input id="teamCode" type="password" maxlength="16" autocomplete="off" placeholder="16자리 코드"></div><button class="action" id="loginBtn">로그인</button><div class="login-status" id="loginStatus">팀을 선택하고 발급받은 코드를 입력하세요.</div></div></div></section>
 <section id="rosterPanel" class="hidden"><div class="panel">
  <div class="section-head"><h2>우리 팀 선수단 관리</h2><span class="hint" id="rosterTeamName">TEAM ROSTER</span></div>
@@ -23,7 +25,35 @@
 <section id="publicRoster"><div class="panel"><div class="section-head"><h2>전체 팀 선수단</h2><span class="hint">PUBLIC TEAM ROSTERS</span></div><div class="public-roster-tools"><div class="field"><label for="browseTeamSelect">열람할 팀 선택</label><select id="browseTeamSelect"><option value="">팀을 불러오는 중...</option></select></div><button class="action" id="browseRosterBtn" type="button">선수단 보기</button></div><div id="publicRosterList" class="roster-list" style="margin-top:16px"><div class="empty">팀을 선택해 선수단을 확인하세요.</div></div></div></section>
 <section id="results"><div class="panel"><div class="section-head"><h2>최근 경기</h2><span class="hint">MATCH RESULTS</span></div><div id="matches"></div></div></section>
 <section id="table" class="hidden"><div class="panel"><div class="section-head"><h2>리그 테이블</h2><span class="hint">LEAGUE TABLE</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>승점</th></tr></thead><tbody id="standings"></tbody></table></div></div></section>
-<section id="scorers" class="hidden"><div class="panel"><div class="section-head"><h2>득점 순위</h2><span class="hint">TOP SCORERS</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 선수</th><th>소속팀</th><th>득점</th></tr></thead><tbody id="scorerRows"></tbody></table></div></div></section></main><footer>SUPER LEAGUE · SPFL</footer>
+<section id="scorers" class="hidden"><div class="panel"><div class="section-head"><h2>득점 순위</h2><span class="hint">TOP SCORERS</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 선수</th><th>소속팀</th><th>득점</th></tr></thead><tbody id="scorerRows"></tbody></table></div></div></section>
+<section id="transfers" class="hidden">
+ <div class="panel">
+  <div class="section-head"><h2>공식 이적시장</h2><span class="hint">OFFICIAL TRANSFER MARKET</span></div>
+  <p class="hint">타 구단 선수에게 이적료를 제안하세요. 선수 소속 구단이 먼저 수락한 뒤 관리자가 최종 승인하면 선수단 소속이 자동 변경됩니다.</p>
+  <div id="transferLoginHint" class="empty">이적 제안을 보내거나 받은 제안에 응답하려면 먼저 구단 로그인을 해주세요.</div>
+  <form id="transferForm" class="transfer-form hidden">
+   <div class="field wide"><label for="transferPlayerSelect">영입 희망 선수 *</label><select id="transferPlayerSelect" required><option value="">선수를 불러오는 중...</option></select></div>
+   <div class="field"><label for="transferFee">제안 이적료 (M) *</label><input id="transferFee" type="number" min="0" max="999999999" step="0.01" value="1" required></div>
+   <div class="field"><label>제안 구단</label><input id="transferBuyerName" disabled value="로그인 후 표시"></div>
+   <div class="field wide"><label for="transferMessage">제안 메시지 / 조건</label><input id="transferMessage" maxlength="500" placeholder="선수에게 전달할 제안 내용 (선택)"></div>
+   <button class="action wide" id="transferSubmit" type="submit">이적 제안 보내기</button>
+   <div class="login-status wide" id="transferFormStatus">선수를 선택하고 이적료를 제시하세요.</div>
+  </form>
+ </div>
+ <div class="transfer-grid">
+  <div class="panel"><div class="section-head"><h2>받은 제안 / 보낸 제안</h2><span class="hint">CLUB OFFERS</span></div><div id="clubTransferOffers"><div class="empty">구단 로그인 후 확인할 수 있습니다.</div></div></div>
+  <div class="panel"><div class="section-head"><h2>관리자 승인 센터</h2><span class="hint">ADMIN APPROVAL</span></div>
+   <div id="adminLoginBox">
+    <p class="hint">상대 구단이 수락한 제안은 관리자 최종 승인이 필요합니다.</p>
+    <div class="admin-code-row"><input id="transferAdminCode" type="password" autocomplete="off" placeholder="관리자 코드 입력"><button class="action" id="transferAdminLogin" type="button">관리자 로그인</button></div>
+    <div class="login-status" id="adminLoginStatus">관리자 전용 접속</div>
+   </div>
+   <div id="adminDashboard" class="hidden"><div class="transfer-actions"><button class="action" id="adminRefresh" type="button">목록 새로고침</button><button class="action" id="adminLogout" type="button">관리자 로그아웃</button></div><div id="adminTransferOffers"></div></div>
+  </div>
+ </div>
+ <div class="panel"><div class="section-head"><h2>이적 완료 기록</h2><span class="hint">COMPLETED TRANSFERS</span></div><div id="transferHistory"><div class="empty">공식 이적 기록을 불러오는 중입니다.</div></div></div>
+</section>
+</main><footer>SUPER LEAGUE · SPFL</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
 <script>
 const SUPABASE_URL='https://fdszmpirncjkznjciikz.supabase.co';
@@ -34,7 +64,7 @@ const LOGIN_URL=SUPABASE_URL+'/functions/v1/spfl-team-login';
 let teamSession=sessionStorage.getItem('spfl_team_session')||'';
 async function teamRequest(action,extra={},token=teamSession){const response=await fetch(LOGIN_URL,{method:'POST',headers:{'Content-Type':'application/json',...(token?{'x-sl-session':token}:{})},body:JSON.stringify({action,...extra})});const result=await response.json().catch(()=>({error:'서버 응답을 읽지 못했습니다.'}));if(!response.ok)throw new Error(result.error||'요청에 실패했습니다.');return result}
 function setLoginStatus(message,isGood=false){const el=document.querySelector('#loginStatus');el.innerHTML=isGood?'<strong>'+esc(message)+'</strong>':esc(message)}
-async function restoreTeamSession(){if(!teamSession)return;try{const me=await teamRequest('me');setLoginStatus(me.team+' 로그인 상태입니다. 12시간 동안 유지됩니다.',true);document.querySelector('#loginBtn').textContent='로그아웃';await setLoggedIn(me.team);}catch{sessionStorage.removeItem('spfl_team_session');teamSession='';document.querySelector('#rosterPanel').classList.add('hidden');}}
+async function restoreTeamSession(){if(!teamSession)return;try{const me=await teamRequest('me');setLoginStatus(me.team+' 로그인 상태입니다. 12시간 동안 유지됩니다.',true);document.querySelector('#loginBtn').textContent='로그아웃';await setLoggedIn(me.team); await loadTransferDashboard();}catch{sessionStorage.removeItem('spfl_team_session');teamSession='';document.querySelector('#rosterPanel').classList.add('hidden');}}
 let currentTeam='';
 let rosterItems=[];
 function rosterStatus(message,isGood=false){const el=document.querySelector('#rosterStatus');el.innerHTML=isGood?'<strong>'+esc(message)+'</strong>':esc(message)}
@@ -124,7 +154,7 @@ document.querySelector('#personPhotoFile').addEventListener('change',e=>{
  if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024){e.target.value='';preview.style.display='none';rosterStatus('JPG, PNG, WEBP 형식의 5MB 이하 사진만 선택할 수 있습니다.');return;}
  preview.src=URL.createObjectURL(file);preview.style.display='block';
 });
-document.querySelector('#loginBtn').addEventListener('click',async()=>{const btn=document.querySelector('#loginBtn');if(teamSession){sessionStorage.removeItem('spfl_team_session');teamSession='';currentTeam='';rosterItems=[];document.querySelector('#rosterPanel').classList.add('hidden');document.querySelector('#teamCode').value='';btn.textContent='로그인';setLoginStatus('로그아웃되었습니다.');return;}const team=document.querySelector('#teamSelect').value,code=document.querySelector('#teamCode').value.trim().toUpperCase();if(!team||!code){setLoginStatus('팀과 로그인 코드를 모두 입력해 주세요.');return;}btn.disabled=true;btn.textContent='확인 중';try{const result=await teamRequest('login',{team,code},'');teamSession=result.token;sessionStorage.setItem('spfl_team_session',teamSession);document.querySelector('#teamCode').value='';btn.textContent='로그아웃';setLoginStatus(team+' 로그인 성공 · 12시간 동안 유지됩니다.',true);await setLoggedIn(team);}catch(error){setLoginStatus(error.message);}finally{btn.disabled=false;if(!teamSession)btn.textContent='로그인';}});
+document.querySelector('#loginBtn').addEventListener('click',async()=>{const btn=document.querySelector('#loginBtn');if(teamSession){sessionStorage.removeItem('spfl_team_session');teamSession='';currentTeam='';rosterItems=[];document.querySelector('#rosterPanel').classList.add('hidden');document.querySelector('#teamCode').value='';btn.textContent='로그인';setLoginStatus('로그아웃되었습니다.');return;}const team=document.querySelector('#teamSelect').value,code=document.querySelector('#teamCode').value.trim().toUpperCase();if(!team||!code){setLoginStatus('팀과 로그인 코드를 모두 입력해 주세요.');return;}btn.disabled=true;btn.textContent='확인 중';try{const result=await teamRequest('login',{team,code},'');teamSession=result.token;sessionStorage.setItem('spfl_team_session',teamSession);document.querySelector('#teamCode').value='';btn.textContent='로그아웃';setLoginStatus(team+' 로그인 성공 · 12시간 동안 유지됩니다.',true);await setLoggedIn(team); await loadTransferDashboard();}catch(error){setLoginStatus(error.message);}finally{btn.disabled=false;if(!teamSession)btn.textContent='로그인';}});
 document.querySelector('#rosterForm').addEventListener('submit',async e=>{
  e.preventDefault();const btn=document.querySelector('#savePersonBtn');btn.disabled=true;btn.textContent='등록 중...';
  const val=id=>document.querySelector(id).value.trim();
@@ -150,7 +180,117 @@ document.querySelector('#rosterList').addEventListener('click',async e=>{
  try{await teamRequest('deleteRoster',{id:btn.dataset.delete});await loadRoster();}
  catch(error){rosterStatus(error.message);btn.disabled=false;}
 });
+
+let adminSession=sessionStorage.getItem('spfl_admin_session')||'';
+let transferPlayers=[];
+let transferOffers=[];
+const transferStatusText={pending_seller:'상대 구단 응답 대기',pending_admin:'관리자 승인 대기',completed:'이적 완료',rejected_seller:'상대 구단 거절',rejected_admin:'관리자 거절',closed_player_transferred:'다른 이적으로 종료'};
+function moneyText(value){return Number(value||0).toLocaleString('ko-KR',{maximumFractionDigits:2})+'M'}
+function transferStatusBadge(status){return '<span class="transfer-status">'+esc(transferStatusText[status]||status)+'</span>'}
+async function loadTransferMarket(){
+ try{
+  const [players,history]=await Promise.all([teamRequest('listTransferTargets',{},''),teamRequest('listTransferHistory',{},'')]);
+  transferPlayers=players.players||[];
+  const select=document.querySelector('#transferPlayerSelect');
+  select.innerHTML='<option value="">선수를 선택하세요</option>'+transferPlayers.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.club?.name||'소속 미상')+' · '+esc(p.position||'')+(p.overall?' · OVR '+esc(p.overall):'')+'</option>').join('');
+  renderTransferHistory(history.transfers||[]);
+ }catch(error){
+  document.querySelector('#transferPlayerSelect').innerHTML='<option value="">선수 목록을 불러오지 못했습니다.</option>';
+  document.querySelector('#transferHistory').innerHTML='<div class="empty">'+esc(error.message)+'</div>';
+ }
+ if(teamSession) await loadTransferDashboard();
+ if(adminSession) await loadAdminTransfers();
+}
+function renderTransferHistory(items){
+ const host=document.querySelector('#transferHistory');
+ if(!items.length){host.innerHTML='<div class="empty">아직 완료된 이적이 없습니다.</div>';return;}
+ host.innerHTML=items.map(t=>'<article class="transfer-offer"><h3>'+esc(t.player_name_snapshot)+'</h3><div class="transfer-meta">'+esc(t.seller?.name||'')+' → '+esc(t.buyer?.name||'')+'<br>'+esc(t.position_snapshot||'')+(t.overall_snapshot?' · OVR '+esc(t.overall_snapshot):'')+' · '+moneyText(t.offered_fee)+'<br>완료: '+esc(t.completed_at?new Date(t.completed_at).toLocaleString('ko-KR'):'')+'</div>'+transferStatusBadge('completed')+'</article>').join('');
+}
+function transferOfferCard(o,isAdmin=false){
+ const buyer=o.buyer?.name||'',seller=o.seller?.name||'';
+ const route=esc(seller)+' → '+esc(buyer);
+ let actions='';
+ if(!isAdmin&&teamSession&&o.seller_club_id===currentClubId&&o.status==='pending_seller'){
+  actions='<div class="transfer-actions"><button class="action" data-transfer-response="accept" data-id="'+esc(o.id)+'">제안 수락</button><button class="action" data-transfer-response="reject" data-id="'+esc(o.id)+'">거절</button></div>';
+ }
+ if(isAdmin&&o.status==='pending_admin'){
+  actions='<div class="transfer-actions"><button class="action" data-admin-decision="approve" data-id="'+esc(o.id)+'">최종 승인</button><button class="action" data-admin-decision="reject" data-id="'+esc(o.id)+'">거절</button></div>';
+ }
+ return '<article class="transfer-offer"><h3>'+esc(o.player_name_snapshot)+'</h3><div class="transfer-meta">'+route+'<br>'+esc(o.position_snapshot||'')+(o.overall_snapshot?' · OVR '+esc(o.overall_snapshot):'')+' · 제안 '+moneyText(o.offered_fee)+'<br>제안일: '+esc(new Date(o.created_at).toLocaleString('ko-KR'))+(o.message?'<br>메시지: '+esc(o.message):'')+(o.seller_note?'<br>상대 구단 답변: '+esc(o.seller_note):'')+(o.admin_note?'<br>관리자 메모: '+esc(o.admin_note):'')+'</div>'+transferStatusBadge(o.status)+actions+'</article>';
+}
+let currentClubId='';
+async function loadTransferDashboard(){
+ const hint=document.querySelector('#transferLoginHint'),form=document.querySelector('#transferForm');
+ if(!teamSession){hint.classList.remove('hidden');form.classList.add('hidden');document.querySelector('#clubTransferOffers').innerHTML='<div class="empty">구단 로그인 후 확인할 수 있습니다.</div>';return;}
+ try{
+  const me=await teamRequest('me');
+  currentClubId=me.club_id;
+  hint.classList.add('hidden');form.classList.remove('hidden');
+  document.querySelector('#transferBuyerName').value=me.team;
+  const select=document.querySelector('#transferPlayerSelect');
+  const filtered=transferPlayers.filter(p=>p.club_id!==currentClubId);
+  select.innerHTML='<option value="">선수를 선택하세요</option>'+filtered.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.club?.name||'소속 미상')+' · '+esc(p.position||'')+(p.overall?' · OVR '+esc(p.overall):'')+'</option>').join('');
+  const result=await teamRequest('listTransferOffers');
+  transferOffers=result.offers||[];
+  const host=document.querySelector('#clubTransferOffers');
+  host.innerHTML=transferOffers.length?transferOffers.map(o=>transferOfferCard(o)).join(''):'<div class="empty">아직 받은 제안이나 보낸 제안이 없습니다.</div>';
+ }catch(error){document.querySelector('#transferFormStatus').textContent=error.message;}
+}
+document.querySelector('#transferForm').addEventListener('submit',async e=>{
+ e.preventDefault();const btn=document.querySelector('#transferSubmit');btn.disabled=true;btn.textContent='전송 중...';
+ try{
+  const result=await teamRequest('createTransferOffer',{player_id:document.querySelector('#transferPlayerSelect').value,offered_fee:document.querySelector('#transferFee').value,message:document.querySelector('#transferMessage').value.trim()});
+  document.querySelector('#transferFormStatus').textContent='이적 제안을 전송했습니다. 상대 구단의 응답을 기다려 주세요.';
+  document.querySelector('#transferMessage').value='';
+  await loadTransferDashboard();
+ }catch(error){document.querySelector('#transferFormStatus').textContent=error.message;}
+ finally{btn.disabled=false;btn.textContent='이적 제안 보내기';}
+});
+document.querySelector('#clubTransferOffers').addEventListener('click',async e=>{
+ const btn=e.target.closest('[data-transfer-response]');if(!btn)return;
+ const decision=btn.dataset.transferResponse;
+ if(!confirm(decision==='accept'?'이 제안을 수락하고 관리자 승인 단계로 넘길까요?':'이 제안을 거절할까요?'))return;
+ btn.disabled=true;
+ try{await teamRequest('respondTransferOffer',{id:btn.dataset.id,decision,note:''});await loadTransferDashboard();await loadTransferMarket();}
+ catch(error){alert(error.message);btn.disabled=false;}
+});
+document.querySelector('#transferAdminLogin').addEventListener('click',async()=>{
+ const btn=document.querySelector('#transferAdminLogin');btn.disabled=true;
+ try{
+  const result=await teamRequest('adminLogin',{code:document.querySelector('#transferAdminCode').value.trim().toUpperCase()},'');
+  adminSession=result.token;sessionStorage.setItem('spfl_admin_session',adminSession);document.querySelector('#transferAdminCode').value='';
+  document.querySelector('#adminLoginBox').classList.add('hidden');document.querySelector('#adminDashboard').classList.remove('hidden');document.querySelector('#adminLoginStatus').textContent='관리자 인증 성공';await loadAdminTransfers();
+ }catch(error){document.querySelector('#adminLoginStatus').textContent=error.message;}
+ finally{btn.disabled=false;}
+});
+async function loadAdminTransfers(){
+ if(!adminSession)return;
+ try{
+  const result=await teamRequest('adminListTransfers',{},adminSession);
+  const host=document.querySelector('#adminTransferOffers');
+  host.innerHTML=result.offers?.length?result.offers.map(o=>transferOfferCard(o,true)).join(''):'<div class="empty">등록된 이적 제안이 없습니다.</div>';
+  document.querySelector('#adminLoginBox').classList.add('hidden');document.querySelector('#adminDashboard').classList.remove('hidden');
+ }catch(error){
+  sessionStorage.removeItem('spfl_admin_session');adminSession='';document.querySelector('#adminDashboard').classList.add('hidden');document.querySelector('#adminLoginBox').classList.remove('hidden');document.querySelector('#adminLoginStatus').textContent=error.message;
+ }
+}
+document.querySelector('#adminRefresh').addEventListener('click',loadAdminTransfers);
+document.querySelector('#adminLogout').addEventListener('click',()=>{adminSession='';sessionStorage.removeItem('spfl_admin_session');document.querySelector('#adminDashboard').classList.add('hidden');document.querySelector('#adminLoginBox').classList.remove('hidden');document.querySelector('#adminLoginStatus').textContent='관리자 로그아웃 완료';});
+document.querySelector('#adminTransferOffers').addEventListener('click',async e=>{
+ const btn=e.target.closest('[data-admin-decision]');if(!btn)return;
+ const decision=btn.dataset.adminDecision;
+ if(!confirm(decision==='approve'?'관리자 최종 승인할까요? 승인 즉시 선수의 소속 구단이 변경됩니다.':'이적 제안을 최종 거절할까요?'))return;
+ btn.disabled=true;
+ try{
+  const note=decision==='reject'?(prompt('거절 사유를 입력하세요. (선택)')||''):'';
+  await teamRequest('adminReviewTransfer',{id:btn.dataset.id,decision,note},adminSession);
+  await loadAdminTransfers();await loadTransferMarket();if(teamSession)await loadTransferDashboard();
+ }catch(error){alert(error.message);btn.disabled=false;}
+});
+
 restoreTeamSession();
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['results','table','scorers'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!==b.dataset.tab))}));
+if(adminSession){document.querySelector("#adminLoginBox").classList.add("hidden");document.querySelector("#adminDashboard").classList.remove("hidden");loadAdminTransfers();}
+loadTransferMarket();
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['results','table','scorers','transfers'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!==b.dataset.tab))}));
 loadLeague();
 </script></body></html>
