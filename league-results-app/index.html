@@ -49,5 +49,4 @@ async function loadLeague(){
 }
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['results','table','scorers'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!==b.dataset.tab))}));
 loadLeague();
-</script>
 </script></body></html>
