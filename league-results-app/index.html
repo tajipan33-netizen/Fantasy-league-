@@ -5,14 +5,49 @@
 <section id="results"><div class="panel"><div class="section-head"><h2>최근 경기</h2><span class="hint">MATCH RESULTS</span></div><div id="matches"></div></div></section>
 <section id="table" class="hidden"><div class="panel"><div class="section-head"><h2>리그 테이블</h2><span class="hint">LEAGUE TABLE</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>승점</th></tr></thead><tbody id="standings"></tbody></table></div></div></section>
 <section id="scorers" class="hidden"><div class="panel"><div class="section-head"><h2>득점 순위</h2><span class="hint">TOP SCORERS</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 선수</th><th>소속팀</th><th>득점</th></tr></thead><tbody id="scorerRows"></tbody></table></div></div></section></main><footer>SUPER LEAGUE · SPFL</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4"></script>
 <script>
-const initial={matches:[],teams:[{"name":"요스날","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"FC BARCELONA","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"그요 유나이티드 FC","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"노팅엄 실험실","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"돌문진석","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"딘 4위선 [팬 페이지]","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"레알 베티서 시티","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"벤타임","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"아틀레티코 모림","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"알네르바체","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"The Blues","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"SKY CITY","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"PSG (로지조 & 밀란레띠)","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"Newcastle United","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"NAPLESEA FC","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"ManCity","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"Les Bleus","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"COMOΣCA(코모스카) FC","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"헤타페가 좋다냥","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"해머스","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0},{"name":"존잘꽃미남","played":0,"w":0,"d":0,"l":0,"gf":0,"ga":0,"points":0}],scorers:[]};
-const data=(()=>{try{return JSON.parse(localStorage.getItem('spfl-data'))||initial}catch{return initial}})();
-const known=new Set(data.teams.map(t=>t.name));initial.teams.forEach(t=>{if(!known.has(t.name))data.teams.push(t)});
+const SUPABASE_URL='https://fdszmpirncjkznjciikz.supabase.co';
+const SUPABASE_KEY='sb_publishable_QAEojvwsfeDz_xcZn831ug_zaEHy9di';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const data={matches:[],teams:[],scorers:[]};
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function render(){document.querySelector('#matches').innerHTML=data.matches.length?data.matches.slice().reverse().map(m=>`<article class="match"><div><div class="team">${esc(m.home)}</div><div class="meta">${esc(m.date||'')}</div></div><div class="score">${Number(m.homeGoals)} : ${Number(m.awayGoals)}</div><div class="right"><div class="team">${esc(m.away)}</div><div class="meta">${esc(m.round||'')}</div></div></article>`).join(''):'<div class="empty">등록된 경기 결과가 없습니다.</div>';
-const sorted=data.teams.map(t=>({...t,gd:Number(t.gf||0)-Number(t.ga||0)})).sort((a,b)=>Number(b.points||0)-Number(a.points||0)||b.gd-a.gd||Number(b.gf||0)-Number(a.gf||0));
-document.querySelector('#standings').innerHTML=sorted.length?sorted.map((t,i)=>`<tr><td class="club"><span class="rank">${i+1}</span>　${esc(t.name)}</td><td>${t.played||0}</td><td>${t.w||0}</td><td>${t.d||0}</td><td>${t.l||0}</td><td>${t.gd>0?'+':''}${t.gd}</td><td class="top"><b>${t.points||0}</b></td></tr>`).join(''):'<tr><td colspan="7" class="empty">등록된 순위 데이터가 없습니다.</td></tr>';
-const scorers=data.scorers.slice().sort((a,b)=>Number(b.goals||0)-Number(a.goals||0));document.querySelector('#scorerRows').innerHTML=scorers.length?scorers.map((p,i)=>`<tr><td class="club"><span class="rank">${i+1}</span>　${esc(p.player)}</td><td>${esc(p.team)}</td><td class="top"><b>${p.goals||0}</b></td></tr>`).join(''):'<tr><td colspan="3" class="empty">등록된 득점 기록이 없습니다.</td></tr>'}
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['results','table','scorers'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!==b.dataset.tab))}));render();
+function showMessage(selector,message){document.querySelector(selector).innerHTML='<div class="empty">'+esc(message)+'</div>'}
+function render(){
+ document.querySelector('#matches').innerHTML=data.matches.length?data.matches.map(m=>`<article class="match"><div><div class="team">${esc(m.home?.name)}</div><div class="meta">${esc(m.match_date||'')}${m.venue?' · '+esc(m.venue):''}</div></div><div class="score">${Number(m.home_score)} : ${Number(m.away_score)}</div><div class="right"><div class="team">${esc(m.away?.name)}</div><div class="meta">${esc(m.round_label||'')}</div></div></article>`).join(''):'<div class="empty">등록된 경기 결과가 없습니다.</div>';
+ const stats=new Map(data.teams.map(t=>[t.id,{...t,played:0,w:0,d:0,l:0,gf:0,ga:0,points:0}]));
+ data.matches.forEach(m=>{const h=stats.get(m.home_club_id),a=stats.get(m.away_club_id);if(!h||!a||m.home_score===null||m.away_score===null)return;const hs=Number(m.home_score),as=Number(m.away_score);h.played++;a.played++;h.gf+=hs;h.ga+=as;a.gf+=as;a.ga+=hs;if(hs>as){h.w++;h.points+=3;a.l++}else if(hs<as){a.w++;a.points+=3;h.l++}else{h.d++;a.d++;h.points++;a.points++}});
+ const sorted=[...stats.values()].map(t=>({...t,gd:t.gf-t.ga})).sort((a,b)=>b.points-a.points||b.gd-a.gd||b.gf-a.gf||a.sort_order-b.sort_order);
+ document.querySelector('#standings').innerHTML=sorted.map((t,i)=>`<tr><td class="club"><span class="rank">${i+1}</span>　${esc(t.name)}</td><td>${t.played}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gd>0?'+':''}${t.gd}</td><td class="top"><b>${t.points}</b></td></tr>`).join('');
+ document.querySelector('#scorerRows').innerHTML=data.scorers.length?data.scorers.map((p,i)=>`<tr><td class="club"><span class="rank">${i+1}</span>　${esc(p.player_name)}</td><td>${esc(p.club_name)}</td><td class="top"><b>${p.goals}</b></td></tr>`).join(''):'<tr><td colspan="3" class="empty">등록된 득점 기록이 없습니다.</td></tr>';
+}
+async function loadLeague(){
+ showMessage('#matches','Supabase에서 경기 정보를 불러오는 중입니다.');
+ try{
+  const [clubRes,matchRes]=await Promise.all([
+   db.from('spfl_clubs').select('id,name,sort_order').order('sort_order'),
+   db.from('spfl_matches').select('id,match_date,round_label,home_club_id,away_club_id,home_score,away_score,venue,status,home:spfl_clubs!spfl_matches_home_club_id_fkey(name),away:spfl_clubs!spfl_matches_away_club_id_fkey(name)').eq('status','finished').order('match_date',{ascending:false})
+  ]);
+  if(clubRes.error)throw clubRes.error;if(matchRes.error)throw matchRes.error;
+  data.teams=clubRes.data||[];data.matches=matchRes.data||[];
+  const ids=data.matches.map(m=>m.id);
+  if(ids.length){
+   const statRes=await db.from('spfl_match_player_stats').select('match_id,club_id,player_name,goals,assists').in('match_id',ids);
+   if(statRes.error)throw statRes.error;
+   const clubNames=new Map(data.teams.map(c=>[c.id,c.name]));
+   const aggregate=new Map();
+   (statRes.data||[]).forEach(s=>{const key=s.club_id+'|'+s.player_name;const item=aggregate.get(key)||{player_name:s.player_name,club_name:clubNames.get(s.club_id)||'',goals:0,assists:0};item.goals+=Number(s.goals||0);item.assists+=Number(s.assists||0);aggregate.set(key,item)});
+   data.scorers=[...aggregate.values()].filter(p=>p.goals>0).sort((a,b)=>b.goals-a.goals||b.assists-a.assists);
+  }
+  render();
+ }catch(error){
+  console.error(error);
+  showMessage('#matches','데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+  showMessage('#standings','순위 정보를 불러오지 못했습니다.');
+  showMessage('#scorerRows','득점 정보를 불러오지 못했습니다.');
+ }
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['results','table','scorers'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!==b.dataset.tab))}));
+loadLeague();
+</script>
 </script></body></html>
