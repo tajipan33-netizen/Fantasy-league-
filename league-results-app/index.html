@@ -299,14 +299,14 @@ async function loadLeague(){
  showMessage('#matches','Supabase에서 경기 정보를 불러오는 중입니다.');
  try{
   const [clubRes,matchRes,fixtureRes]=await Promise.all([
-   db.from('spfl_clubs').select('id,name,sort_order').order('sort_order'),
+   db.from('spfl_clubs').select('id,name,sort_order,funds,main_sponsor,secondary_sponsor').order('sort_order'),
    db.from('spfl_matches').select('id,match_date,round_label,home_club_id,away_club_id,home_score,away_score,venue,status,home:spfl_clubs!spfl_matches_home_club_id_fkey(name),away:spfl_clubs!spfl_matches_away_club_id_fkey(name)').eq('status','finished').order('match_date',{ascending:false}),
    db.from('spfl_matches').select('id,match_date,round_label,home_club_id,away_club_id,venue,status,home:spfl_clubs!spfl_matches_home_club_id_fkey(name),away:spfl_clubs!spfl_matches_away_club_id_fkey(name)').eq('status','scheduled').order('round_label',{ascending:true})
   ]);
   if(clubRes.error)throw clubRes.error;if(matchRes.error)throw matchRes.error;if(fixtureRes.error)throw fixtureRes.error;
   data.teams=clubRes.data||[];data.matches=matchRes.data||[];data.fixtures=fixtureRes.data||[];renderFixtures();
   const teamSelect=document.querySelector('#teamSelect');teamSelect.innerHTML='<option value="">팀을 선택하세요</option>'+data.teams.map(t=>'<option value="'+esc(t.name)+'">'+esc(t.name)+'</option>').join('');
-  const browseSelect=document.querySelector('#browseTeamSelect');browseSelect.innerHTML='<option value="">팀을 선택하세요</option>'+data.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');const youthSelect=document.querySelector('#youthTeamSelect');youthSelect.innerHTML='<option value="">팀을 선택하세요</option>'+data.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');document.querySelector('#clubDirectory').innerHTML=data.teams.map(t=>'<button class="club-tile" data-club="'+esc(t.id)+'" type="button"><span class="club-monogram">'+esc(t.name.slice(0,1))+'</span><b>'+esc(t.name)+'</b><small>VIEW CLUB →</small></button>').join('');if(data.teams.length){browseSelect.value=data.teams[0].id;loadPublicRoster(data.teams[0].id,'선수','#publicRosterList');youthSelect.value=data.teams[0].id;loadPublicRoster(data.teams[0].id,'유스','#youthRosterList');}
+  const browseSelect=document.querySelector('#browseTeamSelect');browseSelect.innerHTML='<option value="">팀을 선택하세요</option>'+data.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');const youthSelect=document.querySelector('#youthTeamSelect');youthSelect.innerHTML='<option value="">팀을 선택하세요</option>'+data.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');document.querySelector('#clubDirectory').innerHTML=data.teams.map(t=>'<button class="club-tile" data-club="'+esc(t.id)+'" type="button"><span class="club-monogram">'+esc(t.name.slice(0,1))+'</span><b>'+esc(t.name)+'</b><small>'+esc([t.main_sponsor,t.secondary_sponsor].filter(Boolean).join(' · ')||'SPONSOR TBA')+'</small><small>구단 자금 · '+Number(t.funds||0).toLocaleString('ko-KR')+'M</small></button>').join('');if(data.teams.length){browseSelect.value=data.teams[0].id;loadPublicRoster(data.teams[0].id,'선수','#publicRosterList');youthSelect.value=data.teams[0].id;loadPublicRoster(data.teams[0].id,'유스','#youthRosterList');}
   const ids=data.matches.map(m=>m.id);
   if(ids.length){
    const statRes=await db.from('spfl_match_player_stats').select('match_id,club_id,player_name,goals,assists').in('match_id',ids);
@@ -714,12 +714,12 @@ async function loadAdminStatsManager(kind){
 }));
 document.querySelector('#adminGoalForm').addEventListener('submit',async e=>{
  e.preventDefault();const match_id=document.querySelector('#adminGoalMatch').value;
- try{await teamRequest('adminSaveMatchStat',{match_id,club_id:document.querySelector('#adminGoalClub').value,player_name:document.querySelector('#adminGoalPlayer').value,goals:document.querySelector('#adminGoalCount').value,assists:document.querySelector('#adminGoalAssistCount').value},adminSession);document.querySelector('#adminGoalStatus').textContent='득점 기록을 저장했습니다.';await loadAdminStatsManager('goals');await loadLeague();}
+ try{await teamRequest('adminSaveMatchStat',{match_id,club_id:document.querySelector('#adminGoalClub').value,player_name:document.querySelector('#adminGoalPlayer').value,goals:document.querySelector('#adminGoalCount').value,assists:document.querySelector('#adminGoalAssistCount').value,metric:'goals'},adminSession);document.querySelector('#adminGoalStatus').textContent='득점 기록을 저장했습니다.';await loadAdminStatsManager('goals');await loadLeague();}
  catch(error){document.querySelector('#adminGoalStatus').textContent=error.message;}
 });
 document.querySelector('#adminAssistForm').addEventListener('submit',async e=>{
  e.preventDefault();const match_id=document.querySelector('#adminAssistMatch').value;
- try{await teamRequest('adminSaveMatchStat',{match_id,club_id:document.querySelector('#adminAssistClub').value,player_name:document.querySelector('#adminAssistPlayer').value,goals:'0',assists:document.querySelector('#adminAssistCount').value},adminSession);document.querySelector('#adminAssistStatus').textContent='어시스트 기록을 저장했습니다.';await loadAdminStatsManager('assists');await loadLeague();}
+ try{await teamRequest('adminSaveMatchStat',{match_id,club_id:document.querySelector('#adminAssistClub').value,player_name:document.querySelector('#adminAssistPlayer').value,goals:'0',assists:document.querySelector('#adminAssistCount').value,metric:'assists'},adminSession);document.querySelector('#adminAssistStatus').textContent='어시스트 기록을 저장했습니다.';await loadAdminStatsManager('assists');await loadLeague();}
  catch(error){document.querySelector('#adminAssistStatus').textContent=error.message;}
 });
 async function loadAdminFriendlies(){
