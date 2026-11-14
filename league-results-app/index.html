@@ -237,6 +237,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
    <div class="field"><label for="ratingAge">나이</label><input id="ratingAge" type="number" min="15" max="50" placeholder="선택 입력"></div>
    <div class="field"><label for="ratingPosition">주 포지션</label><input id="ratingPosition" maxlength="30" placeholder="예: RW / ST / CB"></div>
    <div class="field"><label for="ratingCurrent">현재 OVR (선택)</label><input id="ratingCurrent" type="number" min="1" max="99" placeholder="현재 게임 내 OVR"></div>
+   <div class="field"><label for="ratingEa">EA 공식 FC27 OVR (직접 확인)</label><input id="ratingEa" type="number" min="1" max="99" placeholder="EA 사이트에서 확인한 값"></div>
    <div class="field"><label for="ratingForm">최근 폼</label><select id="ratingForm"><option value="모름">모름 / 자동 판단</option><option value="상승세">상승세</option><option value="좋음">좋음</option><option value="보통">보통</option><option value="부진">부진</option><option value="장기 부상 또는 경기력 저하">장기 부상 또는 경기력 저하</option></select></div>
   </div>
   <div class="field" style="margin-top:12px"><label for="ratingNotes">추가 정보 (선택)</label><textarea id="ratingNotes" rows="3" maxlength="1200" placeholder="출전 시간, 최근 활약, 세부 역할, 장단점 등"></textarea></div>
@@ -902,7 +903,7 @@ document.querySelector('#runPlayerRating').addEventListener('click',async()=>{
  const result=document.querySelector('#ratingResult');
  const name=document.querySelector('#ratingPlayerSearch').value.trim();
  if(!name){result.textContent='선수 이름을 입력해 주세요.';return;}
- const payload={name,age:document.querySelector('#ratingAge').value,position:document.querySelector('#ratingPosition').value,current_overall:document.querySelector('#ratingCurrent').value,form:document.querySelector('#ratingForm').value,notes:document.querySelector('#ratingNotes').value};
+ const payload={name,age:document.querySelector('#ratingAge').value,position:document.querySelector('#ratingPosition').value,current_overall:document.querySelector('#ratingCurrent').value,ea_overall:document.querySelector('#ratingEa').value,form:document.querySelector('#ratingForm').value,notes:document.querySelector('#ratingNotes').value};
  result.textContent='GPT 평가 서버 연결을 확인하고 있습니다...';
  try{
   const response=await teamRequest('ratePlayerFC27',payload,'');
