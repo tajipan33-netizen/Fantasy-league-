@@ -246,6 +246,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
   </div>
  </div>
 </section>
+<section id="teamFinancePanel" class="hidden"><div class="page-title">구단 자금 관리</div><div class="panel"><div class="section-head"><h2 id="teamFinanceClubName">CLUB FINANCE</h2><span class="hint">MY CLUB · FINANCIAL OVERVIEW</span></div><div class="transfer-offer"><div class="transfer-meta">현재 구단 보유 자본</div><h2 id="teamFinanceBalance" style="font-size:clamp(32px,7vw,48px);color:#d5b775;margin:10px 0">불러오는 중...</h2><div class="transfer-meta">단위: M</div></div><div class="section-head" style="margin-top:24px"><h2>수입 및 지출 내역</h2><span class="hint">INCOME · EXPENSE HISTORY</span></div><div id="teamFinanceHistory" class="roster-list"><div class="empty">자금 내역을 불러오는 중입니다.</div></div></div></section>
 </main><footer>SUPER LEAGUE · SPFL</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
 <script>
@@ -292,6 +293,20 @@ async function loadRoster(){
  if(!teamSession)return;
  try{const result=await teamRequest('listRoster');currentTeam=result.team;rosterItems=result.roster||[];document.querySelector('#rosterPanel').classList.remove('hidden');document.querySelector('#rosterTeamName').textContent=currentTeam;renderRoster();}
  catch(error){rosterStatus(error.message);}
+}
+async function loadTeamFinance(){
+ const balance=document.querySelector('#teamFinanceBalance'),host=document.querySelector('#teamFinanceHistory');
+ balance.textContent='불러오는 중...';host.innerHTML='<div class="empty">자금 내역을 불러오는 중입니다.</div>';
+ try{
+  const result=await teamRequest('myClubFinance');
+  document.querySelector('#teamFinanceClubName').textContent=(result.club?.name||currentTeam)+' · FINANCE';
+  balance.textContent=Number(result.club?.funds||0).toLocaleString('ko-KR')+'M';
+  const rows=result.transactions||[];
+  host.innerHTML=rows.length?rows.map(t=>{
+   const amount=Number(t.amount||0),positive=amount>0;
+   return '<article class="transfer-offer"><div class="transfer-meta">'+esc(new Date(t.created_at).toLocaleString('ko-KR'))+' · '+esc(t.category||'기타')+'</div><h3 style="color:'+(positive?'#d5b775':amount<0?'#f09aa7':'#aaa')+'">'+(positive?'+':'')+amount.toLocaleString('ko-KR')+'M</h3><div class="transfer-meta">'+esc(t.description||'상세 내역 없음')+'</div><span class="transfer-status">'+(positive?'수입':amount<0?'지출':'조정')+'</span></article>';
+  }).join(''):'<div class="empty">아직 등록된 수입·지출 내역이 없습니다.</div>';
+ }catch(error){balance.textContent='조회 실패';host.innerHTML='<div class="empty">'+esc(error.message)+'</div>';}
 }
 async function setLoggedIn(team){
  currentTeam=team;document.querySelector('#rosterTeamName').textContent=team;await loadRoster();applyTeamMode(true);
@@ -869,12 +884,14 @@ const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><b
 let teamWorkspaceMode=false;
 function showTab(id){
  const teamMode=teamWorkspaceMode&&!!teamSession;
- const valid=teamMode?['team-roster','transfers','fa','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','admin'];
+ const valid=teamMode?['team-roster','transfers','fa','team-finance','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','admin'];
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  const visibleSection=id==='admin'?'transfers':id;
  ['home','transfers','players','clubs','youth','fa','ea-ratings'].forEach(key=>document.getElementById(key).classList.toggle('hidden',key!==visibleSection));
  document.querySelector('#rosterPanel').classList.toggle('hidden',!(teamMode&&id==='team-roster'));
+ document.querySelector('#teamFinancePanel').classList.toggle('hidden',!(teamMode&&id==='team-finance'));
+ if(teamMode&&id==='team-finance')loadTeamFinance();
  document.querySelector('#clubShortcuts').classList.toggle('visible',!!teamSession);
  document.querySelector('#clubBackHome').classList.toggle('hidden',!teamMode);
  document.querySelector('#clubGoDirectory').classList.toggle('hidden',teamMode);
@@ -887,7 +904,7 @@ function applyTeamMode(loggedIn){
  const nav=document.querySelector('.tabs');
  teamWorkspaceMode=!!loggedIn;
  if(loggedIn){
-  nav.innerHTML='<button class="tab active" data-tab="team-roster">팀 등록</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button>';
+  nav.innerHTML='<button class="tab active" data-tab="team-roster">팀 등록</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="team-finance">자금 관리</button>';
   document.querySelector('#clubShortcuts').classList.add('visible');
   showTab('team-roster');
  }else{
