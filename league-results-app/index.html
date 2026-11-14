@@ -141,7 +141,13 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
  .section-head h2{font-size:19px}
  .transfer-grid{grid-template-columns:1fr}
 }
-</style></head><body><header class="site-header"><div class="brand-row"><div class="brand-mark"><span>⚽</span><b>SUPER<br>LEAGUE</b><small>EST. 2024</small></div><div class="header-actions"><button class="header-login" id="headerTeamLogin">구단 로그인</button><button class="header-admin" id="headerAdmin">관리자</button></div></div></header><main class="wrap"><nav class="tabs" aria-label="리그 메뉴"><button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치진</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="ea-ratings">EA 공식 RATING</button></nav>
+/* Logged-in club navigation shortcuts */
+.club-shortcuts{display:none;max-width:1180px;margin:0 auto;padding:12px 16px;background:#0d0e0f;border-bottom:1px solid #292a2b;gap:10px;align-items:center}
+.club-shortcuts.visible{display:flex}
+.club-shortcuts button{border:1px solid #6b5a37;background:transparent;color:#e8d4a7;padding:10px 16px;font:inherit;font-size:13px;font-weight:750;cursor:pointer}
+.club-shortcuts button.primary{background:var(--gold);color:#17130b;border-color:var(--gold)}
+@media(max-width:620px){.club-shortcuts{padding:10px 12px}.club-shortcuts button{flex:1;padding:11px 8px;font-size:12px}}
+</style></head><body><header class="site-header"><div class="brand-row"><div class="brand-mark"><span>⚽</span><b>SUPER<br>LEAGUE</b><small>EST. 2024</small></div><div class="header-actions"><button class="header-login" id="headerTeamLogin">구단 로그인</button><button class="header-admin" id="headerAdmin">관리자</button></div></div></header><main class="wrap"><div id="clubShortcuts" class="club-shortcuts" aria-label="구단 바로가기"><button type="button" id="clubBackHome">← 뒤로가기</button><button type="button" class="primary" id="clubGoDirectory">구단으로 가기</button></div><nav class="tabs" aria-label="리그 메뉴"><button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치진</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="ea-ratings">EA 공식 RATING</button></nav>
 <section id="team-login" class="login-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="teamLoginTitle"><div class="login-backdrop" data-close-login></div><div class="login-dialog"><div class="login-dialog-head"><h2 id="teamLoginTitle">구단 로그인</h2><button class="login-close" type="button" data-close-login>닫기 ✕</button></div><div class="login-panel"><div class="field"><label for="teamSelect">소속 팀</label><select id="teamSelect"><option value="">팀을 선택하세요</option></select></div><div class="field"><label for="teamCode">팀 로그인 코드</label><input id="teamCode" type="password" maxlength="16" autocomplete="off" placeholder="16자리 코드"></div><button class="action" id="loginBtn">로그인</button><div class="login-status" id="loginStatus">팀을 선택하고 발급받은 코드를 입력하세요.</div></div></div></section>
 <section id="rosterPanel" class="hidden"><div class="panel">
  <div class="section-head"><h2>우리 팀 선수단 관리</h2><span class="hint" id="rosterTeamName">TEAM ROSTER</span></div>
@@ -249,7 +255,7 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const data={matches:[],fixtures:[],teams:[],scorers:[]};
 const LOGIN_URL=SUPABASE_URL+'/functions/v1/spfl-team-login';
 let teamSession=localStorage.getItem('spfl_team_session')||sessionStorage.getItem('spfl_team_session')||'';
-if(teamSession){localStorage.setItem('spfl_team_session',teamSession);localStorage.removeItem('spfl_team_session');}
+if(teamSession){localStorage.setItem('spfl_team_session',teamSession);sessionStorage.removeItem('spfl_team_session');}
 async function teamRequest(action,extra={},token=teamSession){const response=await fetch(LOGIN_URL,{method:'POST',headers:{'Content-Type':'application/json',...(token?{'x-sl-session':token}:{})},body:JSON.stringify({action,...extra})});const result=await response.json().catch(()=>({error:'서버 응답을 읽지 못했습니다.'}));if(!response.ok)throw new Error(result.error||'요청에 실패했습니다.');return result}
 function setLoginStatus(message,isGood=false){const el=document.querySelector('#loginStatus');el.innerHTML=isGood?'<strong>'+esc(message)+'</strong>':esc(message)}
 async function restoreTeamSession(){if(!teamSession)return;try{const me=await teamRequest('me');setLoginStatus(me.team+' 로그인 상태입니다. 24시간 동안 유지됩니다.',true);document.querySelector('#loginBtn').textContent='로그아웃';await setLoggedIn(me.team); await loadTransferDashboard();await loadFAMarket();}catch{localStorage.removeItem('spfl_team_session');teamSession='';currentClubId='';document.querySelector('#rosterPanel').classList.add('hidden');applyTeamMode(false);}}
@@ -862,12 +868,13 @@ loadPublicFriendlies();
 const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치진</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="admin">관리자</button>';
 function showTab(id){
  const teamMode=!!teamSession;
- const valid=teamMode?['team-roster','transfers','fa','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','admin'];
+ const valid=teamMode?['team-roster','home','clubs','transfers','fa','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','admin'];
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  const visibleSection=id==='admin'?'transfers':id;
  ['home','transfers','players','clubs','youth','fa','ea-ratings'].forEach(key=>document.getElementById(key).classList.toggle('hidden',key!==visibleSection));
  document.querySelector('#rosterPanel').classList.toggle('hidden',!(teamMode&&id==='team-roster'));
+ document.querySelector('#clubShortcuts').classList.toggle('visible',teamMode);
  if(id==='fa')loadFAMarket();
  window.scrollTo({top:0,behavior:'smooth'});
  if(id==='admin')setTimeout(()=>{const target=document.querySelector('#adminDashboard:not(.hidden)')||document.querySelector('#adminLoginBox');target?.scrollIntoView({behavior:'smooth',block:'center'});},100);
@@ -876,13 +883,17 @@ function applyTeamMode(loggedIn){
  const nav=document.querySelector('.tabs');
  if(loggedIn){
   nav.innerHTML='<button class="tab active" data-tab="team-roster">우리 선수단 등록</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA 시장</button><button class="tab" data-tab="admin">관리자</button>';
+  document.querySelector('#clubShortcuts').classList.add('visible');
   showTab('team-roster');
  }else{
   nav.innerHTML=publicNavMarkup;
+  document.querySelector('#clubShortcuts').classList.remove('visible');
   showTab('home');
  }
 
 }
+document.querySelector('#clubBackHome').addEventListener('click',()=>showTab('home'));
+document.querySelector('#clubGoDirectory').addEventListener('click',()=>showTab('clubs'));
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)showTab(b.dataset.tab);});
 document.querySelector('#heroFixtures').addEventListener('click',()=>{showTab('home');document.querySelector('#fixtureRoundSelect').scrollIntoView({behavior:'smooth',block:'start'});});
 document.querySelector('#headerTeamLogin').addEventListener('click',()=>{document.querySelector('#team-login').classList.remove('hidden');document.querySelector('#teamCode').focus();});
