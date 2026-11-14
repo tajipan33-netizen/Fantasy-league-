@@ -17,7 +17,7 @@
   <div class="field"><label for="personNation">국적</label><input id="personNation" maxlength="60" placeholder="예: 대한민국"></div>
   <div class="field wide"><label for="personPhotoFile">선수 사진 파일 (선택)</label><input id="personPhotoFile" type="file" accept="image/jpeg,image/png,image/webp"><img id="personPhotoPreview" class="photo-preview" alt="사진 미리보기"><div class="photo-help">JPG · PNG · WEBP / 최대 5MB</div></div>
   <div class="field wide"><label for="personNotes">메모 (선택)</label><input id="personNotes" maxlength="500" placeholder="선수 특징, 계약 정보 등"></div>
-  <div class="submit-row wide"><button class="action" id="savePersonBtn" type="submit">선수단 등록</button><span class="login-status" id="rosterStatus">등록할 정보를 입력해 주세요.</span></div>
+  <div class="submit-row wide"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="action" id="savePersonBtn" type="submit">선수단 등록</button><button class="delete-btn hidden" id="cancelEditPersonBtn" type="button">수정 취소</button></div><span class="login-status" id="rosterStatus">등록할 정보를 입력해 주세요.</span></div>
  </form>
  <div class="divider"></div><div class="section-head" style="margin-top:18px"><h2>등록된 선수단</h2><span class="hint" id="rosterCount">0명</span></div>
  <div id="rosterList" class="roster-list"><div class="empty">로그인 후 선수단을 확인할 수 있습니다.</div></div>
@@ -82,7 +82,7 @@ function renderRoster(){
   return '<div class="roster-group"><h3>'+type+' · '+list.length+'명</h3>'+list.map(p=>{
    const meta=[p.position,p.shirt_number!==null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:'',p.age?p.age+'세':'',p.nationality].filter(Boolean).map(esc).join(' · ');
    const photo=p.photo_url?'<img class="person-photo" src="'+esc(p.photo_url)+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="person-photo-placeholder">NO PHOTO</div>';
-   return '<article class="person-card"><div class="person-main">'+photo+'<div><div class="person-name">'+esc(p.name)+'</div><div class="person-meta">'+(meta||'추가 정보 없음')+'</div>'+(p.notes?'<div class="person-meta">'+esc(p.notes)+'</div>':'')+'</div></div><button class="delete-btn" data-delete="'+esc(p.id)+'" type="button">삭제</button></article>';
+   return '<article class="person-card"><div class="person-main">'+photo+'<div><div class="person-name">'+esc(p.name)+'</div><div class="person-meta">'+(meta||'추가 정보 없음')+'</div>'+(p.notes?'<div class="person-meta">'+esc(p.notes)+'</div>':'')+'</div></div><div style="display:flex;gap:7px;flex-shrink:0"><button class="action" data-edit="'+esc(p.id)+'" type="button">수정</button><button class="delete-btn" data-delete="'+esc(p.id)+'" type="button">삭제</button></div></article>';
   }).join('')+'</div>';
  }).join('');
 }
@@ -213,10 +213,42 @@ document.querySelector('#personPhotoFile').addEventListener('change',async e=>{
  }
 });
 document.querySelector('#loginBtn').addEventListener('click',async()=>{const btn=document.querySelector('#loginBtn');if(teamSession){sessionStorage.removeItem('spfl_team_session');teamSession='';currentTeam='';rosterItems=[];document.querySelector('#rosterPanel').classList.add('hidden');document.querySelector('#teamCode').value='';btn.textContent='로그인';setLoginStatus('로그아웃되었습니다.');return;}const team=document.querySelector('#teamSelect').value,code=document.querySelector('#teamCode').value.trim().toUpperCase();if(!team||!code){setLoginStatus('팀과 로그인 코드를 모두 입력해 주세요.');return;}btn.disabled=true;btn.textContent='확인 중';try{const result=await teamRequest('login',{team,code},'');teamSession=result.token;sessionStorage.setItem('spfl_team_session',teamSession);document.querySelector('#teamCode').value='';btn.textContent='로그아웃';setLoginStatus(team+' 로그인 성공 · 12시간 동안 유지됩니다.',true);await setLoggedIn(team); await loadTransferDashboard();}catch(error){setLoginStatus(error.message);}finally{btn.disabled=false;if(!teamSession)btn.textContent='로그인';}});
+let editingRosterId='';
+function resetRosterEditor(){
+ editingRosterId='';
+ document.querySelector('#rosterForm').reset();
+ selectedPhotoBase64='';
+ const preview=document.querySelector('#personPhotoPreview');preview.style.display='none';preview.removeAttribute('src');
+ document.querySelector('#savePersonBtn').textContent='선수단 등록';
+ document.querySelector('#cancelEditPersonBtn').classList.add('hidden');
+ rosterStatus('등록할 정보를 입력해 주세요.');
+}
+function startRosterEdit(id){
+ const p=rosterItems.find(item=>item.id===id);if(!p)return;
+ editingRosterId=id;
+ document.querySelector('#personType').value=p.entry_type||'선수';
+ document.querySelector('#personName').value=p.name||'';
+ document.querySelector('#personPosition').value=p.position||'';
+ document.querySelector('#personNumber').value=p.shirt_number??'';
+ document.querySelector('#personOverall').value=p.overall??'';
+ document.querySelector('#personAge').value=p.age??'';
+ document.querySelector('#personNation').value=p.nationality||'';
+ document.querySelector('#personNotes').value=p.notes||'';
+ document.querySelector('#personPhotoFile').value='';
+ selectedPhotoBase64='';
+ const preview=document.querySelector('#personPhotoPreview');
+ if(p.photo_url){preview.src=p.photo_url;preview.style.display='block';}else{preview.removeAttribute('src');preview.style.display='none';}
+ document.querySelector('#savePersonBtn').textContent='수정 내용 저장';
+ document.querySelector('#cancelEditPersonBtn').classList.remove('hidden');
+ rosterStatus(p.name+' 정보를 수정 중입니다. 사진을 바꾸지 않으면 기존 사진이 유지됩니다.',true);
+ document.querySelector('#rosterForm').scrollIntoView({behavior:'smooth',block:'center'});
+}
+document.querySelector('#cancelEditPersonBtn').addEventListener('click',resetRosterEditor);
 document.querySelector('#rosterForm').addEventListener('submit',async e=>{
- e.preventDefault();const btn=document.querySelector('#savePersonBtn');btn.disabled=true;btn.textContent='등록 중...';
+ e.preventDefault();const btn=document.querySelector('#savePersonBtn');btn.disabled=true;btn.textContent=editingRosterId?'저장 중...':'등록 중...';
  const val=id=>document.querySelector(id).value.trim();
- const person={type:val('#personType'),name:val('#personName'),position:val('#personPosition'),number:val('#personNumber'),overall:val('#personOverall'),age:val('#personAge'),nationality:val('#personNation'),photo:'',notes:val('#personNotes')};
+ const existing=editingRosterId?rosterItems.find(p=>p.id===editingRosterId):null;
+ const person={type:val('#personType'),name:val('#personName'),position:val('#personPosition'),number:val('#personNumber'),overall:val('#personOverall'),age:val('#personAge'),nationality:val('#personNation'),photo:existing?.photo_url||'',notes:val('#personNotes')};
  try{
   const photoFile=document.querySelector('#personPhotoFile').files[0];
   if(photoFile){
@@ -224,23 +256,27 @@ document.querySelector('#rosterForm').addEventListener('submit',async e=>{
    if(photoFile.size>5*1024*1024)throw new Error('사진은 5MB 이하로 업로드해 주세요.');
    rosterStatus('사진 업로드 중...');
    let base64=selectedPhotoBase64;
-   if(!base64){
-    const dataUrl=await readPhotoAsDataUrl(photoFile);
-    base64=dataUrl.split(',')[1]||'';
-   }
+   if(!base64){const dataUrl=await readPhotoAsDataUrl(photoFile);base64=dataUrl.split(',')[1]||'';}
    if(!base64)throw new Error('사진 데이터가 비어 있습니다. 사진을 다시 선택해 주세요.');
    const uploaded=await teamRequest('uploadPhoto',{mime:photoFile.type,base64});person.photo=uploaded.photo_url;
   }
-  await teamRequest('createRoster',{person});document.querySelector('#rosterForm').reset();selectedPhotoBase64='';document.querySelector('#personPhotoPreview').style.display='none';document.querySelector('#personPhotoPreview').removeAttribute('src');rosterStatus('선수단 등록이 완료됐습니다.',true);await loadRoster();
- }
- catch(error){rosterStatus(error.message);}
- finally{btn.disabled=false;btn.textContent='선수단 등록';}
+  if(editingRosterId){
+   await teamRequest('updateRoster',{id:editingRosterId,person});
+   resetRosterEditor();rosterStatus('선수 정보가 수정되었습니다.',true);
+  }else{
+   await teamRequest('createRoster',{person});resetRosterEditor();rosterStatus('선수단 등록이 완료됐습니다.',true);
+  }
+  await loadRoster();
+ }catch(error){rosterStatus(error.message);}
+ finally{btn.disabled=false;if(!editingRosterId)btn.textContent='선수단 등록';else btn.textContent='수정 내용 저장';}
 });
 document.querySelector('#rosterList').addEventListener('click',async e=>{
+ const editBtn=e.target.closest('[data-edit]');
+ if(editBtn){startRosterEdit(editBtn.dataset.edit);return;}
  const btn=e.target.closest('[data-delete]');if(!btn)return;
  if(!confirm('이 항목을 선수단에서 삭제할까요?'))return;
  btn.disabled=true;
- try{await teamRequest('deleteRoster',{id:btn.dataset.delete});await loadRoster();}
+ try{await teamRequest('deleteRoster',{id:btn.dataset.delete});if(editingRosterId===btn.dataset.delete)resetRosterEditor();await loadRoster();}
  catch(error){rosterStatus(error.message);btn.disabled=false;}
 });
 
