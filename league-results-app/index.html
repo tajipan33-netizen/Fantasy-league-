@@ -710,7 +710,7 @@ async function loadAdminStatsManager(kind){
 ['adminGoalMatch','adminAssistMatch'].forEach(id=>document.querySelector('#'+id).addEventListener('change',()=>loadAdminStatsManager(id==='adminGoalMatch'?'goals':'assists')));
 ['adminGoalRecords','adminAssistRecords'].forEach(id=>document.querySelector('#'+id).addEventListener('click',async e=>{
  const b=e.target.closest('[data-stat-delete]');if(!b||!confirm('이 선수의 경기 기록을 삭제할까요?'))return;
- try{await teamRequest('adminDeleteMatchStat',{id:b.dataset.statDelete},adminSession);await loadAdminStatsManager(id==='adminGoalRecords'?'goals':'assists');await loadLeague();}catch(error){alert(error.message);}
+ try{await teamRequest('adminDeleteMatchStat',{id:b.dataset.statDelete,metric:id==='adminGoalRecords'?'goals':'assists'},adminSession);await loadAdminStatsManager(id==='adminGoalRecords'?'goals':'assists');await loadLeague();}catch(error){alert(error.message);}
 }));
 document.querySelector('#adminGoalForm').addEventListener('submit',async e=>{
  e.preventDefault();const match_id=document.querySelector('#adminGoalMatch').value;
