@@ -892,7 +892,7 @@ function applyTeamMode(loggedIn){
  }
 
 }
-document.querySelector('#clubBackHome').addEventListener('click',()=>{if(teamSession){applyTeamMode(true);showTab('home');}else showTab('home');});
+document.querySelector('#clubBackHome').addEventListener('click',()=>{if(teamSession){applyTeamMode(false);showTab('home');}else showTab('home');});
 document.querySelector('#clubGoDirectory').addEventListener('click',()=>{if(teamSession){showTab('team-roster');}else showTab('home');});
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)showTab(b.dataset.tab);});
 document.querySelector('#heroFixtures').addEventListener('click',()=>{showTab('home');document.querySelector('#fixtureRoundSelect').scrollIntoView({behavior:'smooth',block:'start'});});
