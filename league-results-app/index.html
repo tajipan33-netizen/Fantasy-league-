@@ -314,14 +314,21 @@ function renderPublicClubFinance(clubId){
  host.innerHTML='<article class="transfer-offer"><div class="transfer-meta">CURRENT CLUB BALANCE</div><h3 style="font-size:25px;color:'+(Number(c.funds||0)<0?'#f09aa7':'#d5b775')+'">'+esc(c.name)+' · '+Number(c.funds||0).toLocaleString('ko-KR')+'M</h3><div class="transfer-meta">현재 등록된 잔액</div></article>'+(rows.length?rows.map(t=>'<article class="transfer-offer"><div class="transfer-meta">'+esc(new Date(t.created_at).toLocaleString('ko-KR'))+' · '+esc(t.category)+'</div><h3 style="color:'+(Number(t.amount)<0?'#f09aa7':'#d5b775')+'">'+(Number(t.amount)>0?'+':'')+Number(t.amount).toLocaleString('ko-KR')+'M</h3><div class="transfer-meta">'+esc(t.description)+'</div></article>').join(''):'<div class="empty">아직 공개된 자금 거래 내역이 없습니다.</div>');
 }
 async function loadPublicClubFinance(){
- const host=document.querySelector('#publicClubFinance');
- try{
-  publicFinanceData=await teamRequest('listPublicClubFinance',{},'');
-  const select=document.querySelector('#publicFinanceClub'),old=select.value;
+  const host=document.querySelector('#publicClubFinance');
+  const select=document.querySelector('#publicFinanceClub');
+  const previous=select.value;
+  // Keep balances visible from the already-loaded public club directory, even if the ledger request fails.
+  publicFinanceData={clubs:data.teams||[],transactions:[]};
+  let ledgerError='';
+  try{
+   const result=await teamRequest('listPublicClubFinance',{},'');
+   if(Array.isArray(result.clubs))publicFinanceData.clubs=result.clubs;
+   if(Array.isArray(result.transactions))publicFinanceData.transactions=result.transactions;
+  }catch(error){ledgerError=error.message||'거래 내역을 불러오지 못했습니다.';}
   select.innerHTML=publicFinanceData.clubs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('');
-  select.value=publicFinanceData.clubs.some(c=>c.id===old)?old:(publicFinanceData.clubs[0]?.id||'');
+  select.value=publicFinanceData.clubs.some(c=>c.id===previous)?previous:(publicFinanceData.clubs[0]?.id||'');
   renderPublicClubFinance(select.value);
- }catch(error){host.innerHTML='<div class="empty">'+esc(error.message)+'</div>';}
+  if(ledgerError)host.innerHTML+='<div class="empty">현재 잔액은 표시 중입니다. 거래 내역 연결 오류: '+esc(ledgerError)+'</div>';
 }
 document.querySelector('#publicFinanceClub').addEventListener('change',e=>renderPublicClubFinance(e.target.value));
 async function loadLeague(){
