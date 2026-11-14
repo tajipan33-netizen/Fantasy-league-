@@ -773,14 +773,16 @@ document.querySelector('#adminFriendlyList').addEventListener('click',async e=>{
 });
 async function loadAdminTransfers(){
  if(!adminSession)return;
+ const host=document.querySelector('#adminTransferOffers');
  try{
   const result=await teamRequest('adminListTransfers',{},adminSession);
-  const host=document.querySelector('#adminTransferOffers');
   host.innerHTML=result.offers?.length?result.offers.map(o=>transferOfferCard(o,true)).join(''):'<div class="empty">등록된 이적 제안이 없습니다.</div>';
-  document.querySelector('#adminLoginBox').classList.add('hidden');document.querySelector('#adminDashboard').classList.remove('hidden');
  }catch(error){
-  sessionStorage.removeItem('spfl_admin_session');adminSession='';document.querySelector('#adminDashboard').classList.add('hidden');document.querySelector('#adminLoginBox').classList.remove('hidden');document.querySelector('#adminLoginStatus').textContent=error.message;
+  // 이적 목록 조회 실패가 관리자 인증 및 다른 관리 메뉴를 잠그지 않도록 분리
+  host.innerHTML='<div class="empty">이적 제안을 불러오지 못했습니다: '+esc(error.message)+'</div>';
  }
+ document.querySelector('#adminLoginBox').classList.add('hidden');
+ document.querySelector('#adminDashboard').classList.remove('hidden');
 }
 document.querySelector('#adminRefresh').addEventListener('click',async()=>{await loadAdminTransfers();await loadAdminFriendlies();setAdminPane('core');loadAdminManagementData();loadAdminMatchManager();});
 document.querySelector('#adminLogout').addEventListener('click',()=>{adminSession='';sessionStorage.removeItem('spfl_admin_session');document.querySelector('#adminDashboard').classList.add('hidden');document.querySelector('#adminLoginBox').classList.remove('hidden');document.querySelector('#adminLoginStatus').textContent='관리자 로그아웃 완료';});
