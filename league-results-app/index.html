@@ -225,7 +225,7 @@ function renderRoster(){
   return '<div class="roster-group"><h3>'+type+' · '+list.length+'명</h3>'+list.map(p=>{
    const meta=[p.position,p.shirt_number!==null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:'',p.age?p.age+'세':'',p.nationality].filter(Boolean).map(esc).join(' · ');
    const photo=p.photo_url?'<img class="person-photo" src="'+esc(p.photo_url)+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="person-photo-placeholder">NO PHOTO</div>';
-   return '<article class="person-card roster-person-card"><div class="roster-photo">'+photo+'</div><div class="roster-person-content"><div class="roster-person-actions"><button class="action" data-edit="'+esc(p.id)+'" type="button">수정</button> '+(p.entry_type==='선수'?'<button class=\"action\" data-release=\"'+esc(p.id)+'\" type=\"button\">FA 방출</button>':'')+'<button class="delete-btn" data-delete="'+esc(p.id)+'" type="button">삭제</button></div><div class="person-name">'+esc(p.name)+'</div><div class="person-meta">'+(meta||'추가 정보 없음')+'</div>'+(p.notes?'<div class="person-meta">'+esc(p.notes)+'</div>':'')+'</div></article>';
+   return '<article class="person-card roster-person-card"><div class="roster-photo">'+photo+'</div><div class="roster-person-content"><div class="roster-person-actions"><button class="action" data-edit="'+esc(p.id)+'" type="button">수정</button> '+(p.entry_type==='선수'?'<button class="action" data-release="'+esc(p.id)+'" type="button">FA 방출</button>':'')+'<button class="delete-btn" data-delete="'+esc(p.id)+'" type="button">삭제</button></div><div class="person-name">'+esc(p.name)+'</div><div class="person-meta">'+(meta||'추가 정보 없음')+'</div>'+(p.notes?'<div class="person-meta">'+esc(p.notes)+'</div>':'')+'</div></article>';
   }).join('')+'</div>';
  }).join('');
 }
@@ -445,7 +445,7 @@ document.querySelector('#rosterList').addEventListener('click',async e=>{
  if(releaseBtn){
   if(!confirm('이 선수를 소속 구단에서 방출하고 FA 시장에 등록할까요?'))return;
   releaseBtn.disabled=true;
-  try{const p=rosterItems.find(x=>x.id===releaseBtn.dataset.release);if(!p)throw new Error('선수를 찾을 수 없습니다.');await teamRequest('updateRoster',{id:p.id,person:{type:'FA',name:p.name,position:p.position,number:p.shirt_number,overall:p.overall,age:p.age,nationality:p.nationality,photo:p.photo_url,notes:p.notes}});await loadRoster();await loadFAMarket();}
+  try{const p=rosterItems.find(x=>x.id===releaseBtn.dataset.release);if(!p)throw new Error('선수를 찾을 수 없습니다.');await teamRequest('releaseRoster',{id:p.id});await loadRoster();await loadFAMarket();}
   catch(error){rosterStatus(error.message);releaseBtn.disabled=false;}
   return;
  }
