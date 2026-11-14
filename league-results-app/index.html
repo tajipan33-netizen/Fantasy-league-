@@ -45,6 +45,22 @@ header.site-header{padding-top:16px;padding-bottom:12px}
 .login-close{background:transparent;border:1px solid #555;color:#ddd;border-radius:8px;padding:7px 11px}
 .login-panel{grid-template-columns:1fr;gap:12px}
 .login-status{grid-column:1}
+
+/* Roster cards: controls first, player details underneath */
+.person-card.roster-person-card{display:grid;grid-template-columns:58px minmax(0,1fr);align-items:start;gap:12px;padding:12px}
+.roster-photo{padding-top:2px}
+.roster-photo .person-photo,.roster-photo .person-photo-placeholder{width:58px;height:58px}
+.roster-person-content{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.roster-person-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px;width:100%}
+.roster-person-actions .action,.roster-person-actions .delete-btn{padding:8px 12px;font-size:13px;white-space:nowrap}
+.roster-person-content .person-name{font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+.roster-person-content .person-meta{line-height:1.55;overflow-wrap:anywhere}
+@media(max-width:420px){
+ .person-card.roster-person-card{grid-template-columns:48px minmax(0,1fr);gap:9px;padding:9px}
+ .roster-photo .person-photo,.roster-photo .person-photo-placeholder{width:48px;height:48px}
+ .roster-person-actions{gap:5px}
+ .roster-person-actions .action,.roster-person-actions .delete-btn{padding:7px 9px;font-size:12px}
+}
 </style></head><body><header class="site-header"><div class="brand-row"><div class="brand-mark"><span>⚽</span><b>SUPER<br>LEAGUE</b><small>EST. 2024</small></div><div class="header-actions"><button class="header-login" id="headerTeamLogin">구단 로그인</button><button class="header-admin" id="headerAdmin">관리자</button></div></div></header><main class="wrap"><nav class="tabs" aria-label="리그 메뉴"><button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치진</button><button class="tab" data-tab="fa">FA</button></nav>
 <section id="team-login" class="login-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="teamLoginTitle"><div class="login-backdrop" data-close-login></div><div class="login-dialog"><div class="login-dialog-head"><h2 id="teamLoginTitle">구단 로그인</h2><button class="login-close" type="button" data-close-login>닫기 ✕</button></div><div class="login-panel"><div class="field"><label for="teamSelect">소속 팀</label><select id="teamSelect"><option value="">팀을 선택하세요</option></select></div><div class="field"><label for="teamCode">팀 로그인 코드</label><input id="teamCode" type="password" maxlength="16" autocomplete="off" placeholder="16자리 코드"></div><button class="action" id="loginBtn">로그인</button><div class="login-status" id="loginStatus">팀을 선택하고 발급받은 코드를 입력하세요.</div></div></div></section>
 <section id="rosterPanel" class="hidden"><div class="panel">
@@ -130,7 +146,7 @@ function renderRoster(){
   return '<div class="roster-group"><h3>'+type+' · '+list.length+'명</h3>'+list.map(p=>{
    const meta=[p.position,p.shirt_number!==null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:'',p.age?p.age+'세':'',p.nationality].filter(Boolean).map(esc).join(' · ');
    const photo=p.photo_url?'<img class="person-photo" src="'+esc(p.photo_url)+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="person-photo-placeholder">NO PHOTO</div>';
-   return '<article class="person-card"><div class="person-main">'+photo+'<div><div class="person-name">'+esc(p.name)+'</div><div class="person-meta">'+(meta||'추가 정보 없음')+'</div>'+(p.notes?'<div class="person-meta">'+esc(p.notes)+'</div>':'')+'</div></div><div style="display:flex;gap:7px;flex-shrink:0"><button class="action" data-edit="'+esc(p.id)+'" type="button">수정</button> '+(p.entry_type==='선수'?'<button class=\"action\" data-release=\"'+esc(p.id)+'\" type=\"button\">FA 방출</button>':'')+'<button class="delete-btn" data-delete="'+esc(p.id)+'" type="button">삭제</button></div></article>';
+   return '<article class="person-card roster-person-card"><div class="roster-photo">'+photo+'</div><div class="roster-person-content"><div class="roster-person-actions"><button class="action" data-edit="'+esc(p.id)+'" type="button">수정</button> '+(p.entry_type==='선수'?'<button class=\"action\" data-release=\"'+esc(p.id)+'\" type=\"button\">FA 방출</button>':'')+'<button class="delete-btn" data-delete="'+esc(p.id)+'" type="button">삭제</button></div><div class="person-name">'+esc(p.name)+'</div><div class="person-meta">'+(meta||'추가 정보 없음')+'</div>'+(p.notes?'<div class="person-meta">'+esc(p.notes)+'</div>':'')+'</div></article>';
   }).join('')+'</div>';
  }).join('');
 }
