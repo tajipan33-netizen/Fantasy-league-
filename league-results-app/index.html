@@ -33,7 +33,9 @@
   <p class="hint">타 구단 선수에게 이적료를 제안하세요. 선수 소속 구단이 먼저 수락한 뒤 관리자가 최종 승인하면 선수단 소속이 자동 변경됩니다.</p>
   <div id="transferLoginHint" class="empty">이적 제안을 보내거나 받은 제안에 응답하려면 먼저 구단 로그인을 해주세요.</div>
   <form id="transferForm" class="transfer-form hidden">
-   <div class="field wide"><label for="transferPlayerSelect">영입 희망 선수 *</label><select id="transferPlayerSelect" required><option value="">선수를 불러오는 중...</option></select></div>
+   <div class="field"><label for="transferClubFilter">영입 대상 구단</label><select id="transferClubFilter"><option value="">전체 구단</option></select></div>
+   <div class="field"><label for="transferPlayerSearch">선수 검색</label><input id="transferPlayerSearch" type="search" maxlength="80" placeholder="선수 이름 검색"></div>
+   <div class="field wide"><label for="transferPlayerSelect">영입 희망 선수 *</label><select id="transferPlayerSelect" required><option value="">구단을 선택하거나 선수를 검색하세요.</option></select><div class="photo-help">구단별로 구분된 선수 목록에서 선택할 수 있습니다.</div></div>
    <div class="field"><label for="transferFee">제안 이적료 (M) *</label><input id="transferFee" type="number" min="0" max="999999999" step="0.01" value="1" required></div>
    <div class="field"><label>제안 구단</label><input id="transferBuyerName" disabled value="로그인 후 표시"></div>
    <div class="field wide"><label for="transferMessage">제안 메시지 / 조건</label><input id="transferMessage" maxlength="500" placeholder="선수에게 전달할 제안 내용 (선택)"></div>
@@ -248,12 +250,38 @@ let transferOffers=[];
 const transferStatusText={pending_seller:'상대 구단 응답 대기',pending_admin:'관리자 승인 대기',completed:'이적 완료',rejected_seller:'상대 구단 거절',rejected_admin:'관리자 거절',closed_player_transferred:'다른 이적으로 종료'};
 function moneyText(value){return Number(value||0).toLocaleString('ko-KR',{maximumFractionDigits:2})+'M'}
 function transferStatusBadge(status){return '<span class="transfer-status">'+esc(transferStatusText[status]||status)+'</span>'}
+function renderTransferPlayerOptions(){
+ const clubFilter=document.querySelector('#transferClubFilter');
+ const searchInput=document.querySelector('#transferPlayerSearch');
+ const select=document.querySelector('#transferPlayerSelect');
+ if(!clubFilter||!searchInput||!select)return;
+ const selectedClub=clubFilter.value;
+ const query=searchInput.value.trim().toLocaleLowerCase();
+ const eligible=transferPlayers.filter(p=>!currentClubId||p.club_id!==currentClubId);
+ const filtered=eligible.filter(p=>(!selectedClub||p.club_id===selectedClub)&&(!query||String(p.name||'').toLocaleLowerCase().includes(query)));
+ const groups=new Map();
+ filtered.forEach(p=>{
+  const clubId=p.club_id||'unknown';
+  const clubName=p.club?.name||'소속 미상';
+  if(!groups.has(clubId))groups.set(clubId,{name:clubName,players:[]});
+  groups.get(clubId).players.push(p);
+ });
+ const previous=select.value;
+ select.innerHTML='<option value="">선수를 선택하세요 ('+filtered.length+'명)</option>'+[...groups.entries()].sort((a,b)=>a[1].name.localeCompare(b[1].name,'ko')).map(([id,g])=>'<optgroup label="'+esc(g.name)+' · '+g.players.length+'명">'+g.players.sort((a,b)=>String(a.name).localeCompare(String(b.name),'ko')).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.position||'포지션 미정')+(p.overall?' · OVR '+esc(p.overall):'')+'</option>').join('')+'</optgroup>').join('');
+ if(filtered.some(p=>p.id===previous))select.value=previous;
+ if(!filtered.length)select.innerHTML='<option value="">검색 결과가 없습니다.</option>';
+}
 async function loadTransferMarket(){
  try{
   const [players,history]=await Promise.all([teamRequest('listTransferTargets',{},''),teamRequest('listTransferHistory',{},'')]);
   transferPlayers=players.players||[];
-  const select=document.querySelector('#transferPlayerSelect');
-  select.innerHTML='<option value="">선수를 선택하세요</option>'+transferPlayers.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.club?.name||'소속 미상')+' · '+esc(p.position||'')+(p.overall?' · OVR '+esc(p.overall):'')+'</option>').join('');
+  const clubFilter=document.querySelector('#transferClubFilter');
+  const previousClub=clubFilter.value;
+  const clubs=new Map();
+  transferPlayers.forEach(p=>{if(p.club_id&&p.club?.name)clubs.set(p.club_id,p.club.name);});
+  clubFilter.innerHTML='<option value="">전체 구단</option>'+[...clubs.entries()].sort((a,b)=>a[1].localeCompare(b[1],'ko')).map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('');
+  if(clubs.has(previousClub))clubFilter.value=previousClub;
+  renderTransferPlayerOptions();
   renderTransferHistory(history.transfers||[]);
  }catch(error){
   document.querySelector('#transferPlayerSelect').innerHTML='<option value="">선수 목록을 불러오지 못했습니다.</option>';
@@ -262,6 +290,8 @@ async function loadTransferMarket(){
  if(teamSession) await loadTransferDashboard();
  if(adminSession) await loadAdminTransfers();
 }
+document.querySelector('#transferClubFilter').addEventListener('change',renderTransferPlayerOptions);
+document.querySelector('#transferPlayerSearch').addEventListener('input',renderTransferPlayerOptions);
 function renderTransferHistory(items){
  const host=document.querySelector('#transferHistory');
  if(!items.length){host.innerHTML='<div class="empty">아직 완료된 이적이 없습니다.</div>';return;}
@@ -288,9 +318,7 @@ async function loadTransferDashboard(){
   currentClubId=me.club_id;
   hint.classList.add('hidden');form.classList.remove('hidden');
   document.querySelector('#transferBuyerName').value=me.team;
-  const select=document.querySelector('#transferPlayerSelect');
-  const filtered=transferPlayers.filter(p=>p.club_id!==currentClubId);
-  select.innerHTML='<option value="">선수를 선택하세요</option>'+filtered.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.club?.name||'소속 미상')+' · '+esc(p.position||'')+(p.overall?' · OVR '+esc(p.overall):'')+'</option>').join('');
+  renderTransferPlayerOptions();
   const result=await teamRequest('listTransferOffers');
   transferOffers=result.offers||[];
   const host=document.querySelector('#clubTransferOffers');
