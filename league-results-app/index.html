@@ -130,7 +130,7 @@ function renderRoster(){
   return '<div class="roster-group"><h3>'+type+' · '+list.length+'명</h3>'+list.map(p=>{
    const meta=[p.position,p.shirt_number!==null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:'',p.age?p.age+'세':'',p.nationality].filter(Boolean).map(esc).join(' · ');
    const photo=p.photo_url?'<img class="person-photo" src="'+esc(p.photo_url)+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="person-photo-placeholder">NO PHOTO</div>';
-   return '<article class="person-card"><div class="person-main">'+photo+'<div><div class="person-name">'+esc(p.name)+'</div><div class="person-meta">'+(meta||'추가 정보 없음')+'</div>'+(p.notes?'<div class="person-meta">'+esc(p.notes)+'</div>':'')+'</div></div><div style="display:flex;gap:7px;flex-shrink:0"><button class="action" data-edit="'+esc(p.id)+'" type="button">수정</button> '+(p.entry_type!=='FA'?'<button class=\"action\" data-release=\"'+esc(p.id)+'\" type=\"button\">FA 방출</button>':'')+'<button class="delete-btn" data-delete="'+esc(p.id)+'" type="button">삭제</button></div></article>';
+   return '<article class="person-card"><div class="person-main">'+photo+'<div><div class="person-name">'+esc(p.name)+'</div><div class="person-meta">'+(meta||'추가 정보 없음')+'</div>'+(p.notes?'<div class="person-meta">'+esc(p.notes)+'</div>':'')+'</div></div><div style="display:flex;gap:7px;flex-shrink:0"><button class="action" data-edit="'+esc(p.id)+'" type="button">수정</button> '+(p.entry_type==='선수'?'<button class=\"action\" data-release=\"'+esc(p.id)+'\" type=\"button\">FA 방출</button>':'')+'<button class="delete-btn" data-delete="'+esc(p.id)+'" type="button">삭제</button></div></article>';
   }).join('')+'</div>';
  }).join('');
 }
