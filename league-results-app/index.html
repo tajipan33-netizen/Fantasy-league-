@@ -868,11 +868,11 @@ loadPublicFriendlies();
 const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치진</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="admin">관리자</button>';
 function showTab(id){
  const teamMode=!!teamSession;
- const valid=teamMode?['team-roster','transfers','fa','admin']:['home','transfers','players','clubs','youth','fa','admin'];
+ const valid=teamMode?['team-roster','transfers','fa','admin']:['home','transfers','players','clubs','youth','fa','ai-rating','admin'];
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  const visibleSection=id==='admin'?'transfers':id;
- ['home','transfers','players','clubs','youth','fa'].forEach(key=>document.getElementById(key).classList.toggle('hidden',key!==visibleSection));
+ ['home','transfers','players','clubs','youth','fa','ai-rating'].forEach(key=>document.getElementById(key).classList.toggle('hidden',key!==visibleSection));
  document.querySelector('#rosterPanel').classList.toggle('hidden',!(teamMode&&id==='team-roster'));
  if(id==='fa')loadFAMarket();
  window.scrollTo({top:0,behavior:'smooth'});
