@@ -158,7 +158,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
   <div class="submit-row wide"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="action" id="savePersonBtn" type="submit">선수단 등록</button><button class="delete-btn hidden" id="cancelEditPersonBtn" type="button">수정 취소</button></div><span class="login-status" id="rosterStatus">등록할 정보를 입력해 주세요.</span></div>
  </form>
  <div class="divider"></div><div class="section-head" style="margin-top:18px"><h2>등록된 선수단</h2><span class="hint" id="rosterCount">0명</span></div>
- <div id="rosterList" class="roster-list"><div class="empty">로그인 후 선수단을 확인할 수 있습니다.</div></div>
+ <div class="field" style="max-width:240px"><label for="teamRosterSort">정렬 기준</label><select id="teamRosterSort"><option value="registered">등록순</option><option value="position">포지션순</option><option value="number">등번호순</option></select></div><div id="rosterList" class="roster-list"><div class="empty">로그인 후 선수단을 확인할 수 있습니다.</div></div>
 </div></section>
 <section id="home">
  <div class="home-hero"><div class="hero-image-space"><span class="hero-empty">SUPER LEAGUE · OFFICIAL</span></div><div class="hero-copy"><div class="hero-kicker">SUPER LEAGUE NEWS</div><h2>슈퍼리그의 모든 소식을<br>한곳에서 확인하세요.</h2><p>공식 경기 결과와 일정, 구단 소식 및 선수단 정보를 확인할 수 있습니다.</p><button class="hero-link" id="heroFixtures">공식 일정 보기 →</button></div></div>
@@ -168,9 +168,9 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
  <div class="panel"><div class="section-head"><h2>LEAGUE TABLE</h2><span class="hint">CURRENT STANDINGS</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>승점</th></tr></thead><tbody id="standings"></tbody></table></div></div>
  <div class="panel"><div class="section-head"><h2>TOP SCORERS</h2><span class="hint">GOAL RANKING</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 선수</th><th>소속팀</th><th>득점</th></tr></thead><tbody id="scorerRows"></tbody></table></div></div>
 </section>
-<section id="players" class="hidden"><div class="page-title">선수단</div><div class="panel"><div class="section-head"><h2>PLAYER DIRECTORY</h2><span class="hint">ALL CLUB PLAYERS</span></div><div class="public-roster-tools"><div class="field"><label for="browseTeamSelect">구단 선택</label><select id="browseTeamSelect"><option value="">구단을 불러오는 중...</option></select></div><button class="action" id="browseRosterBtn" type="button">선수단 보기</button></div><div id="publicRosterList" class="roster-list" style="margin-top:16px"><div class="empty">구단을 선택해 선수단을 확인하세요.</div></div></div></section>
-<section id="clubs" class="hidden"><div class="page-title">참가 구단</div><div class="panel"><div class="section-head"><h2>OFFICIAL CLUBS</h2><span class="hint">SUPER LEAGUE TEAMS</span></div><div id="clubDirectory" class="club-directory"><div class="empty">구단 정보를 불러오는 중입니다.</div></div></div><div class="panel"><div class="section-head"><h2 id="clubRosterTitle">구단 선수단</h2><span class="hint">CLUB ROSTER</span></div><div id="clubRosterList" class="roster-list"><div class="empty">위에서 구단을 선택하세요.</div></div></div></section>
-<section id="youth" class="hidden"><div class="page-title">유스 및 코치진</div><div class="panel"><div class="section-head"><h2>YOUTH & STAFF DIRECTORY</h2><span class="hint">YOUTH · MANAGER · COACH · STAFF</span></div><div class="public-roster-tools"><div class="field"><label for="youthTeamSelect">구단 선택</label><select id="youthTeamSelect"><option value="">구단을 불러오는 중...</option></select></div><div class="field"><label for="youthTypeSelect">분류</label><select id="youthTypeSelect"><option value="유스">유스 선수</option><option value="감독">감독</option><option value="코치">코치</option><option value="스태프">스태프</option><option value="">전체 보기</option></select></div><button class="action" id="youthRosterBtn" type="button">명단 보기</button></div><div id="youthRosterList" class="roster-list" style="margin-top:14px"><div class="empty">구단과 분류를 선택하세요.</div></div></div></section>
+<section id="players" class="hidden"><div class="page-title">선수단</div><div class="panel"><div class="section-head"><h2>PLAYER DIRECTORY</h2><span class="hint">ALL CLUB PLAYERS</span></div><div class="public-roster-tools"><div class="field"><label for="browseTeamSelect">구단 선택</label><select id="browseTeamSelect"><option value="">구단을 불러오는 중...</option></select></div><button class="action" id="browseRosterBtn" type="button">선수단 보기</button></div><div class="field" style="max-width:240px"><label for="publicRosterSort">정렬 기준</label><select id="publicRosterSort"><option value="registered">등록순</option><option value="position">포지션순</option><option value="number">등번호순</option></select></div><div id="publicRosterList" class="roster-list" style="margin-top:16px"><div class="empty">구단을 선택해 선수단을 확인하세요.</div></div></div></section>
+<section id="clubs" class="hidden"><div class="page-title">참가 구단</div><div class="panel"><div class="section-head"><h2>OFFICIAL CLUBS</h2><span class="hint">SUPER LEAGUE TEAMS</span></div><div id="clubDirectory" class="club-directory"><div class="empty">구단 정보를 불러오는 중입니다.</div></div></div><div class="panel"><div class="section-head"><h2 id="clubRosterTitle">구단 선수단</h2><span class="hint">CLUB ROSTER</span></div><div class="field" style="max-width:240px"><label for="clubRosterSort">정렬 기준</label><select id="clubRosterSort"><option value="registered">등록순</option><option value="position">포지션순</option><option value="number">등번호순</option></select></div><div id="clubRosterList" class="roster-list"><div class="empty">위에서 구단을 선택하세요.</div></div></div></section>
+<section id="youth" class="hidden"><div class="page-title">유스 및 코치진</div><div class="panel"><div class="section-head"><h2>YOUTH & STAFF DIRECTORY</h2><span class="hint">YOUTH · MANAGER · COACH · STAFF</span></div><div class="public-roster-tools"><div class="field"><label for="youthTeamSelect">구단 선택</label><select id="youthTeamSelect"><option value="">구단을 불러오는 중...</option></select></div><div class="field"><label for="youthTypeSelect">분류</label><select id="youthTypeSelect"><option value="유스">유스 선수</option><option value="감독">감독</option><option value="코치">코치</option><option value="스태프">스태프</option><option value="">전체 보기</option></select></div><button class="action" id="youthRosterBtn" type="button">명단 보기</button></div><div class="field" style="max-width:240px"><label for="youthRosterSort">정렬 기준</label><select id="youthRosterSort"><option value="registered">등록순</option><option value="position">포지션순</option><option value="number">등번호순</option></select></div><div id="youthRosterList" class="roster-list" style="margin-top:14px"><div class="empty">구단과 분류를 선택하세요.</div></div></div></section>
 <section id="fa" class="hidden"><div class="page-title">FREE AGENT MARKET</div><div class="panel"><div class="section-head"><h2>자유계약 선수</h2><span class="hint">FREE AGENTS</span></div><p class="hint">구단에서 방출된 선수들이 이곳에 표시됩니다. 로그인한 구단은 FA 선수를 영입할 수 있습니다.</p><div id="faRosterList" class="roster-list"><div class="empty">FA 명단을 불러오는 중입니다.</div></div></div></section>
 <section id="transfers" class="hidden">
  <div class="panel">
@@ -243,13 +243,24 @@ async function restoreTeamSession(){if(!teamSession)return;try{const me=await te
 let currentTeam='';
 let rosterItems=[];
 function rosterStatus(message,isGood=false){const el=document.querySelector('#rosterStatus');el.innerHTML=isGood?'<strong>'+esc(message)+'</strong>':esc(message)}
+function sortRosterItems(items,sortKey){
+ const rank={GK:0,LB:1,LWB:1,CB:2,RB:3,RWB:3,CDM:4,CM:5,CAM:6,LM:7,LW:7,RM:8,RW:8,CF:9,ST:10};
+ const pos=p=>String(p.position||'').toUpperCase().split(/[\s,/]+/)[0];
+ const num=p=>p.shirt_number===null||p.shirt_number===undefined||p.shirt_number===''?Infinity:Number(p.shirt_number);
+ return items.map((p,i)=>({p,i})).sort((a,b)=>{
+  if(sortKey==='position')return (rank[pos(a.p)]??99)-(rank[pos(b.p)]??99)||pos(a.p).localeCompare(pos(b.p))||a.i-b.i;
+  if(sortKey==='number')return num(a.p)-num(b.p)||a.i-b.i;
+  return a.i-b.i;
+ }).map(x=>x.p);
+}
+function rosterSortFor(target){return document.querySelector(({ '#publicRosterList':'#publicRosterSort','#clubRosterList':'#clubRosterSort','#youthRosterList':'#youthRosterSort'})[target]||'#publicRosterSort')?.value||'registered';}
 function renderRoster(){
  const host=document.querySelector('#rosterList');
  document.querySelector('#rosterCount').textContent=rosterItems.length+'명';
  if(!rosterItems.length){host.innerHTML='<div class="empty">아직 등록된 선수단이 없습니다.</div>';return;}
  const order=['선수','유스','감독','코치','스태프','FA'];
  host.innerHTML=order.map(type=>{
-  const list=rosterItems.filter(p=>p.entry_type===type);
+  const list=sortRosterItems(rosterItems.filter(p=>p.entry_type===type),document.querySelector('#teamRosterSort').value);
   if(!list.length)return '';
   return '<div class="roster-group"><h3>'+type+' · '+list.length+'명</h3>'+list.map(p=>{
    const meta=[p.position,p.shirt_number!==null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:'',p.age?p.age+'세':'',p.nationality].filter(Boolean).map(esc).join(' · ');
@@ -332,7 +343,7 @@ async function loadPublicRoster(clubId,typeFilter='',target='#publicRosterList')
   const roster=(result.roster||[]).filter(p=>typeFilter==='youth_all'?['유스','감독','코치','스태프'].includes(p.entry_type):(!typeFilter||p.entry_type===typeFilter));
   if(!roster.length){showMessage(target,typeFilter==='유스'?result.team+'에 등록된 유스 선수가 없습니다.':typeFilter==='youth_all'?result.team+'에 등록된 유스 및 코치진이 없습니다.':result.team+'에 등록된 선수가 없습니다.');return;}
   const order=typeFilter==='youth_all'?['유스','감독','코치','스태프']:(typeFilter?[typeFilter]:['선수','유스','감독','코치','스태프']);
-  host.innerHTML=order.map(type=>{const list=roster.filter(p=>p.entry_type===type);if(!list.length)return '';
+  host.innerHTML=order.map(type=>{const list=sortRosterItems(roster.filter(p=>p.entry_type===type),rosterSortFor(target));if(!list.length)return '';
    return '<div class="roster-group"><h3>'+type+' · '+list.length+'명</h3>'+list.map(p=>{
     const meta=[p.position,p.shirt_number!==null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:'',p.age?p.age+'세':'',p.nationality].filter(Boolean).map(esc).join(' · ');
     const photo=p.photo_url?'<img class="person-photo" src="'+esc(p.photo_url)+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="person-photo-placeholder">NO PHOTO</div>';
@@ -367,9 +378,18 @@ document.querySelector('#faRosterList').addEventListener('click',async e=>{
  const sign=e.target.closest('[data-fa-sign]');
  if(sign){if(!confirm('이 FA 선수를 우리 구단에 영입할까요?'))return;sign.disabled=true;try{await teamRequest('signFreeAgent',{id:sign.dataset.faSign});await loadFAMarket();await loadRoster();}catch(err){alert(err.message);sign.disabled=false;}}
 });
+document.querySelector('#teamRosterSort').addEventListener('change',renderRoster);
+for(const [sortId,teamId,type,target] of [['publicRosterSort','browseTeamSelect','선수','#publicRosterList'],['clubRosterSort',null,'','#clubRosterList'],['youthRosterSort','youthTeamSelect',null,'#youthRosterList']]){
+ document.querySelector('#'+sortId).addEventListener('change',()=>{
+  const id=teamId?document.querySelector('#'+teamId).value:(document.querySelector('#clubDirectory [data-club].active')?.dataset.club||window.lastClubRosterId);
+  if(!id)return;
+  const filter=type===null?(document.querySelector('#youthTypeSelect').value||'youth_all'):type;
+  loadPublicRoster(id,filter,target);
+ });
+}
 document.querySelector('#browseRosterBtn').addEventListener('click',()=>loadPublicRoster(document.querySelector('#browseTeamSelect').value,'선수','#publicRosterList'));
 document.querySelector('#browseTeamSelect').addEventListener('change',e=>loadPublicRoster(e.target.value,'선수','#publicRosterList'));
-document.querySelector('#clubDirectory').addEventListener('click',e=>{const b=e.target.closest('[data-club]');if(!b)return;const id=b.dataset.club;document.querySelector('#clubRosterTitle').textContent=(data.teams.find(t=>t.id===id)?.name||'구단')+' 선수단';loadPublicRoster(id,'','#clubRosterList');});
+document.querySelector('#clubDirectory').addEventListener('click',e=>{const b=e.target.closest('[data-club]');if(!b)return;const id=b.dataset.club;window.lastClubRosterId=id;document.querySelector('#clubRosterTitle').textContent=(data.teams.find(t=>t.id===id)?.name||'구단')+' 선수단';loadPublicRoster(id,'','#clubRosterList');});
 let selectedPhotoBase64='';
 async function readPhotoAsDataUrl(file){
  // Android WebView에서 content:// 파일의 FileReader가 실패하는 경우를 대비해 ArrayBuffer를 먼저 사용합니다.
