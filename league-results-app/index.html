@@ -163,6 +163,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
  <div class="home-hero"><div class="hero-image-space"><span class="hero-empty">SUPER LEAGUE · OFFICIAL</span></div><div class="hero-copy"><div class="hero-kicker">SUPER LEAGUE NEWS</div><h2>슈퍼리그의 모든 소식을<br>한곳에서 확인하세요.</h2><p>공식 경기 결과와 일정, 구단 소식 및 선수단 정보를 확인할 수 있습니다.</p><button class="hero-link" id="heroFixtures">공식 일정 보기 →</button></div></div>
  <div class="panel home-news"><div class="section-head"><h2>SUPER LEAGUE</h2><span class="hint">LATEST RESULTS →</span></div><div id="matches"></div></div>
  <div class="panel"><div class="section-head"><h2>OFFICIAL FIXTURES</h2><span class="hint">22 TEAMS · 42 ROUNDS · 462 MATCHES</span></div><div class="field" style="max-width:240px;margin-bottom:14px"><label for="fixtureRoundSelect">라운드 선택</label><select id="fixtureRoundSelect"><option value="all">전체 라운드</option></select></div><div id="fixtureList"><div class="empty">일정을 불러오는 중입니다.</div></div></div>
+ <div class="panel"><div class="section-head"><h2>친선경기</h2><span class="hint">OFFICIAL FRIENDLIES</span></div><div id="publicFriendlies"><div class="empty">친선경기 일정을 불러오는 중입니다.</div></div></div>
  <div class="panel"><div class="section-head"><h2>LEAGUE TABLE</h2><span class="hint">CURRENT STANDINGS</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>승점</th></tr></thead><tbody id="standings"></tbody></table></div></div>
  <div class="panel"><div class="section-head"><h2>TOP SCORERS</h2><span class="hint">GOAL RANKING</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 선수</th><th>소속팀</th><th>득점</th></tr></thead><tbody id="scorerRows"></tbody></table></div></div>
 </section>
@@ -194,7 +195,23 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
     <div class="admin-code-row"><input id="transferAdminCode" type="password" autocomplete="off" placeholder="관리자 코드 입력"><button class="action" id="transferAdminLogin" type="button">관리자 로그인</button></div>
     <div class="login-status" id="adminLoginStatus">관리자 전용 접속</div>
    </div>
-   <div id="adminDashboard" class="hidden"><div class="transfer-actions"><button class="action" id="adminRefresh" type="button">목록 새로고침</button><button class="action" id="adminLogout" type="button">관리자 로그아웃</button></div><div id="adminTransferOffers"></div></div>
+   <div id="adminDashboard" class="hidden"><div class="transfer-actions"><button class="action" id="adminRefresh" type="button">목록 새로고침</button><button class="action" id="adminLogout" type="button">관리자 로그아웃</button></div><div id="adminTransferOffers"></div>
+    <div class="divider"></div>
+    <div class="section-head"><h2>친선경기 관리</h2><span class="hint">FRIENDLY FIXTURES ADMIN</span></div>
+    <form id="friendlyAdminForm" class="roster-form">
+     <input type="hidden" id="friendlyEditId">
+     <div class="field"><label for="friendlyHome">홈팀</label><select id="friendlyHome" required><option value="">홈팀 선택</option></select></div>
+     <div class="field"><label for="friendlyAway">원정팀</label><select id="friendlyAway" required><option value="">원정팀 선택</option></select></div>
+     <div class="field"><label for="friendlyKickoff">경기 날짜 및 시간</label><input id="friendlyKickoff" type="datetime-local" required></div>
+     <div class="field"><label for="friendlyVenue">경기장</label><input id="friendlyVenue" maxlength="160" placeholder="경기장 입력"></div>
+     <div class="field"><label for="friendlyStatus">경기 상태</label><select id="friendlyStatus"><option value="scheduled">예정</option><option value="completed">종료</option><option value="cancelled">취소</option></select></div>
+     <div class="field"><label>스코어 (홈 - 원정)</label><div class="transfer-actions"><input id="friendlyHomeScore" type="number" min="0" step="1" placeholder="홈 득점"><input id="friendlyAwayScore" type="number" min="0" step="1" placeholder="원정 득점"></div></div>
+     <div class="field wide"><label for="friendlyNotes">메모</label><input id="friendlyNotes" maxlength="500" placeholder="경기 관련 안내 (선택)"></div>
+     <div class="transfer-actions wide"><button class="action" type="submit" id="friendlySave">친선경기 등록</button><button class="delete-btn" type="button" id="friendlyCancelEdit">입력 초기화</button></div>
+     <div class="login-status wide" id="friendlyAdminStatus">관리자 로그인 후 친선경기를 등록하고 관리할 수 있습니다.</div>
+    </form>
+    <div id="adminFriendlyList"><div class="empty">관리자 로그인 후 관리 목록을 확인할 수 있습니다.</div></div>
+   </div>
   </div>
  </div>
  <div class="panel"><div class="section-head"><h2>이적 완료 기록</h2><span class="hint">COMPLETED TRANSFERS</span></div><div id="transferHistory"><div class="empty">공식 이적 기록을 불러오는 중입니다.</div></div></div>
@@ -563,9 +580,61 @@ document.querySelector('#transferAdminLogin').addEventListener('click',async()=>
  try{
   const result=await teamRequest('adminLogin',{code:document.querySelector('#transferAdminCode').value.trim().toUpperCase()},'');
   adminSession=result.token;sessionStorage.setItem('spfl_admin_session',adminSession);document.querySelector('#transferAdminCode').value='';
-  document.querySelector('#adminLoginBox').classList.add('hidden');document.querySelector('#adminDashboard').classList.remove('hidden');document.querySelector('#adminLoginStatus').textContent='관리자 인증 성공';await loadAdminTransfers();
+  document.querySelector('#adminLoginBox').classList.add('hidden');document.querySelector('#adminDashboard').classList.remove('hidden');document.querySelector('#adminLoginStatus').textContent='관리자 인증 성공';await loadAdminTransfers();await loadAdminFriendlies();
  }catch(error){document.querySelector('#adminLoginStatus').textContent=error.message;}
  finally{btn.disabled=false;}
+});
+
+let friendlyClubs=[],friendlyItems=[];
+function friendlyDateValue(value){const d=new Date(value);const pad=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());}
+function friendlyStatusLabel(status){return status==='completed'?'종료':status==='cancelled'?'취소':'예정';}
+function renderPublicFriendlies(items){
+ const host=document.querySelector('#publicFriendlies');
+ if(!items.length){host.innerHTML='<div class="empty">등록된 친선경기가 없습니다.</div>';return;}
+ host.innerHTML=items.map(m=>'<article class="transfer-offer"><div class="transfer-meta">'+esc(new Date(m.kickoff_at).toLocaleString('ko-KR'))+' · '+esc(m.venue||'경기장 미정')+'</div><h3>'+esc(m.home?.name||'홈팀')+' <span style="color:#d5b775">'+(m.status==='completed'?esc(m.home_score+' - '+m.away_score):'vs')+'</span> '+esc(m.away?.name||'원정팀')+'</h3><div class="transfer-meta">'+friendlyStatusLabel(m.status)+(m.notes?' · '+esc(m.notes):'')+'</div></article>').join('');
+}
+async function loadPublicFriendlies(){
+ const host=document.querySelector('#publicFriendlies');
+ try{const r=await teamRequest('listPublicFriendlies',{},'');renderPublicFriendlies(r.friendlies||[]);}
+ catch(error){host.innerHTML='<div class="empty">'+esc(error.message)+'</div>';}
+}
+function resetFriendlyForm(){
+ document.querySelector('#friendlyAdminForm').reset();document.querySelector('#friendlyEditId').value='';
+ document.querySelector('#friendlySave').textContent='친선경기 등록';
+}
+function renderAdminFriendlies(){
+ const host=document.querySelector('#adminFriendlyList');
+ if(!friendlyItems.length){host.innerHTML='<div class="empty">등록된 친선경기가 없습니다.</div>';return;}
+ host.innerHTML=friendlyItems.map(m=>'<article class="transfer-offer"><div class="transfer-meta">'+esc(new Date(m.kickoff_at).toLocaleString('ko-KR'))+' · '+esc(m.venue||'경기장 미정')+'</div><h3>'+esc(m.home?.name||'')+' vs '+esc(m.away?.name||'')+'</h3><div class="transfer-meta">상태: '+friendlyStatusLabel(m.status)+(m.status==='completed'?' · '+m.home_score+' - '+m.away_score:'')+'</div><div class="transfer-actions"><button class="action" type="button" data-friendly-edit="'+esc(m.id)+'">수정 / 결과 입력</button><button class="delete-btn" type="button" data-friendly-delete="'+esc(m.id)+'">삭제</button></div></article>').join('');
+}
+async function loadAdminFriendlies(){
+ if(!adminSession)return;
+ const status=document.querySelector('#friendlyAdminStatus');
+ try{
+  const [clubs,fixtures]=await Promise.all([teamRequest('adminListClubs',{},adminSession),teamRequest('adminListFriendlies',{},adminSession)]);
+  friendlyClubs=clubs.clubs||[];friendlyItems=fixtures.friendlies||[];
+  const options='<option value="">구단 선택</option>'+friendlyClubs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('');
+  const home=document.querySelector('#friendlyHome'),away=document.querySelector('#friendlyAway');
+  const hv=home.value,av=away.value;home.innerHTML=options;away.innerHTML=options;home.value=hv;away.value=av;
+  renderAdminFriendlies();status.textContent='친선경기 '+friendlyItems.length+'건을 관리 중입니다.';
+ }catch(error){status.textContent=error.message;}
+}
+document.querySelector('#friendlyAdminForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(!adminSession){alert('관리자 로그인이 필요합니다.');return;}
+ const id=document.querySelector('#friendlyEditId').value;
+ const kickoff=document.querySelector('#friendlyKickoff').value;
+ const payload={home_club_id:document.querySelector('#friendlyHome').value,away_club_id:document.querySelector('#friendlyAway').value,kickoff_at:new Date(kickoff).toISOString(),venue:document.querySelector('#friendlyVenue').value,notes:document.querySelector('#friendlyNotes').value,status:document.querySelector('#friendlyStatus').value,home_score:document.querySelector('#friendlyHomeScore').value,away_score:document.querySelector('#friendlyAwayScore').value};
+ const btn=document.querySelector('#friendlySave');btn.disabled=true;
+ try{await teamRequest(id?'adminUpdateFriendly':'adminCreateFriendly',{...payload,id},adminSession);document.querySelector('#friendlyAdminStatus').textContent=id?'친선경기 정보를 수정했습니다.':'친선경기를 등록했습니다.';resetFriendlyForm();await loadAdminFriendlies();await loadPublicFriendlies();}
+ catch(error){document.querySelector('#friendlyAdminStatus').textContent=error.message;}
+ finally{btn.disabled=false;}
+});
+document.querySelector('#friendlyCancelEdit').addEventListener('click',resetFriendlyForm);
+document.querySelector('#adminFriendlyList').addEventListener('click',async e=>{
+ const edit=e.target.closest('[data-friendly-edit]'),del=e.target.closest('[data-friendly-delete]');
+ if(edit){const m=friendlyItems.find(x=>x.id===edit.dataset.friendlyEdit);if(!m)return;
+  document.querySelector('#friendlyEditId').value=m.id;document.querySelector('#friendlyHome').value=m.home_club_id;document.querySelector('#friendlyAway').value=m.away_club_id;document.querySelector('#friendlyKickoff').value=friendlyDateValue(m.kickoff_at);document.querySelector('#friendlyVenue').value=m.venue||'';document.querySelector('#friendlyStatus').value=m.status;document.querySelector('#friendlyHomeScore').value=m.home_score??'';document.querySelector('#friendlyAwayScore').value=m.away_score??'';document.querySelector('#friendlyNotes').value=m.notes||'';document.querySelector('#friendlySave').textContent='친선경기 수정 저장';document.querySelector('#friendlyAdminForm').scrollIntoView({behavior:'smooth',block:'center'});return;}
+ if(del&&confirm('이 친선경기 일정을 삭제할까요?')){del.disabled=true;try{await teamRequest('adminDeleteFriendly',{id:del.dataset.friendlyDelete},adminSession);await loadAdminFriendlies();await loadPublicFriendlies();}catch(error){alert(error.message);del.disabled=false;}}
 });
 async function loadAdminTransfers(){
  if(!adminSession)return;
@@ -578,7 +647,7 @@ async function loadAdminTransfers(){
   sessionStorage.removeItem('spfl_admin_session');adminSession='';document.querySelector('#adminDashboard').classList.add('hidden');document.querySelector('#adminLoginBox').classList.remove('hidden');document.querySelector('#adminLoginStatus').textContent=error.message;
  }
 }
-document.querySelector('#adminRefresh').addEventListener('click',loadAdminTransfers);
+document.querySelector('#adminRefresh').addEventListener('click',async()=>{await loadAdminTransfers();await loadAdminFriendlies();});
 document.querySelector('#adminLogout').addEventListener('click',()=>{adminSession='';sessionStorage.removeItem('spfl_admin_session');document.querySelector('#adminDashboard').classList.add('hidden');document.querySelector('#adminLoginBox').classList.remove('hidden');document.querySelector('#adminLoginStatus').textContent='관리자 로그아웃 완료';});
 document.querySelector('#adminTransferOffers').addEventListener('click',async e=>{
  const btn=e.target.closest('[data-admin-decision]');if(!btn)return;
@@ -593,9 +662,10 @@ document.querySelector('#adminTransferOffers').addEventListener('click',async e=
 });
 
 restoreTeamSession();
-if(adminSession){document.querySelector("#adminLoginBox").classList.add("hidden");document.querySelector("#adminDashboard").classList.remove("hidden");loadAdminTransfers();}
+if(adminSession){document.querySelector("#adminLoginBox").classList.add("hidden");document.querySelector("#adminDashboard").classList.remove("hidden");loadAdminTransfers();loadAdminFriendlies();}
 loadTransferMarket();
 loadFAMarket();
+loadPublicFriendlies();
 const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치진</button><button class="tab" data-tab="fa">FA</button>';
 function showTab(id){
  const teamMode=!!teamSession;
