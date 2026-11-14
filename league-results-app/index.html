@@ -865,10 +865,11 @@ if(adminSession){document.querySelector("#adminLoginBox").classList.add("hidden"
 loadTransferMarket();
 loadFAMarket();
 loadPublicFriendlies();
-const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치진</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="admin">관리자</button>';
+const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="ea-ratings">EA 공식 레이팅</button>';
+let teamWorkspaceMode=false;
 function showTab(id){
- const teamMode=!!teamSession;
- const valid=teamMode?['team-roster','home','clubs','transfers','fa','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','admin'];
+ const teamMode=teamWorkspaceMode&&!!teamSession;
+ const valid=teamMode?['team-roster','transfers','fa','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','admin'];
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  const visibleSection=id==='admin'?'transfers':id;
@@ -881,8 +882,9 @@ function showTab(id){
 }
 function applyTeamMode(loggedIn){
  const nav=document.querySelector('.tabs');
+ teamWorkspaceMode=!!loggedIn;
  if(loggedIn){
-  nav.innerHTML='<button class="tab active" data-tab="team-roster">우리 선수단 등록</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA 시장</button><button class="tab" data-tab="admin">관리자</button>';
+  nav.innerHTML='<button class="tab active" data-tab="team-roster">팀 등록</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button>';
   document.querySelector('#clubShortcuts').classList.add('visible');
   showTab('team-roster');
  }else{
@@ -893,7 +895,7 @@ function applyTeamMode(loggedIn){
 
 }
 document.querySelector('#clubBackHome').addEventListener('click',()=>{if(teamSession){applyTeamMode(false);showTab('home');}else showTab('home');});
-document.querySelector('#clubGoDirectory').addEventListener('click',()=>{if(teamSession){showTab('team-roster');}else showTab('home');});
+document.querySelector('#clubGoDirectory').addEventListener('click',()=>{if(teamSession){applyTeamMode(true);showTab('team-roster');}else showTab('home');});
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)showTab(b.dataset.tab);});
 document.querySelector('#heroFixtures').addEventListener('click',()=>{showTab('home');document.querySelector('#fixtureRoundSelect').scrollIntoView({behavior:'smooth',block:'start'});});
 document.querySelector('#headerTeamLogin').addEventListener('click',()=>{document.querySelector('#team-login').classList.remove('hidden');document.querySelector('#teamCode').focus();});
