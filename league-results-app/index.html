@@ -205,9 +205,9 @@ async function loadPublicRoster(clubId,typeFilter='',target='#publicRosterList')
  showMessage(target,'선수단을 불러오는 중입니다.');
  try{
   const result=await teamRequest('listPublicRoster',{club_id:clubId},'');
-  const roster=(result.roster||[]).filter(p=>!typeFilter||p.entry_type===typeFilter);
-  if(!roster.length){showMessage(target,typeFilter==='유스'?result.team+'에 등록된 U20 선수가 없습니다.':result.team+'에 등록된 선수가 없습니다.');return;}
-  const order=typeFilter?[typeFilter]:['선수','유스','감독','코치','스태프'];
+  const roster=(result.roster||[]).filter(p=>typeFilter==='youth_all'?['유스','감독','코치','스태프'].includes(p.entry_type):(!typeFilter||p.entry_type===typeFilter));
+  if(!roster.length){showMessage(target,typeFilter==='유스'?result.team+'에 등록된 유스 선수가 없습니다.':typeFilter==='youth_all'?result.team+'에 등록된 유스 및 코치진이 없습니다.':result.team+'에 등록된 선수가 없습니다.');return;}
+  const order=typeFilter==='youth_all'?['유스','감독','코치','스태프']:(typeFilter?[typeFilter]:['선수','유스','감독','코치','스태프']);
   host.innerHTML=order.map(type=>{const list=roster.filter(p=>p.entry_type===type);if(!list.length)return '';
    return '<div class="roster-group"><h3>'+type+' · '+list.length+'명</h3>'+list.map(p=>{
     const meta=[p.position,p.shirt_number!==null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:'',p.age?p.age+'세':'',p.nationality].filter(Boolean).map(esc).join(' · ');
@@ -505,7 +505,7 @@ document.querySelector('#headerTeamLogin').addEventListener('click',()=>{documen
 document.querySelector('#team-login').addEventListener('click',e=>{if(e.target.closest('[data-close-login]'))document.querySelector('#team-login').classList.add('hidden');});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelector('#team-login').classList.add('hidden');});
 document.querySelector('#headerAdmin').addEventListener('click',()=>{showTab('transfers');setTimeout(()=>document.querySelector('#adminLoginBox').scrollIntoView({behavior:'smooth',block:'center'}),150);});
-function refreshYouthRoster(){loadPublicRoster(document.querySelector('#youthTeamSelect').value,document.querySelector('#youthTypeSelect').value,'#youthRosterList');}
+function refreshYouthRoster(){const type=document.querySelector('#youthTypeSelect').value;loadPublicRoster(document.querySelector('#youthTeamSelect').value,type||'youth_all','#youthRosterList');}
 document.querySelector('#youthRosterBtn').addEventListener('click',refreshYouthRoster);
 document.querySelector('#youthTeamSelect').addEventListener('change',refreshYouthRoster);
 document.querySelector('#youthTypeSelect').addEventListener('change',refreshYouthRoster);
