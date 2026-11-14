@@ -324,12 +324,14 @@ async function loadFAMarket(){
    const meta=[p.position,p.shirt_number!==null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:'',p.age?p.age+'세':'',p.nationality,p.club?.name?'전 소속 '+p.club.name:''].filter(Boolean).map(esc).join(' · ');
    const photo=p.photo_url?'<img class="person-photo" src="'+esc(p.photo_url)+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="person-photo-placeholder">NO PHOTO</div>';
    const owner=teamSession&&p.club_id===currentClubId;
-   const actions=(teamSession?'<button class="action" data-fa-sign="'+esc(p.id)+'" type="button">계약하기</button>':'')+(owner?'<button class="action" data-fa-edit="'+esc(p.id)+'" type="button">수정</button><button class="delete-btn" data-fa-delete="'+esc(p.id)+'" type="button">삭제</button>':'');
+   const actions=(teamSession?'<button class="action" data-fa-sign="'+esc(p.id)+'" type="button">계약하기</button>':'<button class="action" data-fa-login type="button">구단 로그인 후 계약</button>')+(owner?'<button class="action" data-fa-edit="'+esc(p.id)+'" type="button">수정</button><button class="delete-btn" data-fa-delete="'+esc(p.id)+'" type="button">삭제</button>':'');
    return '<article class="person-card"><div class="person-main">'+photo+'<div><div class="person-name">'+esc(p.name)+' <span class="fa-name-tag">(FA)</span></div><div class="person-meta">'+(meta||'정보 없음')+'</div></div></div><div class="transfer-actions">'+actions+'</div></article>';
   }).join('');
  }catch(error){host.innerHTML='<div class="empty">'+esc(error.message)+'</div>';}
 }
 document.querySelector('#faRosterList').addEventListener('click',async e=>{
+ const login=e.target.closest('[data-fa-login]');
+ if(login){document.querySelector('#team-login').classList.remove('hidden');document.querySelector('#teamCode').focus();return;}
  const edit=e.target.closest('[data-fa-edit]');
  if(edit){startRosterEdit(edit.dataset.faEdit);document.querySelector('#rosterPanel').classList.remove('hidden');document.querySelector('#rosterForm').scrollIntoView({behavior:'smooth',block:'center'});return;}
  const del=e.target.closest('[data-fa-delete]');
@@ -597,7 +599,7 @@ loadFAMarket();
 const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치진</button><button class="tab" data-tab="fa">FA</button>';
 function showTab(id){
  const teamMode=!!teamSession;
- const valid=teamMode?['team-roster','transfers']:['home','transfers','players','clubs','youth','fa'];
+ const valid=teamMode?['team-roster','transfers','fa']:['home','transfers','players','clubs','youth','fa'];
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  ['home','transfers','players','clubs','youth','fa'].forEach(key=>document.getElementById(key).classList.toggle('hidden',key!==id));
@@ -608,7 +610,7 @@ function showTab(id){
 function applyTeamMode(loggedIn){
  const nav=document.querySelector('.tabs');
  if(loggedIn){
-  nav.innerHTML='<button class="tab active" data-tab="team-roster">우리 선수단 등록</button><button class="tab" data-tab="transfers">이적시장</button>';
+  nav.innerHTML='<button class="tab active" data-tab="team-roster">우리 선수단 등록</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA 시장</button>';
   showTab('team-roster');
  }else{
   nav.innerHTML=publicNavMarkup;
