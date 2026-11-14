@@ -535,7 +535,7 @@ function applyTeamMode(loggedIn){
   nav.innerHTML=publicNavMarkup;
   showTab('home');
  }
- nav.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+
 }
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)showTab(b.dataset.tab);});
 document.querySelector('#heroFixtures').addEventListener('click',()=>{showTab('home');document.querySelector('#fixtureRoundSelect').scrollIntoView({behavior:'smooth',block:'start'});});
