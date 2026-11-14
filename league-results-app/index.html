@@ -875,7 +875,10 @@ function showTab(id){
  const visibleSection=id==='admin'?'transfers':id;
  ['home','transfers','players','clubs','youth','fa','ea-ratings'].forEach(key=>document.getElementById(key).classList.toggle('hidden',key!==visibleSection));
  document.querySelector('#rosterPanel').classList.toggle('hidden',!(teamMode&&id==='team-roster'));
- document.querySelector('#clubShortcuts').classList.toggle('visible',teamMode);
+ document.querySelector('#clubShortcuts').classList.toggle('visible',!!teamSession);
+ document.querySelector('#clubBackHome').classList.toggle('hidden',!teamMode);
+ document.querySelector('#clubGoDirectory').classList.toggle('hidden',teamMode);
+ document.querySelector('#clubGoDirectory').textContent='팀 관리하러 가기';
  if(id==='fa')loadFAMarket();
  window.scrollTo({top:0,behavior:'smooth'});
  if(id==='admin')setTimeout(()=>{const target=document.querySelector('#adminDashboard:not(.hidden)')||document.querySelector('#adminLoginBox');target?.scrollIntoView({behavior:'smooth',block:'center'});},100);
@@ -889,7 +892,7 @@ function applyTeamMode(loggedIn){
   showTab('team-roster');
  }else{
   nav.innerHTML=publicNavMarkup;
-  document.querySelector('#clubShortcuts').classList.remove('visible');
+  document.querySelector('#clubShortcuts').classList.add('visible');
   showTab('home');
  }
 
