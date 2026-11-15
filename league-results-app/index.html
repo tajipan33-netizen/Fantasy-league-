@@ -652,9 +652,17 @@ function renderTransferPlayerOptions(){
  if(filtered.some(p=>p.id===previous))select.value=previous;
  if(!filtered.length)select.innerHTML='<option value="">검색 결과가 없습니다.</option>';
 }
+function renderTransferBrowseResults(){
+ const host=document.querySelector('#transferBrowseResults');if(!host)return;
+ const q=(document.querySelector('#transferBrowseSearch')?.value||'').trim().toLocaleLowerCase();
+ const items=transferPlayers.filter(p=>[p.name,p.position,p.club?.name].some(v=>String(v||'').toLocaleLowerCase().includes(q))).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ko'));
+ if(!items.length){host.innerHTML='<div class="empty">검색 결과가 없습니다.</div>';return;}
+ host.innerHTML=items.slice(0,120).map(p=>'<article class="market-player-card">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'" alt="" loading="lazy">':'<div class="person-photo-placeholder">PLAYER</div>')+'<div class="market-player-info"><h3>'+esc(p.name)+'</h3><p>'+esc([p.position||'포지션 미정',p.club?.name||'소속 미상',p.shirt_number?'#'+p.shirt_number:''].filter(Boolean).join(' · '))+'</p></div>'+(p.overall?'<span class="market-player-ovr">OVR '+esc(p.overall)+'</span>':'')+'</article>').join('')+(items.length>120?'<div class="empty">검색 결과 '+items.length+'명 중 120명 표시 중입니다. 검색어를 입력해 범위를 좁혀주세요.</div>':'');
+}
 async function loadTransferMarket(){
+ const playerHost=document.querySelector('#transferBrowseResults'),historyHost=document.querySelector('#transferHistory');
  try{
-  const [players,history]=await Promise.all([teamRequest('listTransferTargets',{},''),teamRequest('listTransferHistory',{},'')]);
+  const players=await teamRequest('listTransferTargets',{},'');
   transferPlayers=players.players||[];
   const clubFilter=document.querySelector('#transferClubFilter');
   const previousClub=clubFilter.value;
@@ -662,15 +670,20 @@ async function loadTransferMarket(){
   transferPlayers.forEach(p=>{if(p.club_id&&p.club?.name)clubs.set(p.club_id,p.club.name);});
   clubFilter.innerHTML='<option value="">전체 구단</option>'+[...clubs.entries()].sort((a,b)=>a[1].localeCompare(b[1],'ko')).map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('');
   if(clubs.has(previousClub))clubFilter.value=previousClub;
-  renderTransferPlayerOptions();
-  renderTransferHistory(history.transfers||[]);
+  renderTransferPlayerOptions();renderTransferBrowseResults();
  }catch(error){
+  if(playerHost)playerHost.innerHTML='<div class="empty">선수 목록을 불러오지 못했습니다. 잠시 후 새로고침해 주세요.</div>';
   document.querySelector('#transferPlayerSelect').innerHTML='<option value="">선수 목록을 불러오지 못했습니다.</option>';
-  document.querySelector('#transferHistory').innerHTML='<div class="empty">'+esc(error.message)+'</div>';
  }
+ try{const history=await teamRequest('listTransferHistory',{},'');renderTransferHistory(history.transfers||[]);}
+ catch(error){if(historyHost)historyHost.innerHTML='<div class="empty">이적 기록을 불러오지 못했습니다.</div>';}
  if(teamSession) await loadTransferDashboard();
  if(adminSession) await loadAdminTransfers();
 }
+document.querySelector('#transferBrowseSearch').addEventListener('input',renderTransferBrowseResults);
+document.querySelector('#transferBrowseSubmit').addEventListener('click',renderTransferBrowseResults);
+document.querySelector('#transferBrowseJump').addEventListener('click',()=>document.querySelector('.available-market').scrollIntoView({behavior:'smooth'}));
+document.querySelector('#transferHistoryJump').addEventListener('click',()=>document.querySelector('#transferHistory').scrollIntoView({behavior:'smooth'}));
 document.querySelector('#transferClubFilter').addEventListener('change',renderTransferPlayerOptions);
 document.querySelector('#transferPlayerSearch').addEventListener('input',renderTransferPlayerOptions);
 function renderTransferHistory(items){
