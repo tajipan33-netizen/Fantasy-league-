@@ -297,7 +297,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
  </div>
 </section>
 
-<section id="squadBuilderPanel" class="hidden"><div class="page-title">스쿼드 메이커</div><div class="panel"><div class="section-head"><h2>SUPER LEAGUE SQUAD BUILDER</h2><span class="hint" id="squadClubLabel">MY CLUB</span></div><p class="hint">우리 구단에 등록된 1군 선수 중 11명을 선택해 선발 라인업을 구성하세요.</p><div class="squad-tools"><div class="field" style="min-width:190px;flex:1"><label for="squadFormationSelect">포메이션 선택</label><select id="squadFormationSelect"><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>4-1-4-1</option><option>4-3-2-1</option><option>3-4-3</option><option>3-5-2</option><option>3-4-2-1</option><option>3-4-1-2</option><option>5-3-2</option><option>5-4-1</option><option>4-2-2-2</option><option>4-2-4</option><option>3-2-4-1</option><option>4-5-1</option></select></div><button class="delete-btn" type="button" id="squadClearBtn">전체 비우기</button><span class="hint" id="squadCount">0 / 11명</span></div><div class="squad-pitch" id="squadPitch" aria-label="선발 라인업 경기장"></div><div class="hint" id="squadStatus">포지션을 눌러 선수를 배치하세요. 구성은 이 기기에 자동 저장됩니다.</div></div></section>
+<section id="squadBuilderPanel" class="hidden"><div class="page-title">스쿼드 메이커</div><div class="panel"><div class="section-head"><h2>SUPER LEAGUE SQUAD BUILDER</h2><span class="hint" id="squadClubLabel">MY CLUB</span></div><p class="hint">우리 구단에 등록된 1군 선수 중 11명을 선택해 선발 라인업을 구성하세요.</p><div class="squad-tools"><div class="field" style="min-width:190px;flex:1"><label for="squadFormationSelect">포메이션 선택</label><select id="squadFormationSelect"><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>4-1-4-1</option><option>4-3-2-1</option><option>3-4-3</option><option>3-5-2</option><option>3-4-2-1</option><option>3-4-1-2</option><option>5-3-2</option><option>5-4-1</option><option>4-2-2-2</option><option>4-2-4</option><option>3-2-4-1</option><option>4-5-1</option><option>4-1-2-1-2</option><option>4-3-1-2</option><option>4-1-3-2</option><option>4-4-1-1</option><option>4-2-1-3</option><option>3-1-4-2</option><option>3-3-2-2</option><option>5-2-3</option><option>5-2-1-2</option><option>3-5-1-1</option></select></div><button class="delete-btn" type="button" id="squadClearBtn">전체 비우기</button><span class="hint" id="squadCount">0 / 11명</span></div><div class="squad-pitch" id="squadPitch" aria-label="선발 라인업 경기장"></div><div class="hint" id="squadStatus">포지션을 눌러 선수를 배치하세요. 구성은 이 기기에 자동 저장됩니다.</div></div></section>
 <div id="squadPlayerPicker" class="squad-player-picker hidden"><div class="squad-picker-card"><div class="section-head"><div><h2 id="squadPickerTitle">선수 선택</h2><span class="hint" id="squadPickerPosition"></span></div><button type="button" class="delete-btn" id="squadPickerClose">닫기 ✕</button></div><div class="field"><label for="squadPlayerSearch">선수 검색</label><input id="squadPlayerSearch" placeholder="선수 이름, 포지션 검색"></div><div class="squad-picker-list" id="squadPickerList"></div></div></div>
 <section id="teamFinancePanel" class="hidden"><div class="page-title">구단 자금 관리</div><div class="panel"><div class="section-head"><h2 id="teamFinanceClubName">CLUB FINANCE</h2><span class="hint">MY CLUB · FINANCIAL OVERVIEW</span></div><div class="transfer-offer"><div class="transfer-meta">현재 구단 보유 자본</div><h2 id="teamFinanceBalance" style="font-size:clamp(32px,7vw,48px);color:#d5b775;margin:10px 0">불러오는 중...</h2><div class="transfer-meta">단위: M</div></div><div class="section-head" style="margin-top:24px"><h2>수입 및 지출 내역</h2><span class="hint">INCOME · EXPENSE HISTORY</span></div><div id="teamFinanceHistory" class="roster-list"><div class="empty">자금 내역을 불러오는 중입니다.</div></div></div></section>
 </main><footer>SUPER LEAGUE · SPFL</footer>
@@ -1010,7 +1010,17 @@ const squadFormations={
  '4-2-2-2':[['ST1','ST2'],['LAM','RAM'],['CDM1','CDM2'],['LB','CB1','CB2','RB'],['GK']],
  '4-2-4':[['LW','ST1','ST2','RW'],['CDM1','CDM2'],['LB','CB1','CB2','RB'],['GK']],
  '3-2-4-1':[['ST'],['LWB','LAM','RAM','RWB'],['CM1','CM2'],['CB1','CB2','CB3'],['GK']],
- '4-5-1':[['ST'],['LM','CM1','CDM','CM2','RM'],['LB','CB1','CB2','RB'],['GK']]
+ '4-5-1':[['ST'],['LM','CM1','CDM','CM2','RM'],['LB','CB1','CB2','RB'],['GK']],
+ '4-1-2-1-2':[['ST1','ST2'],['CAM'],['CM1','CM2'],['CDM'],['LB','CB1','CB2','RB'],['GK']],
+ '4-3-1-2':[['ST1','ST2'],['CAM'],['CM1','CM2','CM3'],['LB','CB1','CB2','RB'],['GK']],
+ '4-1-3-2':[['ST1','ST2'],['LM','CM','RM'],['CDM'],['LB','CB1','CB2','RB'],['GK']],
+ '4-4-1-1':[['ST'],['CF'],['LM','CM1','CM2','RM'],['LB','CB1','CB2','RB'],['GK']],
+ '4-2-1-3':[['LW','ST','RW'],['CAM'],['CDM1','CDM2'],['LB','CB1','CB2','RB'],['GK']],
+ '3-1-4-2':[['ST1','ST2'],['LM','CM1','CM2','RM'],['CDM'],['CB1','CB2','CB3'],['GK']],
+ '3-3-2-2':[['ST1','ST2'],['CAM1','CAM2'],['CM1','CDM','CM2'],['CB1','CB2','CB3'],['GK']],
+ '5-2-3':[['LW','ST','RW'],['CM1','CM2'],['LWB','CB1','CB2','CB3','RWB'],['GK']],
+ '5-2-1-2':[['ST1','ST2'],['CAM'],['CM1','CM2'],['LWB','CB1','CB2','CB3','RWB'],['GK']],
+ '3-5-1-1':[['ST'],['CAM'],['LM','CM1','CDM','CM2','RM'],['CB1','CB2','CB3'],['GK']]
 };
 let squadAssignments={};let squadActiveSlot='';let squadPlayerPool=[];let squadPoolClubId='';let squadFormation='4-3-3';
 function squadStorageKey(){return 'spfl_squad_'+(currentClubId||'unknown');}
