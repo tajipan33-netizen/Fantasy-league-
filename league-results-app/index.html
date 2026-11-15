@@ -1189,7 +1189,8 @@ function tacticSummary(){
 }
 function updateTacticPreview(){
  const text=tacticSummary();
- document.querySelector('#tacticPreview').textContent=text==='SUPER LEAGUE · OFFICIAL TACTICAL PLAN\n구단: '+(currentTeam||'MY CLUB')?text:'아직 선택한 전술이 없습니다.';
+ const hasSelection=Object.values(tacticSelection).some(values=>Array.isArray(values)&&values.length);
+ document.querySelector('#tacticPreview').textContent=hasSelection?text:'아직 선택한 전술이 없습니다.';
 }
 function renderTacticalPlanner(){
  if(!currentClubId)return;
@@ -1204,7 +1205,8 @@ document.querySelector('#tacticGroups').addEventListener('change',e=>{
  const group=tacticGroups[Number(input.dataset.tacticGroup)],item=group.items[Number(input.dataset.tacticIndex)];
  let picked=tacticSelection[group.title]||[];
  if(input.checked){
-  if(!group.multi){
+  const allowMultiple=group.multi&&!item.startsWith('56.')&&!item.startsWith('57.');
+  if(!allowMultiple){
    const prefix=item.split(':')[0]+':';
    picked=picked.filter(v=>!v.startsWith(prefix));
   }
