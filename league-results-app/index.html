@@ -189,7 +189,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
 .tactic-intro{color:#aaa;line-height:1.8;font-size:13px;max-width:850px}
 .tactic-toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:18px 0}
 .tactic-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.tactic-group{border:1px solid #303132;background:#0b0c0d;padding:14px;min-width:0}
+.tactic-category{border:1px solid #74603a!important;background:linear-gradient(145deg,#191814,#101112)!important;padding:16px!important;margin:16px 0!important}.tactic-category>h3{font-size:18px!important;color:#e3c98e!important;border-bottom:1px solid #51462e;padding-bottom:12px;margin-bottom:14px!important}.tactic-question{padding:12px;margin:10px 0;border:1px solid #303133;background:#0c0d0e}.tactic-question h4{font-size:14px;color:#eee2c5;margin:0 0 8px}.tactic-question .tactic-help{margin:0 0 8px}@media(max-width:520px){.tactic-category{padding:12px!important}.tactic-question{padding:10px;margin:8px 0}}.tactic-group{border:1px solid #303132;background:#0b0c0d;padding:14px;min-width:0}
 .tactic-group h3{font-size:15px;color:#e7d4a8;margin:0 0 5px}
 .tactic-group .tactic-help{font-size:11px;color:#929292;margin:0 0 12px;line-height:1.6}
 .tactic-options{display:grid;gap:7px}
@@ -1188,6 +1188,10 @@ const tacticQuestionGroups=tacticGroups.flatMap(group=>{
  });
  return [...buckets.values()];
 });
+const tacticCategoryGroups=tacticGroups.map(group=>({
+ title:group.title,
+ questions:tacticQuestionGroups.filter(question=>question.storageKey===group.title||question.storageKey.startsWith(group.title+'::'))
+}));
 function tacticStorageKey(){return 'spfl_tactics_'+(currentClubId||'unknown');}
 let tacticSelection={};
 function loadTacticSelection(){try{tacticSelection=JSON.parse(localStorage.getItem(tacticStorageKey())||'{}')||{};}catch{tacticSelection={};}}
@@ -1211,7 +1215,7 @@ function renderTacticalPlanner(){
  loadTacticSelection();
  document.querySelector('#tacticClubLabel').textContent=currentTeam||'MY CLUB';
  const host=document.querySelector('#tacticGroups');
- host.innerHTML=tacticQuestionGroups.map((g,gi)=>'<section class="tactic-group"><h3>'+g.title+'</h3><p class="tactic-help">'+(g.multi?(g.title.startsWith('56.')?'최대 2개 선택 가능':'복수 선택 가능'):'한 항목만 선택할 수 있습니다.')+'</p><div class="tactic-options">'+g.items.map((item,ii)=>'<label class="tactic-option"><input type="checkbox" data-tactic-group="'+gi+'" data-tactic-index="'+ii+'" '+((tacticSelection[g.storageKey]||[]).includes(item)?'checked':'')+'><span>'+item+'</span></label>').join('')+'</div></section>').join('');
+ host.innerHTML=tacticCategoryGroups.map(category=>'<section class="tactic-group tactic-category"><h3>'+category.title+'</h3>'+category.questions.map(g=>{const gi=tacticQuestionGroups.indexOf(g);return '<div class="tactic-question"><h4>'+g.title+'</h4><p class="tactic-help">'+(g.multi?(g.title.startsWith('56.')?'최대 2개 선택 가능':'복수 선택 가능'):'한 항목만 선택할 수 있습니다.')+'</p><div class="tactic-options">'+g.items.map((item,ii)=>'<label class="tactic-option"><input type="checkbox" data-tactic-group="'+gi+'" data-tactic-index="'+ii+'" '+((tacticSelection[g.storageKey]||[]).includes(item)?'checked':'')+'><span>'+item+'</span></label>').join('')+'</div></div>';}).join('')+'</section>').join('');
  updateTacticPreview();
 }
 
