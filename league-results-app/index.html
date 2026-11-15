@@ -94,6 +94,12 @@ header.site-header{padding-top:16px;padding-bottom:12px}
 
 .squad-picker-card{width:min(100%,680px);padding:22px}.squad-picker-list{gap:10px}.squad-picker-player{padding:14px;min-height:88px;gap:14px}.squad-picker-player img,.squad-picker-player .person-photo-placeholder{width:62px;height:62px;flex:0 0 62px}.squad-player-copy{display:block;min-width:0;flex:1}.squad-player-copy>b{display:block;font-size:17px;line-height:1.35;font-weight:850;color:#f4f0e7;overflow-wrap:anywhere}.squad-player-copy>small{display:block;font-size:12px;line-height:1.5;color:#a7a7a7;margin-top:4px}.squad-player-metrics{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:8px}.squad-player-metrics strong{font-size:15px;color:#e5cb8c;font-weight:900}.squad-player-metrics em{font-style:normal;font-size:15px;font-weight:900;color:#fff;background:#302719;border:1px solid #8b7447;padding:4px 9px;white-space:nowrap}
 @media(max-width:520px){.squad-picker-card{padding:14px}.squad-picker-player{padding:11px;min-height:82px;gap:10px}.squad-picker-player img,.squad-picker-player .person-photo-placeholder{width:52px;height:52px;flex-basis:52px}.squad-player-copy>b{font-size:16px}.squad-player-metrics strong,.squad-player-metrics em{font-size:14px}}
+
+/* Keep every primary tab visible, including Transfermarkt beside EA ratings */
+.tabs{display:flex;flex-wrap:wrap;overflow:visible;gap:6px;align-items:stretch}
+.tabs>.tab{flex:1 1 auto;min-width:max-content;text-align:center;justify-content:center;padding:12px 13px}
+.tabs>a.tab{color:#bdbbc9}
+@media(max-width:520px){.tabs{gap:5px;margin:14px 0 18px}.tabs>.tab{flex:1 1 calc(33.333% - 5px);min-width:0;padding:11px 7px;font-size:12px}.tabs>.tab[data-tab="ea-ratings"],.tabs>a.tab{flex:1 1 calc(50% - 5px)}}
 </style><style id="ftma-editorial-theme">
 :root{--bg:#090a0b;--panel:#101112;--line:#292a2b;--muted:#929292;--gold:#d5b775;--cream:#f4f0e7}
 html{scroll-behavior:smooth}
