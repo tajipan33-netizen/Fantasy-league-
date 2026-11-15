@@ -63,6 +63,9 @@ header.site-header{padding-top:16px;padding-bottom:12px}
  .roster-person-actions{gap:5px}
  .roster-person-actions .action,.roster-person-actions .delete-btn{padding:7px 9px;font-size:12px}
 }
+
+/* Squad builder */
+.squad-tools{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}.squad-pitch{position:relative;max-width:760px;margin:16px auto;padding:24px 12px;background:linear-gradient(180deg,#32171d,#241318);border:1px solid #72513c;overflow:hidden}.squad-pitch:before{content:"";position:absolute;inset:50% 0 auto;border-top:1px solid #80664b}.squad-pitch:after{content:"";position:absolute;width:110px;height:55px;border:1px solid #80664b;border-radius:0 0 60px 60px;left:50%;top:50%;transform:translate(-50%,-1px);pointer-events:none}.squad-half{position:relative;z-index:1;display:grid;gap:18px;justify-items:center}.squad-half.attack{grid-template-columns:repeat(3,minmax(0,1fr));padding:14px 0 32px}.squad-half.midfield{grid-template-columns:repeat(3,minmax(0,1fr));padding:12px 0 38px}.squad-half.defence{grid-template-columns:repeat(4,minmax(0,1fr));padding:18px 0 34px}.squad-half.goalkeeper{padding:14px 0 6px}.squad-slot{width:100%;min-width:0;max-width:130px;min-height:94px;border:0;background:transparent;color:#f5e9c9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;text-align:center}.squad-shirt{width:54px;height:54px;border:2px solid #d5b775;clip-path:polygon(25% 0,40% 10%,60% 10%,75% 0,100% 25%,83% 42%,78% 34%,78% 100%,22% 100%,22% 34%,17% 42%,0 25%);background:#171719;display:grid;place-items:center;color:#e5cb8c;font-size:11px;font-weight:900}.squad-slot small{font-size:10px;color:#d5b775;background:#090a0b;padding:3px 8px;border:1px solid #55452c}.squad-slot strong{font-size:11px;max-width:100%;overflow-wrap:anywhere}.squad-player-picker{position:fixed;inset:0;z-index:1200;background:#000c;display:flex;align-items:center;justify-content:center;padding:14px}.squad-picker-card{width:min(100%,620px);max-height:85vh;overflow:auto;background:#131416;border:1px solid #665638;padding:18px}.squad-picker-list{display:grid;gap:8px;margin-top:12px}.squad-picker-player{display:flex;align-items:center;gap:10px;width:100%;padding:10px;background:#090a0b;border:1px solid #333;color:#eee;text-align:left;cursor:pointer}.squad-picker-player img{width:42px;height:42px;object-fit:cover}.squad-picker-player span{flex:1;min-width:0}.squad-picker-player small{display:block;color:#aaa;margin-top:3px}@media(max-width:520px){.squad-pitch{padding:18px 6px}.squad-half{gap:8px}.squad-half.attack,.squad-half.midfield{padding-bottom:26px}.squad-half.defence{gap:3px}.squad-slot{min-height:82px}.squad-shirt{width:46px;height:46px}.squad-slot strong{font-size:10px}}
 </style><style id="ftma-editorial-theme">
 :root{--bg:#090a0b;--panel:#101112;--line:#292a2b;--muted:#929292;--gold:#d5b775;--cream:#f4f0e7}
 html{scroll-behavior:smooth}
@@ -246,6 +249,9 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
   </div>
  </div>
 </section>
+
+<section id="squadBuilderPanel" class="hidden"><div class="page-title">스쿼드 메이커</div><div class="panel"><div class="section-head"><h2>SUPER LEAGUE SQUAD BUILDER</h2><span class="hint" id="squadClubLabel">MY CLUB</span></div><p class="hint">우리 구단에 등록된 1군 선수 중 11명을 선택해 선발 라인업을 구성하세요.</p><div class="squad-tools"><button class="action" type="button" id="squadFormationBtn">4-3-3 · 기본 배치</button><button class="delete-btn" type="button" id="squadClearBtn">전체 비우기</button><span class="hint" id="squadCount">0 / 11명</span></div><div class="squad-pitch"><div class="squad-half attack"><button class="squad-slot" data-slot="LW"><span class="squad-shirt">LW</span><small>LW</small><strong>선수 선택</strong></button><button class="squad-slot" data-slot="ST"><span class="squad-shirt">ST</span><small>ST</small><strong>선수 선택</strong></button><button class="squad-slot" data-slot="RW"><span class="squad-shirt">RW</span><small>RW</small><strong>선수 선택</strong></button></div><div class="squad-half midfield"><button class="squad-slot" data-slot="CM1"><span class="squad-shirt">CM</span><small>CM</small><strong>선수 선택</strong></button><button class="squad-slot" data-slot="CM2"><span class="squad-shirt">CM</span><small>CM</small><strong>선수 선택</strong></button><button class="squad-slot" data-slot="CM3"><span class="squad-shirt">CM</span><small>CM</small><strong>선수 선택</strong></button></div><div class="squad-half defence"><button class="squad-slot" data-slot="LB"><span class="squad-shirt">LB</span><small>LB</small><strong>선수 선택</strong></button><button class="squad-slot" data-slot="CB1"><span class="squad-shirt">CB</span><small>CB</small><strong>선수 선택</strong></button><button class="squad-slot" data-slot="CB2"><span class="squad-shirt">CB</span><small>CB</small><strong>선수 선택</strong></button><button class="squad-slot" data-slot="RB"><span class="squad-shirt">RB</span><small>RB</small><strong>선수 선택</strong></button></div><div class="squad-half goalkeeper"><button class="squad-slot" data-slot="GK"><span class="squad-shirt">GK</span><small>GK</small><strong>선수 선택</strong></button></div></div><div class="hint" id="squadStatus">포지션을 눌러 선수를 배치하세요. 구성은 이 기기에 자동 저장됩니다.</div></div></section>
+<div id="squadPlayerPicker" class="squad-player-picker hidden"><div class="squad-picker-card"><div class="section-head"><div><h2 id="squadPickerTitle">선수 선택</h2><span class="hint" id="squadPickerPosition"></span></div><button type="button" class="delete-btn" id="squadPickerClose">닫기 ✕</button></div><div class="field"><label for="squadPlayerSearch">선수 검색</label><input id="squadPlayerSearch" placeholder="선수 이름, 포지션 검색"></div><div class="squad-picker-list" id="squadPickerList"></div></div></div>
 <section id="teamFinancePanel" class="hidden"><div class="page-title">구단 자금 관리</div><div class="panel"><div class="section-head"><h2 id="teamFinanceClubName">CLUB FINANCE</h2><span class="hint">MY CLUB · FINANCIAL OVERVIEW</span></div><div class="transfer-offer"><div class="transfer-meta">현재 구단 보유 자본</div><h2 id="teamFinanceBalance" style="font-size:clamp(32px,7vw,48px);color:#d5b775;margin:10px 0">불러오는 중...</h2><div class="transfer-meta">단위: M</div></div><div class="section-head" style="margin-top:24px"><h2>수입 및 지출 내역</h2><span class="hint">INCOME · EXPENSE HISTORY</span></div><div id="teamFinanceHistory" class="roster-list"><div class="empty">자금 내역을 불러오는 중입니다.</div></div></div></section>
 </main><footer>SUPER LEAGUE · SPFL</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -897,6 +903,22 @@ document.querySelector('#adminTransferOffers').addEventListener('click',async e=
  }catch(error){alert(error.message);btn.disabled=false;}
 });
 
+
+// Squad builder: selections are saved per club on this device.
+let squadAssignments={};let squadActiveSlot='';
+const squadSlots=[['LW','LW'],['ST','ST'],['RW','RW'],['CM1','CM'],['CM2','CM'],['CM3','CM'],['LB','LB'],['CB1','CB'],['CB2','CB'],['RB','RB'],['GK','GK']];
+function squadStorageKey(){return 'spfl_squad_'+(currentClubId||'unknown');}
+function loadSquadAssignments(){try{squadAssignments=JSON.parse(localStorage.getItem(squadStorageKey())||'{}')||{};}catch{squadAssignments={};}}
+function saveSquadAssignments(){localStorage.setItem(squadStorageKey(),JSON.stringify(squadAssignments));}
+function renderSquadBuilder(){if(!currentClubId)return;loadSquadAssignments();document.querySelector('#squadClubLabel').textContent=currentTeam||'MY CLUB';let count=0;document.querySelectorAll('.squad-slot').forEach(slot=>{const p=rosterItems.find(x=>x.id===squadAssignments[slot.dataset.slot]&&x.entry_type==='선수');const name=slot.dataset.slot.replace(/[0-9]/g,'');const label=slot.querySelector('small');slot.querySelector('strong').textContent=p?p.name:'선수 선택';slot.querySelector('.squad-shirt').textContent=name;if(p){count++;slot.querySelector('strong').title=[p.position,p.overall?'OVR '+p.overall:''].filter(Boolean).join(' · ');}else slot.querySelector('strong').removeAttribute('title');});document.querySelector('#squadCount').textContent=count+' / 11명';}
+function openSquadPicker(slot){squadActiveSlot=slot;const pos=slot.replace(/[0-9]/g,'');document.querySelector('#squadPickerTitle').textContent='선수 선택';document.querySelector('#squadPickerPosition').textContent=pos+' 슬롯';document.querySelector('#squadPlayerSearch').value='';renderSquadPicker();document.querySelector('#squadPlayerPicker').classList.remove('hidden');}
+function renderSquadPicker(){const q=document.querySelector('#squadPlayerSearch').value.trim().toLowerCase();const assigned=Object.entries(squadAssignments).filter(([k])=>k!==squadActiveSlot).map(([,v])=>v);const players=rosterItems.filter(p=>p.entry_type==='선수'&&!assigned.includes(p.id)&&[p.name,p.position,p.nationality].some(v=>String(v||'').toLowerCase().includes(q)));const host=document.querySelector('#squadPickerList');host.innerHTML=players.length?players.map(p=>'<button class="squad-picker-player" type="button" data-squad-player="'+esc(p.id)+'">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'" alt="">':'<span class="person-photo-placeholder">PLAYER</span>')+'<span><b>'+esc(p.name)+'</b><small>'+esc([p.position,p.shirt_number!=null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:''].filter(Boolean).join(' · '))+'</small></span></button>').join(''):'<div class="empty">검색 결과가 없거나 배치할 선수가 없습니다.</div>';}
+document.querySelector('#squadBuilderPanel').addEventListener('click',e=>{const slot=e.target.closest('[data-slot]');if(slot)openSquadPicker(slot.dataset.slot);});
+document.querySelector('#squadPickerList').addEventListener('click',e=>{const b=e.target.closest('[data-squad-player]');if(!b)return;squadAssignments[squadActiveSlot]=b.dataset.squadPlayer;saveSquadAssignments();document.querySelector('#squadPlayerPicker').classList.add('hidden');renderSquadBuilder();document.querySelector('#squadStatus').textContent='선발 선수를 저장했습니다.';});
+document.querySelector('#squadPlayerSearch').addEventListener('input',renderSquadPicker);
+document.querySelector('#squadPickerClose').addEventListener('click',()=>document.querySelector('#squadPlayerPicker').classList.add('hidden'));
+document.querySelector('#squadClearBtn').addEventListener('click',()=>{if(!confirm('선발 11명 배치를 모두 비울까요?'))return;squadAssignments={};saveSquadAssignments();renderSquadBuilder();document.querySelector('#squadStatus').textContent='선발 배치를 모두 비웠습니다.';});
+
 restoreTeamSession();
 if(adminSession){document.querySelector("#adminLoginBox").classList.add("hidden");document.querySelector("#adminDashboard").classList.remove("hidden");loadAdminTransfers();loadAdminFriendlies();setAdminPane('core');loadAdminManagementData();loadAdminMatchManager();}
 loadTransferMarket();
@@ -906,12 +928,14 @@ const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><b
 let teamWorkspaceMode=false;
 function showTab(id){
  const teamMode=teamWorkspaceMode&&!!teamSession;
- const valid=teamMode?['team-roster','transfers','fa','team-finance','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','admin'];
+ const valid=teamMode?['team-roster','squad-builder','transfers','fa','team-finance','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','admin'];
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  const visibleSection=id==='admin'?'transfers':id;
  ['home','transfers','players','clubs','youth','fa','ea-ratings'].forEach(key=>document.getElementById(key).classList.toggle('hidden',key!==visibleSection));
  document.querySelector('#rosterPanel').classList.toggle('hidden',!(teamMode&&id==='team-roster'));
+ document.querySelector('#squadBuilderPanel').classList.toggle('hidden',!(teamMode&&id==='squad-builder'));
+ if(teamMode&&id==='squad-builder')renderSquadBuilder();
  document.querySelector('#teamFinancePanel').classList.toggle('hidden',!(teamMode&&id==='team-finance'));
  if(teamMode&&id==='team-finance')loadTeamFinance();
  document.querySelector('#clubShortcuts').classList.toggle('visible',!!teamSession);
@@ -926,7 +950,7 @@ function applyTeamMode(loggedIn){
  const nav=document.querySelector('.tabs');
  teamWorkspaceMode=!!loggedIn;
  if(loggedIn){
-  nav.innerHTML='<button class="tab active" data-tab="team-roster">팀 등록</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="team-finance">자금 관리</button>';
+  nav.innerHTML='<button class="tab active" data-tab="team-roster">팀 등록</button><button class="tab" data-tab="squad-builder">스쿼드</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="team-finance">자금 관리</button>';
   document.querySelector('#clubShortcuts').classList.add('visible');
   showTab('team-roster');
  }else{
