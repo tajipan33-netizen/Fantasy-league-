@@ -184,6 +184,21 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
 .club-shortcuts button{border:1px solid #6b5a37;background:transparent;color:#e8d4a7;padding:10px 16px;font:inherit;font-size:13px;font-weight:750;cursor:pointer}
 .club-shortcuts button.primary{background:var(--gold);color:#17130b;border-color:var(--gold)}
 @media(max-width:620px){.club-shortcuts{padding:10px 12px}.club-shortcuts button{flex:1;padding:11px 8px;font-size:12px}}
+
+/* Tactical planner */
+.tactic-intro{color:#aaa;line-height:1.8;font-size:13px;max-width:850px}
+.tactic-toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:18px 0}
+.tactic-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tactic-group{border:1px solid #303132;background:#0b0c0d;padding:14px;min-width:0}
+.tactic-group h3{font-size:15px;color:#e7d4a8;margin:0 0 5px}
+.tactic-group .tactic-help{font-size:11px;color:#929292;margin:0 0 12px;line-height:1.6}
+.tactic-options{display:grid;gap:7px}
+.tactic-option{display:flex;align-items:flex-start;gap:9px;padding:9px;border:1px solid #292a2b;background:#101112;cursor:pointer;font-size:12px;line-height:1.55}
+.tactic-option:has(input:checked){border-color:#9a804b;background:#211d14}
+.tactic-option input{accent-color:#d5b775;margin:2px 0 0;flex:0 0 auto}
+.tactic-option span{min-width:0}
+.tactic-copy-preview{white-space:pre-wrap;max-height:280px;overflow:auto;padding:14px;background:#080909;border:1px solid #333;color:#ddd;font-size:12px;line-height:1.7}
+@media(max-width:680px){.tactic-groups{grid-template-columns:1fr}.tactic-group{padding:12px}.tactic-toolbar>*{flex:1 1 auto}}
 </style></head><body><header class="site-header"><div class="brand-row"><div class="brand-mark"><span>⚽</span><b>SUPER<br>LEAGUE</b><small>EST. 2024</small></div><div class="header-actions"><button class="header-login" id="headerTeamLogin">구단 로그인</button><button class="header-admin" id="headerAdmin">관리자</button></div></div></header><main class="wrap"><div id="clubShortcuts" class="club-shortcuts" aria-label="구단 바로가기"><button type="button" id="clubBackHome">홈으로 가기</button><button type="button" class="primary" id="clubGoDirectory">팀으로 가기</button></div><nav class="tabs" aria-label="리그 메뉴"><button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치진</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="ea-ratings">EA 공식 RATING</button><a class="tab" href="https://www.transfermarkt.com/" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center">Transfermarkt ↗</a></nav>
 <section id="team-login" class="login-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="teamLoginTitle"><div class="login-backdrop" data-close-login></div><div class="login-dialog"><div class="login-dialog-head"><h2 id="teamLoginTitle">구단 로그인</h2><button class="login-close" type="button" data-close-login>닫기 ✕</button></div><div class="login-panel"><div class="field"><label for="teamSelect">소속 팀</label><select id="teamSelect"><option value="">팀을 선택하세요</option></select></div><div class="field"><label for="teamCode">팀 로그인 코드</label><input id="teamCode" type="password" minlength="4" maxlength="16" autocomplete="off" placeholder="4~16자리 영문 대문자·숫자"></div><button class="action" id="loginBtn">로그인</button><div class="login-status" id="loginStatus">팀을 선택하고 발급받은 코드를 입력하세요.</div></div></div></section>
 <section id="rosterPanel" class="hidden"><div class="panel">
@@ -299,6 +314,23 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
 
 <section id="squadBuilderPanel" class="hidden"><div class="page-title">스쿼드 메이커</div><div class="panel"><div class="section-head"><h2>SUPER LEAGUE SQUAD BUILDER</h2><span class="hint" id="squadClubLabel">MY CLUB</span></div><p class="hint">우리 구단에 등록된 1군 선수 중 11명을 선택해 선발 라인업을 구성하세요.</p><div class="squad-tools"><div class="field" style="min-width:190px;flex:1"><label for="squadFormationSelect">포메이션 선택</label><select id="squadFormationSelect"><option>4-3-3</option><option>4-2-3-1</option><option>4-4-2</option><option>4-1-4-1</option><option>4-3-2-1</option><option>3-4-3</option><option>3-5-2</option><option>3-4-2-1</option><option>3-4-1-2</option><option>5-3-2</option><option>5-4-1</option><option>4-2-2-2</option><option>4-2-4</option><option>3-2-4-1</option><option>4-5-1</option><option>4-1-2-1-2</option><option>4-3-1-2</option><option>4-1-3-2</option><option>4-4-1-1</option><option>4-2-1-3</option><option>3-1-4-2</option><option>3-3-2-2</option><option>5-2-3</option><option>5-2-1-2</option><option>3-5-1-1</option></select></div><button class="delete-btn" type="button" id="squadClearBtn">전체 비우기</button><span class="hint" id="squadCount">0 / 11명</span></div><div class="squad-pitch" id="squadPitch" aria-label="선발 라인업 경기장"></div><div class="hint" id="squadStatus">포지션을 눌러 선수를 배치하세요. 구성은 이 기기에 자동 저장됩니다.</div></div></section>
 <div id="squadPlayerPicker" class="squad-player-picker hidden"><div class="squad-picker-card"><div class="section-head"><div><h2 id="squadPickerTitle">선수 선택</h2><span class="hint" id="squadPickerPosition"></span></div><button type="button" class="delete-btn" id="squadPickerClose">닫기 ✕</button></div><div class="field"><label for="squadPlayerSearch">선수 검색</label><input id="squadPlayerSearch" placeholder="선수 이름, 포지션 검색"></div><div class="squad-picker-list" id="squadPickerList"></div></div></div>
+
+<section id="tacticalPlannerPanel" class="hidden">
+ <div class="page-title">전술 플래너</div>
+ <div class="panel">
+  <div class="section-head"><h2>SUPER LEAGUE · TACTICAL PLANNER</h2><span class="hint" id="tacticClubLabel">MY CLUB</span></div>
+  <p class="tactic-intro">포지션별 선수 역할과 팀 전술을 체크해 구단의 전술을 구성하세요. 항목을 선택하면 이 기기에 자동 저장됩니다. 각 전술 항목은 기본적으로 하나를 선택할 수 있으며, 구단 DNA는 여러 개 선택할 수 있습니다.</p>
+  <div class="tactic-toolbar">
+   <button class="action" type="button" id="tacticCopyBtn">선택한 전술 복사</button>
+   <button class="delete-btn" type="button" id="tacticClearBtn">전체 선택 해제</button>
+   <button class="delete-btn" type="button" id="tacticResetBtn">기본값으로 초기화</button>
+   <span class="hint" id="tacticStatus" aria-live="polite">전술을 선택하세요.</span>
+  </div>
+  <div id="tacticGroups" class="tactic-groups"></div>
+  <div class="section-head" style="margin-top:22px"><h2>복사될 전술 미리보기</h2><span class="hint">TACTICAL SUMMARY</span></div>
+  <pre id="tacticPreview" class="tactic-copy-preview">아직 선택한 전술이 없습니다.</pre>
+ </div>
+</section>
 <section id="teamFinancePanel" class="hidden"><div class="page-title">구단 자금 관리</div><div class="panel"><div class="section-head"><h2 id="teamFinanceClubName">CLUB FINANCE</h2><span class="hint">MY CLUB · FINANCIAL OVERVIEW</span></div><div class="transfer-offer"><div class="transfer-meta">현재 구단 보유 자본</div><h2 id="teamFinanceBalance" style="font-size:clamp(32px,7vw,48px);color:#d5b775;margin:10px 0">불러오는 중...</h2><div class="transfer-meta">단위: M</div></div><div class="section-head" style="margin-top:24px"><h2>수입 및 지출 내역</h2><span class="hint">INCOME · EXPENSE HISTORY</span></div><div id="teamFinanceHistory" class="roster-list"><div class="empty">자금 내역을 불러오는 중입니다.</div></div></div></section>
 </main><footer>SUPER LEAGUE · SPFL</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -994,6 +1026,207 @@ document.querySelector('#adminTransferOffers').addEventListener('click',async e=
 });
 
 
+
+// Tactical planner: role profiles and club tactics, saved separately for each club.
+const tacticGroups=[
+{title:'I. GK — 골키퍼',multi:true,items:[
+'골키퍼 (Goalkeeper) — 기본적인 선방과 안정적인 골문 수비에 집중.',
+'스위퍼 키퍼 (Sweeper Keeper) — 높은 수비 라인 뒤의 공간을 커버하고, 적극적으로 전진해 공을 처리.',
+'빌드업형 골키퍼 (Ball-Playing Goalkeeper) — 패스와 배급으로 후방 빌드업에 참여.',
+'노-넌센스 골키퍼 (No-Nonsense Goalkeeper) — 위험한 후방 전개를 피하고 안전하게 걷어내는 데 집중.'
+]},
+{title:'II. CB — 센터백',multi:true,items:[
+'센터백 (Central Defender) — 수비 라인을 유지하고 상대 공격수와 공간을 방어.',
+'볼 플레이잉 센터백 (Ball-Playing Defender) — 후방에서 전진 패스와 빌드업을 담당.',
+'노-넌센스 센터백 (No-Nonsense Centre-Back) — 위험을 최소화하고 공을 안전하게 처리.',
+'와이드 센터백 (Wide Centre-Back) — 3백의 좌우에서 측면 수비와 전진 지원을 수행.',
+'리베로 (Libero) — 수비 라인에서 전진해 미드필드에 추가적인 패스 옵션을 제공.',
+'스토퍼 (Stopper) — 상대 공격수를 적극적으로 압박해 전진을 저지.',
+'커버 (Cover) — 동료 수비수 뒤의 공간과 침투 패스를 커버.'
+]},
+{title:'III. FB / WB — 풀백·윙백',multi:true,items:[
+'풀백 (Full-Back) — 측면 수비를 기본으로 공격을 지원.',
+'윙백 (Wing-Back) — 측면을 넓게 활용하며 공격과 수비를 오가는 역할.',
+'컴플리트 윙백 (Complete Wing-Back) — 측면에서 폭넓은 공격 지원과 전진 움직임을 수행.',
+'인버티드 윙백 (Inverted Wing-Back) — 공격 시 안쪽으로 들어와 미드필드 숫자를 늘림.',
+'인버티드 풀백 (Inverted Full-Back) — 안쪽으로 이동해 후방의 수적 안정성을 확보.',
+'노-넌센스 풀백 (No-Nonsense Full-Back) — 공격 가담보다 기본적인 수비 임무를 우선.',
+'플레이메이킹 윙백 (Playmaking Wing-Back) — 측면에서 패스와 창의적인 전개를 주도.',
+'오버래핑 센터백 (Overlapping Centre-Back) — 3백의 바깥쪽 센터백이 측면을 따라 전진해 공격 지원.'
+]},
+{title:'IV. DM — 수비형 미드필더',multi:true,items:[
+'수비형 미드필더 (Defensive Midfielder) — 수비진 앞을 보호하고 공을 회수.',
+'딥라잉 플레이메이커 (Deep-Lying Playmaker) — 후방에서 경기 템포를 조절하고 전진 패스를 공급.',
+'앵커맨 (Anchor Man) — 위치를 지키며 중앙 수비 공간을 보호.',
+'하프백 (Half-Back) — 빌드업 시 수비 라인으로 내려가 후방의 안정성을 강화.',
+'볼 위닝 미드필더 (Ball-Winning Midfielder) — 적극적인 압박과 태클로 공을 탈취.',
+'레지스타 (Regista) — 자유로운 위치 이동과 창의적인 패스로 경기 전개를 주도.',
+'세군도 볼란테 (Segundo Volante) — 후방에서 전진해 공격에 가담하고 득점 기회까지 노림.'
+]},
+{title:'V. CM — 중앙 미드필더',multi:true,items:[
+'중앙 미드필더 (Central Midfielder) — 공격과 수비를 연결하는 기본적인 중원 역할.',
+'박스 투 박스 미드필더 (Box-to-Box Midfielder) — 자기 진영부터 상대 페널티 박스까지 넓게 움직임.',
+'메짤라 (Mezzala) — 중앙과 하프스페이스 사이에서 전진하며 공격에 가담.',
+'카릴레로 (Carrilero) — 측면과 중앙 사이를 오가며 중원 간격을 유지.',
+'로밍 플레이메이커 (Roaming Playmaker) — 넓은 활동 범위에서 공을 연결하고 공격을 창조.',
+'어드밴스드 플레이메이커 (Advanced Playmaker) — 전진한 위치에서 찬스 메이킹을 담당.',
+'볼 위닝 미드필더 (Ball-Winning Midfielder) — 중원에서 압박과 볼 탈취를 우선.',
+'와이드 중앙 미드필더 (Wide Central Midfielder) — 중앙 미드필더 위치에서 측면 공간까지 활용.'
+]},
+{title:'VI. AM — 공격형 미드필더',multi:true,items:[
+'공격형 미드필더 (Attacking Midfielder) — 공격수 뒤에서 연결 플레이와 침투를 수행.',
+'어드밴스드 플레이메이커 (Advanced Playmaker) — 공격의 중심에서 킬러 패스와 찬스 창출을 담당.',
+'엔간체 (Enganche) — 중앙의 비교적 고정된 위치에서 창의적인 패스를 공급.',
+'트레콰르티스타 (Trequartista) — 자유롭게 공간을 찾아 움직이며 공격을 창조.',
+'섀도 스트라이커 (Shadow Striker) — 공격형 미드필더 위치에서 최전방으로 침투해 득점을 노림.',
+'와이드 플레이메이커 (Wide Playmaker) — 측면에서 중앙으로 연결하며 패스 전개를 주도.'
+]},
+{title:'VII. LW / RW — 윙어·측면 공격수',multi:true,items:[
+'윙어 (Winger) — 측면 폭을 확보하고 드리블과 크로스로 공격.',
+'인사이드 포워드 (Inside Forward) — 측면에서 중앙으로 침투해 직접 득점을 노림.',
+'인버티드 윙어 (Inverted Winger) — 안쪽으로 이동해 패스 연결과 공격 전개에 참여.',
+'와이드 플레이메이커 (Wide Playmaker) — 측면에서 창의적인 패스로 공격 기회를 창출.',
+'와이드 미드필더 (Wide Midfielder) — 측면에서 수비 지원과 공격 연결을 균형 있게 수행.',
+'라움도이터 (Raumdeuter) — 넓은 공간과 수비수 사이의 틈을 찾아 득점 기회를 노림.',
+'와이드 포워드 (Wide Forward) — 측면에서 전방 공격을 직접 수행하고 골문을 공략.'
+]},
+{title:'VIII. ST / CF — 중앙 공격수',multi:true,items:[
+'어드밴스드 포워드 (Advanced Forward) — 수비 뒷공간 침투와 득점을 우선.',
+'딥라잉 포워드 (Deep-Lying Forward) — 아래로 내려와 공을 연결하고 동료의 침투를 지원.',
+'컴플리트 포워드 (Complete Forward) — 연계, 침투, 드리블, 득점 등 다양한 공격 임무를 수행.',
+'타깃 포워드 (Target Forward) — 피지컬과 제공권을 활용해 공을 지키고 동료에게 연결.',
+'포처 (Poacher) — 페널티 박스 안에서 위치 선정과 마무리에 집중.',
+'프레싱 포워드 (Pressing Forward) — 전방 압박으로 상대의 빌드업을 방해하고 공격에도 참여.',
+'폴스 나인 (False Nine) — 최전방에서 내려와 수비수를 끌어내고 중원과 연계.',
+'채널 포워드 (Channel Forward) — 센터백과 풀백 사이의 채널을 공략하며 침투.',
+'디펜시브 포워드 (Defensive Forward) — 전방 수비와 압박을 우선하면서 공격 연결을 지원.'
+]},
+{title:'기본 전술 · 1~10',items:[
+'1. 기본 전술 성향: 매우 수비적','1. 기본 전술 성향: 수비적','1. 기본 전술 성향: 신중한 운영','1. 기본 전술 성향: 균형','1. 기본 전술 성향: 적극적 주도','1. 기본 전술 성향: 공격 주도','1. 기본 전술 성향: 매우 공격적',
+'2. 기본 포메이션: 4-2-3-1','2. 기본 포메이션: 4-3-3 DM','2. 기본 포메이션: 4-3-3 CM','2. 기본 포메이션: 4-4-2','2. 기본 포메이션: 4-4-1-1','2. 기본 포메이션: 4-1-4-1','2. 기본 포메이션: 4-2-2-2','2. 기본 포메이션: 3-4-2-1','2. 기본 포메이션: 3-4-3','2. 기본 포메이션: 3-5-2','2. 기본 포메이션: 5-3-2','2. 기본 포메이션: 5-4-1','2. 기본 포메이션 직접 입력',
+'3. 공격 시 포메이션: 기본 포메이션 유지','3. 공격 시 포메이션: 2-3-5','3. 공격 시 포메이션: 3-2-5','3. 공격 시 포메이션: 3-1-6','3. 공격 시 포메이션: 3-2-4-1','3. 공격 시 포메이션: 2-4-4','3. 공격 시 포메이션: 2-3-4-1','3. 공격 시 포메이션: 4-2-4','3. 공격 시 포메이션: 상황별 유동적 변형','3. 공격 시 포메이션 직접 입력',
+'4. 수비 시 포메이션: 기본 포메이션 유지','4. 수비 시 포메이션: 4-4-2','4. 수비 시 포메이션: 4-1-4-1','4. 수비 시 포메이션: 4-5-1','4. 수비 시 포메이션: 5-4-1','4. 수비 시 포메이션: 5-3-2','4. 수비 시 포메이션: 5-2-3','4. 수비 시 포메이션: 4-2-3-1 형태의 미드블록','4. 수비 시 포메이션: 상황별 유동적 변형','4. 수비 시 포메이션 직접 입력',
+'5. 빌드업 방식: 짧은 패스 중심','5. 빌드업 방식: 혼합','5. 빌드업 방식: 직접적인 전개','5. 빌드업 방식: 롱볼 중심','5. 빌드업 방식: 골키퍼부터 짧게 전개','5. 빌드업 방식: 상대 압박에 따라 변경',
+'6. 빌드업 방향: 중앙 중심','6. 빌드업 방향: 좌측 중심','6. 빌드업 방향: 우측 중심','6. 빌드업 방향: 양쪽 측면 중심','6. 빌드업 방향: 중앙과 측면 혼합','6. 빌드업 방향: 자유 전개','6. 빌드업 방향: 상대의 약점 집중 공략',
+'7. 골키퍼 배급: 짧은 패스로 후방 전개','7. 골키퍼 배급: 센터백 중심으로 배급','7. 골키퍼 배급: 풀백 방향으로 배급','7. 골키퍼 배급: 중원으로 직접 배급','7. 골키퍼 배급: 전방으로 길게 배급','7. 골키퍼 배급: 상황에 따라 혼합',
+'8. 공격 전개 속도: 매우 느리게','8. 공격 전개 속도: 느리게','8. 공격 전개 속도: 보통','8. 공격 전개 속도: 빠르게','8. 공격 전개 속도: 매우 빠르게','8. 공격 전개 속도: 상황에 따라 변경',
+'9. 공격 전개 방식: 점유율 중심','9. 공격 전개 방식: 빠른 침투','9. 공격 전개 방식: 역습 중심','9. 공격 전개 방식: 측면 돌파','9. 공격 전개 방식: 중앙 조합 플레이','9. 공격 전개 방식: 전환 패스 중심','9. 공격 전개 방식: 혼합 전개',
+'10. 공격 폭: 매우 좁게','10. 공격 폭: 좁게','10. 공격 폭: 보통','10. 공격 폭: 넓게','10. 공격 폭: 매우 넓게','10. 공격 폭: 상대 수비 형태에 따라 변경'
+]},
+{title:'공격 전술 · 11~20',items:[
+'11. 패스 성향: 매우 짧은 패스','11. 패스 성향: 짧은 패스','11. 패스 성향: 혼합 패스','11. 패스 성향: 다소 직접적인 패스','11. 패스 성향: 매우 직접적인 패스','11. 패스 성향: 상대 압박에 따라 변경',
+'12. 공격 지역 진입: 중앙 침투','12. 공격 지역 진입: 측면 돌파','12. 공격 지역 진입: 하프스페이스 공략','12. 공격 지역 진입: 크로스 중심','12. 공격 지역 진입: 컷백 중심','12. 공격 지역 진입: 침투 패스 중심','12. 공격 지역 진입: 여러 경로를 혼합',
+'13. 크로스 방식: 낮은 크로스','13. 크로스 방식: 빠르고 강한 크로스','13. 크로스 방식: 높은 크로스','13. 크로스 방식: 얼리 크로스','13. 크로스 방식: 컷백 우선','13. 크로스 방식: 상황별 혼합','13. 크로스 방식: 크로스 최소화',
+'14. 공격 전환: 즉시 전진','14. 공격 전환: 전방 침투 패스','14. 공격 전환: 측면으로 빠르게 전개','14. 공격 전환: 중앙에서 공을 안정적으로 소유','14. 공격 전환: 역습 기회가 있을 때만 전진','14. 공격 전환: 상황에 따라 판단',
+'15. 공격 템포: 매우 느림','15. 공격 템포: 느림','15. 공격 템포: 보통','15. 공격 템포: 빠름','15. 공격 템포: 매우 빠름','15. 공격 템포: 경기 상황에 따라 조절',
+'16. 공격 시 위험 감수: 최소화','16. 공격 시 위험 감수: 낮은 수준','16. 공격 시 위험 감수: 균형','16. 공격 시 위험 감수: 적극적','16. 공격 시 위험 감수: 매우 적극적','16. 공격 시 위험 감수: 상대 수비 상태에 따라 변경',
+'17. 점유 안정성: 공 소유를 최우선','17. 점유 안정성: 안정성과 전진을 균형 있게','17. 점유 안정성: 전진 패스를 우선','17. 점유 안정성: 기회가 생기면 즉시 침투','17. 점유 안정성: 상대 압박을 유도한 뒤 공간 공략',
+'18. 중앙·측면 비중: 중앙 집중','18. 중앙·측면 비중: 중앙 우선, 측면 보조','18. 중앙·측면 비중: 균형','18. 중앙·측면 비중: 측면 우선, 중앙 보조','18. 중앙·측면 비중: 측면 집중','18. 중앙·측면 비중: 상대 약점에 따라 변경',
+'19. 후방 안정성: 공격 숫자를 늘리고 후방 최소 유지','19. 후방 안정성: 2명 중심의 후방 잔류','19. 후방 안정성: 3명 중심의 후방 잔류','19. 후방 안정성: 3+2 형태의 안정적 잔류 구조','19. 후방 안정성: 상대 역습 위협에 따라 변경',
+'20. 슈팅 선택: 확실한 기회까지 인내','20. 슈팅 선택: 박스 안에서 슈팅 우선','20. 슈팅 선택: 박스 바깥 슈팅 적극 허용','20. 슈팅 선택: 컷백 및 낮은 크로스 후 슈팅','20. 슈팅 선택: 빠른 공격에서 조기 슈팅','20. 슈팅 선택: 기회와 선수 능력에 따라 판단'
+]},
+{title:'수비 전술과 압박 · 21~30',items:[
+'21. 수비 라인: 매우 낮게','21. 수비 라인: 낮게','21. 수비 라인: 보통','21. 수비 라인: 높게','21. 수비 라인: 매우 높게','21. 수비 라인: 상대의 침투 능력에 따라 변경',
+'22. 압박 시작 위치: 낮은 지역','22. 압박 시작 위치: 중간 지역','22. 압박 시작 위치: 높은 지역','22. 압박 시작 위치: 매우 높은 지역','22. 압박 시작 위치: 특정 상황에서만 전방 압박','22. 압박 시작 위치: 상대 빌드업 형태에 따라 변경',
+'23. 압박 강도: 최소한의 압박','23. 압박 강도: 낮은 강도','23. 압박 강도: 보통','23. 압박 강도: 적극적','23. 압박 강도: 매우 적극적','23. 압박 강도: 체력과 경기 상황에 따라 조절',
+'24. 압박 트리거: 상대가 후방에서 공을 소유할 때','24. 압박 트리거: 상대의 첫 터치가 불안정할 때','24. 압박 트리거: 상대가 측면으로 패스할 때','24. 압박 트리거: 상대가 후방으로 패스할 때','24. 압박 트리거: 특정 구역에 공이 들어왔을 때','24. 압박 트리거: 지속적인 압박','24. 압박 트리거: 상황별 혼합',
+'25. 공을 잃었을 때: 즉시 압박','25. 공을 잃었을 때: 짧은 시간 압박 후 후퇴','25. 공을 잃었을 때: 즉시 수비 대형 복귀','25. 공을 잃었을 때: 가까운 선수만 압박','25. 공을 잃었을 때: 상대의 역습 위험에 따라 변경',
+'26. 공을 되찾았을 때: 즉시 전진 패스','26. 공을 되찾았을 때: 빠른 역습','26. 공을 되찾았을 때: 우선 측면으로 전개','26. 공을 되찾았을 때: 중앙에서 점유 안정화','26. 공을 되찾았을 때: 역습 기회가 있을 때만 전진','26. 공을 되찾았을 때: 상황별 혼합',
+'27. 기본 수비 방식: 지역 방어 중심','27. 기본 수비 방식: 대인 압박 중심','27. 기본 수비 방식: 지역 방어와 대인 압박 혼합','27. 기본 수비 방식: 구역별 압박 유도','27. 기본 수비 방식: 상대 전술에 따라 변경',
+'28. 상대 공격 유도: 중앙 차단 및 측면 유도','28. 상대 공격 유도: 측면 차단 및 중앙 유도','28. 상대 공격 유도: 중앙과 측면을 균형 있게 차단','28. 상대 공격 유도: 상대의 약한 측면으로 유도','28. 상대 공격 유도: 특정 방향으로 유도하지 않음','28. 상대 공격 유도: 상대 빌드업에 따라 변경',
+'29. 수비 블록: 낮은 블록','29. 수비 블록: 중간 블록','29. 수비 블록: 높은 블록','29. 수비 블록: 전방 압박과 중간 블록 혼합','29. 수비 블록: 상황별 블록 전환',
+'30. 태클 강도: 신중하게 대응','30. 태클 강도: 일반적인 태클','30. 태클 강도: 적극적인 태클','30. 태클 강도: 강한 태클','30. 태클 강도: 심판 판정 성향과 경고 상황에 따라 조절'
+]},
+{title:'경기 운영과 상황별 대응 · 31~37',items:[
+'31. 경기 주도권: 상대에게 주도권을 내주고 역습','31. 경기 주도권: 안정적인 균형 유지','31. 경기 주도권: 점유율을 통해 경기 통제','31. 경기 주도권: 적극적으로 주도','31. 경기 주도권: 상대의 강점에 따라 주도권 조절',
+'32. 경기 템포: 처음부터 끝까지 일정한 템포','32. 경기 템포: 리드 시 템포 낮춤','32. 경기 템포: 리드 시에도 적극적인 템포 유지','32. 경기 템포: 뒤질 때 템포 상승','32. 경기 템포: 경기 흐름에 따라 유동적 조절',
+'33. 앞서고 있을 때: 수비 안정 우선','33. 앞서고 있을 때: 점유율로 경기 통제','33. 앞서고 있을 때: 기존 공격 전술 유지','33. 앞서고 있을 때: 추가 득점 적극 시도','33. 앞서고 있을 때: 상대의 전술 변화에 따라 대응',
+'34. 동점 상황: 무리하지 않고 균형 유지','34. 동점 상황: 승리를 위해 점진적으로 공격 강화','34. 동점 상황: 적극적으로 득점 기회 창출','34. 동점 상황: 상대의 체력 저하를 기다리며 공략','34. 동점 상황: 경기 시간과 상대 전력에 따라 판단',
+'35. 뒤지고 있을 때: 기존 전술 유지','35. 뒤지고 있을 때: 공격 템포 상승','35. 뒤지고 있을 때: 공격 숫자 증가','35. 뒤지고 있을 때: 전방 압박 강화','35. 뒤지고 있을 때: 직접적인 전개와 크로스 증가','35. 뒤지고 있을 때: 단계적으로 위험 감수 확대',
+'36. 경기 막판: 상황별 대응','36. 경기 막판: 리드 시 수비 안정화','36. 경기 막판: 리드 시 점유율 유지','36. 경기 막판: 동점 시 무승부 확보 우선','36. 경기 막판: 동점 시 승리 적극 추구','36. 경기 막판: 패배 중일 때 공격 총력전',
+'37. 체력 저하 대응: 전술 강도를 유지','37. 체력 저하 대응: 압박 강도부터 낮춤','37. 체력 저하 대응: 수비 라인을 조정','37. 체력 저하 대응: 템포를 낮춰 체력 관리'
+]},
+{title:'세트피스 공격 · 38~43',items:[
+'38. 공격 코너킥: 니어 포스트 공략','38. 공격 코너킥: 파 포스트 공략','38. 공격 코너킥: 페널티 지점 공략','38. 공격 코너킥: 짧은 코너킥','38. 공격 코너킥: 혼합','38. 공격 코너킥: 상대의 세트피스 수비 약점에 따라 변경',
+'39. 공격 프리킥: 직접 슈팅 우선','39. 공격 프리킥: 박스 안으로 크로스','39. 공격 프리킥: 짧은 패스로 전개','39. 공격 프리킥: 기습적인 빠른 재개','39. 공격 프리킥: 거리와 각도에 따라 판단',
+'40. 세트피스 위험 감수: 후방 안정 우선','40. 세트피스 위험 감수: 균형','40. 세트피스 위험 감수: 적극적으로 박스 안에 인원 투입','40. 세트피스 위험 감수: 득점이 필요한 상황에서 위험 감수 확대','40. 세트피스 위험 감수: 상대 역습 능력에 따라 조절',
+'41. 코너킥 후방 대비: 최소 인원 후방 배치','41. 코너킥 후방 대비: 2명 후방 배치','41. 코너킥 후방 대비: 3명 후방 배치','41. 코너킥 후방 대비: 3+1 형태의 안정 구조','41. 코너킥 후방 대비: 상대 역습 위협에 따라 변경',
+'42. 세트피스 주요 공략: 제공권','42. 세트피스 주요 공략: 세컨드 볼','42. 세트피스 주요 공략: 짧은 패스 조합','42. 세트피스 주요 공략: 수비 라인 뒤 공간','42. 세트피스 주요 공략: 니어·파 포스트 혼합 공략','42. 세트피스 주요 공략: 선수단의 실제 강점에 따라 선택',
+'43. 롱 스로인: 사용하지 않음','43. 롱 스로인: 제한적으로 사용','43. 롱 스로인: 공격 지역에서 적극 사용','43. 롱 스로인: 박스 안 투입을 적극 활용','43. 롱 스로인: 투입 가능한 선수와 상황에 따라 결정'
+]},
+{title:'세트피스 수비 · 44~48',items:[
+'44. 수비 코너킥: 지역 방어','44. 수비 코너킥: 대인 방어','44. 수비 코너킥: 지역 방어와 대인 방어 혼합','44. 수비 코너킥: 상대의 주요 제공권 위협에 맞춰 조정',
+'45. 수비 프리킥: 수비 라인 유지','45. 수비 프리킥: 상황에 따라 오프사이드 라인 활용','45. 수비 프리킥: 직접 슈팅 차단 우선','45. 수비 프리킥: 크로스 차단 및 박스 수비 우선','45. 수비 프리킥: 거리와 각도에 따라 혼합',
+'46. 세트피스 수비 후방 대기: 전원 수비','46. 세트피스 수비 후방 대기: 1명 전방 대기','46. 세트피스 수비 후방 대기: 2명 전방 대기','46. 세트피스 수비 후방 대기: 3명 전방 대기','46. 세트피스 수비 후방 대기: 상대의 역습 위협에 따라 변경',
+'47. 세트피스 수비 후 전환: 걷어내기 우선','47. 세트피스 수비 후 전환: 안전한 패스로 점유 확보','47. 세트피스 수비 후 전환: 공간이 있으면 즉시 역습','47. 세트피스 수비 후 전환: 측면으로 빠르게 전환','47. 세트피스 수비 후 전환: 위험도에 따라 혼합',
+'48. 세트피스 위험 관리: 박스 안 수비 인원 극대화','48. 세트피스 위험 관리: 골키퍼의 공중볼 처리 공간 확보','48. 세트피스 위험 관리: 세컨드 볼 회수 우선','48. 세트피스 위험 관리: 상대의 주요 타깃 집중 견제','48. 세트피스 위험 관리: 상대와 선수단의 특성에 맞춰 조정'
+]},
+{title:'키커 지정 · 49~54',items:[
+'49. 페널티킥 1순위: 자동 선정','49. 페널티킥 1순위: 직접 지정 (선수 이름 입력)',
+'50. 페널티킥 2순위: 자동 선정','50. 페널티킥 2순위: 직접 지정 (선수 이름 입력)',
+'51. 직접 프리킥 키커: 자동 선정','51. 직접 프리킥 키커: 직접 지정 (선수 이름 입력)',
+'52. 간접 프리킥 키커: 자동 선정','52. 간접 프리킥 키커: 직접 지정 (선수 이름 입력)',
+'53. 코너킥 키커: 자동 선정','53. 코너킥 키커: 좌측 직접 지정 (선수 이름 입력)','53. 코너킥 키커: 우측 직접 지정 (선수 이름 입력)','53. 코너킥 키커: 좌우 모두 같은 키커 (선수 이름 입력)',
+'54. 코너킥 주발·배급: 좌우 모두 오른발 키커','54. 코너킥 주발·배급: 좌우 모두 왼발 키커','54. 코너킥 주발·배급: 상황에 따라 주발 변경','54. 코너킥 주발·배급: 인스윙 우선','54. 코너킥 주발·배급: 아웃스윙 우선','54. 코너킥 주발·배급: 선수의 실제 킥 능력과 배치에 따라 결정'
+]},
+{title:'구단 DNA 및 전술 정체성 · 55~57',multi:true,items:[
+'55. 핵심 축구 철학: 창의성','55. 핵심 축구 철학: 속도','55. 핵심 축구 철학: 측면 공격','55. 핵심 축구 철학: 점유율 축구','55. 핵심 축구 철학: 강한 압박','55. 핵심 축구 철학: 조직적인 수비','55. 핵심 축구 철학: 빠른 역습','55. 핵심 축구 철학: 전술적 유연성','55. 핵심 축구 철학: 기술적 패스 플레이','55. 핵심 축구 철학: 피지컬과 제공권','55. 핵심 축구 철학: 안정적인 경기 통제','55. 핵심 축구 철학: 실용주의 축구',
+'56. 경기 운영 가치 (최대 2개): 실점 최소화','56. 경기 운영 가치 (최대 2개): 승리 우선','56. 경기 운영 가치 (최대 2개): 경기 지배','56. 경기 운영 가치 (최대 2개): 공격적 축구','56. 경기 운영 가치 (최대 2개): 선수단 체력 관리','56. 경기 운영 가치 (최대 2개): 전술적 안정성','56. 경기 운영 가치 (최대 2개): 상대 약점 공략','56. 경기 운영 가치 (최대 2개): 유망 선수 육성',
+'57. 전술 최종 우선순위: 현실적인 수비 안정성','57. 전술 최종 우선순위: 공수 균형','57. 전술 최종 우선순위: 공격 전개와 득점 기회 창출','57. 전술 최종 우선순위: 강한 압박과 빠른 전환','57. 전술 최종 우선순위: 점유율과 경기 통제','57. 전술 최종 우선순위: 상대에 따른 유연한 전술 변화','57. 전술 최종 우선순위: 선수단의 실제 능력에 최적화'
+]}
+];
+function tacticStorageKey(){return 'spfl_tactics_'+(currentClubId||'unknown');}
+let tacticSelection={};
+function loadTacticSelection(){try{tacticSelection=JSON.parse(localStorage.getItem(tacticStorageKey())||'{}')||{};}catch{tacticSelection={};}}
+function saveTacticSelection(){localStorage.setItem(tacticStorageKey(),JSON.stringify(tacticSelection));}
+function tacticSummary(){
+ const out=['SUPER LEAGUE · OFFICIAL TACTICAL PLAN', '구단: '+(currentTeam||'MY CLUB'),''];
+ tacticGroups.forEach(g=>{
+  const picked=tacticSelection[g.title]||[];
+  if(picked.length){out.push('['+g.title+']');picked.forEach(v=>out.push('• '+v));out.push('');}
+ });
+ return out.join('\n').trim();
+}
+function updateTacticPreview(){
+ const text=tacticSummary();
+ document.querySelector('#tacticPreview').textContent=text==='SUPER LEAGUE · OFFICIAL TACTICAL PLAN\n구단: '+(currentTeam||'MY CLUB')?text:'아직 선택한 전술이 없습니다.';
+}
+function renderTacticalPlanner(){
+ if(!currentClubId)return;
+ loadTacticSelection();
+ document.querySelector('#tacticClubLabel').textContent=currentTeam||'MY CLUB';
+ const host=document.querySelector('#tacticGroups');
+ host.innerHTML=tacticGroups.map((g,gi)=>'<section class="tactic-group"><h3>'+g.title+'</h3><p class="tactic-help">'+(g.multi?'복수 선택 가능':'한 항목을 선택하면 같은 질문의 기존 선택이 바뀝니다.')+'</p><div class="tactic-options">'+g.items.map((item,ii)=>'<label class="tactic-option"><input type="checkbox" data-tactic-group="'+gi+'" data-tactic-index="'+ii+'" '+((tacticSelection[g.title]||[]).includes(item)?'checked':'')+'><span>'+item+'</span></label>').join('')+'</div></section>').join('');
+ updateTacticPreview();
+}
+document.querySelector('#tacticGroups').addEventListener('change',e=>{
+ const input=e.target.closest('[data-tactic-group]');if(!input)return;
+ const group=tacticGroups[Number(input.dataset.tacticGroup)],item=group.items[Number(input.dataset.tacticIndex)];
+ let picked=tacticSelection[group.title]||[];
+ if(input.checked){
+  if(!group.multi){
+   const prefix=item.split(':')[0]+':';
+   picked=picked.filter(v=>!v.startsWith(prefix));
+  }
+  if(group.title.startsWith('구단 DNA')&&item.startsWith('56.')&&picked.filter(v=>v.startsWith('56.')).length>=2){input.checked=false;document.querySelector('#tacticStatus').textContent='56번 경기 운영 가치는 최대 2개까지 선택할 수 있습니다.';return;}
+  picked=[...picked.filter(v=>v!==item),item];
+ }else picked=picked.filter(v=>v!==item);
+ tacticSelection[group.title]=picked;saveTacticSelection();updateTacticPreview();
+ document.querySelector('#tacticStatus').textContent='선택한 전술을 자동 저장했습니다.';
+});
+document.querySelector('#tacticCopyBtn').addEventListener('click',async()=>{
+ const text=tacticSummary();
+ if(!text.split('\n').some(line=>line.startsWith('• '))){document.querySelector('#tacticStatus').textContent='먼저 복사할 전술을 선택하세요.';return;}
+ try{await navigator.clipboard.writeText(text);document.querySelector('#tacticStatus').textContent='선택한 전술을 클립보드에 복사했습니다.';}
+ catch{const area=document.createElement('textarea');area.value=text;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();const ok=document.execCommand('copy');area.remove();document.querySelector('#tacticStatus').textContent=ok?'선택한 전술을 복사했습니다.':'복사에 실패했습니다. 미리보기 내용을 길게 눌러 복사해 주세요.';}
+});
+document.querySelector('#tacticClearBtn').addEventListener('click',()=>{
+ if(!confirm('선택한 전술을 모두 해제할까요?'))return;tacticSelection={};saveTacticSelection();renderTacticalPlanner();document.querySelector('#tacticStatus').textContent='모든 전술 선택을 해제했습니다.';
+});
+document.querySelector('#tacticResetBtn').addEventListener('click',()=>{
+ if(!confirm('저장된 전술 선택을 초기화할까요?'))return;localStorage.removeItem(tacticStorageKey());tacticSelection={};renderTacticalPlanner();document.querySelector('#tacticStatus').textContent='전술 선택을 초기화했습니다.';
+});
+
 // Squad builder: formation-aware lineups, saved per club on this device.
 const squadFormations={
  '4-3-3':[['LW','ST','RW'],['CM1','CM2','CM3'],['LB','CB1','CB2','RB'],['GK']],
@@ -1086,13 +1319,15 @@ const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><b
 let teamWorkspaceMode=false;
 function showTab(id){
  const teamMode=teamWorkspaceMode&&!!teamSession;
- const valid=teamMode?['team-roster','squad-builder','transfers','fa','team-finance','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt','admin'];
+ const valid=teamMode?['team-roster','squad-builder','tactical-planner','transfers','fa','team-finance','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt','admin'];
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  const visibleSection=id==='admin'?'transfers':id;
  ['home','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt'].forEach(key=>{const section=document.getElementById(key);if(section)section.classList.toggle('hidden',key!==visibleSection);});
  document.querySelector('#rosterPanel').classList.toggle('hidden',!(teamMode&&id==='team-roster'));
  document.querySelector('#squadBuilderPanel').classList.toggle('hidden',!(teamMode&&id==='squad-builder'));
+ document.querySelector('#tacticalPlannerPanel').classList.toggle('hidden',!(teamMode&&id==='tactical-planner'));
+ if(teamMode&&id==='tactical-planner')renderTacticalPlanner();
  if(teamMode&&id==='squad-builder')renderSquadBuilder();
  document.querySelector('#teamFinancePanel').classList.toggle('hidden',!(teamMode&&id==='team-finance'));
  if(teamMode&&id==='team-finance')loadTeamFinance();
@@ -1108,7 +1343,7 @@ function applyTeamMode(loggedIn){
  const nav=document.querySelector('.tabs');
  teamWorkspaceMode=!!loggedIn;
  if(loggedIn){
-  nav.innerHTML='<button class="tab active" data-tab="team-roster">팀 등록</button><button class="tab" data-tab="squad-builder">스쿼드</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="team-finance">자금 관리</button>';
+  nav.innerHTML='<button class="tab active" data-tab="team-roster">팀 등록</button><button class="tab" data-tab="squad-builder">스쿼드</button><button class="tab" data-tab="tactical-planner">전술</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="team-finance">자금 관리</button>';
   document.querySelector('#clubShortcuts').classList.add('visible');
   showTab('team-roster');
  }else{
