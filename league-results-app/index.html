@@ -317,7 +317,7 @@ function renderRoster(){
   const list=sortRosterItems(rosterItems.filter(p=>p.entry_type===type),document.querySelector('#teamRosterSort').value);
   if(!list.length)return '';
   return '<div class="roster-group"><h3>'+type+' · '+list.length+'명</h3>'+list.map(p=>{
-   const meta=[p.position,p.shirt_number!==null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:'',p.age?p.age+'세':'',p.nationality].filter(Boolean).map(esc).join(' · ');
+   const meta=[p.position,p.shirt_number!==null?'#'+p.shirt_number:'',p.overall?'OVR '+p.overall:'',p.market_value_eur!=null?'시장 가치 '+formatMarketValue(p.market_value_eur):'',p.age?p.age+'세':'',p.nationality].filter(Boolean).map(esc).join(' · ');
    const photo=p.photo_url?'<img class="person-photo" src="'+esc(p.photo_url)+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="person-photo-placeholder">NO PHOTO</div>';
    return '<article class="person-card roster-person-card"><div class="roster-photo">'+photo+'</div><div class="roster-person-content"><div class="roster-person-actions"><button class="action" data-edit="'+esc(p.id)+'" type="button">수정</button> '+(p.entry_type==='선수'?'<button class="action" data-release="'+esc(p.id)+'" type="button">FA 방출</button>':'')+'<button class="delete-btn" data-delete="'+esc(p.id)+'" type="button">삭제</button></div><div class="person-name">'+esc(p.name)+'</div><div class="person-meta">'+(meta||'추가 정보 없음')+'</div>'+(p.notes?'<div class="person-meta">'+esc(p.notes)+'</div>':'')+'</div></article>';
   }).join('')+'</div>';
@@ -661,7 +661,7 @@ function renderTransferBrowseResults(){
  const q=(document.querySelector('#transferBrowseSearch')?.value||'').trim().toLocaleLowerCase();
  const items=transferPlayers.filter(p=>[p.name,p.position,p.club?.name].some(v=>String(v||'').toLocaleLowerCase().includes(q))).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ko'));
  if(!items.length){host.innerHTML='<div class="empty">검색 결과가 없습니다.</div>';return;}
- host.innerHTML=items.slice(0,120).map(p=>'<article class="market-player-card">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'" alt="" loading="lazy">':'<div class="person-photo-placeholder">PLAYER</div>')+'<div class="market-player-info"><h3>'+esc(p.name)+'</h3><p>'+esc([p.position||'포지션 미정',p.club?.name||'소속 미상',p.shirt_number?'#'+p.shirt_number:''].filter(Boolean).join(' · '))+'</p></div>'+(p.overall?'<span class="market-player-ovr">OVR '+esc(p.overall)+'</span>':'')+'</article>').join('')+(items.length>120?'<div class="empty">검색 결과 '+items.length+'명 중 120명 표시 중입니다. 검색어를 입력해 범위를 좁혀주세요.</div>':'');
+ host.innerHTML=items.slice(0,120).map(p=>'<article class="market-player-card">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'" alt="" loading="lazy">':'<div class="person-photo-placeholder">PLAYER</div>')+'<div class="market-player-info"><h3>'+esc(p.name)+'</h3><p>'+esc([p.position||'포지션 미정',p.club?.name||'소속 미상',p.shirt_number?'#'+p.shirt_number:''].filter(Boolean).join(' · '))+'</p></div>'+'<span class="market-player-ovr">'+(p.overall?'OVR '+esc(p.overall):'OVR —')+'<br>'+(p.market_value_eur!=null?formatMarketValue(p.market_value_eur):'가치 미등록')+'</span>'+'</article>').join('')+(items.length>120?'<div class="empty">검색 결과 '+items.length+'명 중 120명 표시 중입니다. 검색어를 입력해 범위를 좁혀주세요.</div>':'');
 }
 async function loadTransferMarket(){
  const playerHost=document.querySelector('#transferBrowseResults'),historyHost=document.querySelector('#transferHistory');
