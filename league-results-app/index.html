@@ -187,7 +187,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
   <div class="field"><label for="personName">이름 *</label><input id="personName" required maxlength="80" placeholder="선수 또는 스태프 이름"></div>
   <div class="field"><label for="personPosition">포지션 / 역할</label><input id="personPosition" maxlength="60" placeholder="예: ST, CB, 감독"></div>
   <div class="field"><label for="personNumber">등번호</label><input id="personNumber" type="number" min="0" max="99" placeholder="선수만 입력"></div>
-  <div class="field"><label for="personOverall">OVR</label><input id="personOverall" type="number" min="1" max="99" placeholder="선수만 입력"></div><div class="field"><label for="personMarketValue">시장 가치 (Transfermarkt · €M)</label><input id="personMarketValue" type="number" min="0" max="999999" step="0.01" placeholder="예: 45"></div>
+  <div class="field"><label for="personOverall">OVR</label><input id="personOverall" type="number" min="1" max="99" placeholder="선수만 입력"></div><div class="field"><label for="personMarketValue">시장 가치 (Transfermarkt · €M)</label><input id="personMarketValue" type="number" min="0" max="999999" step="0.01" placeholder="예: 45"><button class="action" id="lookupTransfermarktValue" type="button" style="margin-top:8px;width:100%">선수 이름으로 Transfermarkt 가치 찾기 ↗</button><small class="hint" id="transfermarktLookupHelp">선수 이름을 먼저 입력한 뒤 버튼을 누르세요. 공식 검색 결과에서 시장 가치를 확인해 입력할 수 있습니다.</small></div>
   <div class="field"><label for="personAge">나이</label><input id="personAge" type="number" min="1" max="100" placeholder="선택 입력"></div>
   <div class="field"><label for="personNation">국적</label><input id="personNation" maxlength="60" placeholder="예: 대한민국"></div>
   <div class="field wide"><label for="personPhotoFile">선수 사진 파일 (선택)</label><input id="personPhotoFile" type="file" accept="image/jpeg,image/png,image/webp"><img id="personPhotoPreview" class="photo-preview" alt="사진 미리보기"><div class="photo-help">JPG · PNG · WEBP / 최대 5MB</div></div>
@@ -598,6 +598,14 @@ function startRosterEdit(id){
  document.querySelector('#rosterForm').scrollIntoView({behavior:'smooth',block:'center'});
 }
 document.querySelector('#cancelEditPersonBtn').addEventListener('click',resetRosterEditor);
+document.querySelector('#lookupTransfermarktValue').addEventListener('click',()=>{
+ const name=document.querySelector('#personName').value.trim();
+ const status=document.querySelector('#transfermarktLookupHelp');
+ if(!name){status.textContent='먼저 선수 이름을 입력해 주세요.';document.querySelector('#personName').focus();return;}
+ const url='https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query='+encodeURIComponent(name);
+ window.open(url,'_blank','noopener');
+ status.textContent='Transfermarkt 검색 결과에서 선수와 소속 구단이 일치하는지 확인한 뒤 시장 가치(€M)를 입력해 주세요.';
+});
 document.querySelector('#rosterForm').addEventListener('submit',async e=>{
  e.preventDefault();const btn=document.querySelector('#savePersonBtn');btn.disabled=true;btn.textContent=editingRosterId?'저장 중...':'등록 중...';
  const val=id=>document.querySelector(id).value.trim();
