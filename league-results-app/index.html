@@ -187,7 +187,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
   <div class="field"><label for="personName">이름 *</label><input id="personName" required maxlength="80" placeholder="선수 또는 스태프 이름"></div>
   <div class="field"><label for="personPosition">포지션 / 역할</label><input id="personPosition" maxlength="60" placeholder="예: ST, CB, 감독"></div>
   <div class="field"><label for="personNumber">등번호</label><input id="personNumber" type="number" min="0" max="99" placeholder="선수만 입력"></div>
-  <div class="field"><label for="personOverall">OVR</label><input id="personOverall" type="number" min="1" max="99" placeholder="선수만 입력"></div><div class="field"><label for="personMarketValue">시장 가치 (Transfermarkt · €M)</label><input id="personMarketValue" type="number" min="0" max="999999" step="0.01" placeholder="예: 45"><button class="action" id="lookupTransfermarktValue" type="button" style="margin-top:8px;width:100%">선수 이름으로 Transfermarkt 가치 찾기 ↗</button><small class="hint" id="transfermarktLookupHelp">선수 이름을 먼저 입력한 뒤 버튼을 누르세요. 공식 검색 결과에서 시장 가치를 확인해 입력할 수 있습니다.</small></div>
+  <div class="field"><label for="personOverall">OVR</label><input id="personOverall" type="number" min="1" max="99" placeholder="선수만 입력"></div><div class="field"><label for="personMarketValue">시장 가치 (Transfermarkt · €M)</label><input id="personMarketValue" type="number" min="0" max="999999" step="0.01" placeholder="예: 45"><button class="action" id="lookupTransfermarktValue" type="button" style="margin-top:8px;width:100%">① Google에서 선수 고유 영문 이름 찾기 ↗</button><input id="personEnglishName" type="text" maxlength="100" placeholder="Google에서 확인한 선수 영문 이름 입력" style="margin-top:8px"><button class="action" id="lookupTransfermarktEnglish" type="button" style="margin-top:8px;width:100%">② 영문 이름으로 Transfermarkt 검색 ↗</button><small class="hint" id="transfermarktLookupHelp">한국어 선수 이름으로 Google 검색 → 공식 영문 이름 확인 → Transfermarkt 검색 순서로 이용하세요. 임의 한글 발음 변환은 하지 않습니다.</small></div>
   <div class="field"><label for="personAge">나이</label><input id="personAge" type="number" min="1" max="100" placeholder="선택 입력"></div>
   <div class="field"><label for="personNation">국적</label><input id="personNation" maxlength="60" placeholder="예: 대한민국"></div>
   <div class="field wide"><label for="personPhotoFile">선수 사진 파일 (선택)</label><input id="personPhotoFile" type="file" accept="image/jpeg,image/png,image/webp"><img id="personPhotoPreview" class="photo-preview" alt="사진 미리보기"><div class="photo-help">JPG · PNG · WEBP / 최대 5MB</div></div>
@@ -598,25 +598,24 @@ function startRosterEdit(id){
  document.querySelector('#rosterForm').scrollIntoView({behavior:'smooth',block:'center'});
 }
 document.querySelector('#cancelEditPersonBtn').addEventListener('click',resetRosterEditor);
-const transfermarktEnglishNames={
- '가브리에우 마갈량이스':'Gabriel Magalhaes','노니 마두에케':'Noni Madueke','다비드 라야':'David Raya','데클란 라이스':'Declan Rice','리카르도 칼라피오리':'Riccardo Calafiori','마르틴 수비멘디':'Martin Zubimendi','마르틴 외데고르':'Martin Odegaard','마일스 루이스스켈리':'Myles Lewis-Skelly','맥스 다우먼':'Max Dowman','미켈 메리노':'Mikel Merino','벤 화이트':'Ben White','부카요 사카':'Bukayo Saka','브루누 기마랑이스':'Bruno Guimaraes','빅토르 요케레스':'Viktor Gyokeres','에베레치 에제':'Eberechi Eze','에즈리 콘사':'Ezri Konsa','위리엔 팀버르':'Jurrien Timber','윌리엄 살리바':'William Saliba','일란 멜리에':'Illan Meslier','카이 하베르츠':'Kai Havertz','케파 아리사발라가':'Kepa Arrizabalaga','크리스토스 촐리스':'Christos Tzolis','크리스티안 모스케라':'Christian Mosquera','피에로 잉카피에':'Piero Hincapie',
- '손흥민':'Son Heung-min','김민재':'Kim Min-jae','이강인':'Lee Kang-in','황희찬':'Hwang Hee-chan','주드 벨링엄':'Jude Bellingham','엘링 홀란':'Erling Haaland','킬리안 음바페':'Kylian Mbappe','비니시우스 주니오르':'Vinicius Junior','모하메드 살라':'Mohamed Salah','버질 반다이크':'Virgil van Dijk','케빈 더브라위너':'Kevin De Bruyne','리오넬 메시':'Lionel Messi','크리스티아누 호날두':'Cristiano Ronaldo','라민 야말':'Lamine Yamal','페드리':'Pedri','가비':'Gavi','로드리':'Rodri','콜 파머':'Cole Palmer','엔소 페르난데스':'Enzo Fernandez','알렉산더 이삭':'Alexander Isak','브루노 페르난데스':'Bruno Fernandes','마커스 래시포드':'Marcus Rashford','해리 케인':'Harry Kane','잭 그릴리시':'Jack Grealish','필 포든':'Phil Foden','데클란 라이스':'Declan Rice'
-};
-function romanizeKoreanName(value){
- const initials={'ㄱ':'g','ㄲ':'kk','ㄴ':'n','ㄷ':'d','ㄸ':'tt','ㄹ':'r','ㅁ':'m','ㅂ':'b','ㅃ':'pp','ㅅ':'s','ㅆ':'ss','ㅇ':'','ㅈ':'j','ㅉ':'jj','ㅊ':'ch','ㅋ':'k','ㅌ':'t','ㅍ':'p','ㅎ':'h'};
- const vowels=['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i'];
- const finals=['','k','k','ks','n','nj','nh','t','l','lk','lm','lb','ls','lt','lp','lh','m','p','ps','t','t','ng','t','t','k','t','p','t'];
- return [...value].map(ch=>{const n=ch.charCodeAt(0)-44032;if(n<0||n>11171)return ch;const a=Math.floor(n/588),v=Math.floor((n%588)/28),f=n%28;return (initials[ String.fromCharCode(4352+a)]||'')+vowels[v]+finals[f];}).join(' ').replace(/\\s+/g,' ').trim();
-}
-document.querySelector('#lookupTransfermarktValue').addEventListener('click',()=>{
+function openGooglePlayerLookup(){
  const name=document.querySelector('#personName').value.trim();
  const status=document.querySelector('#transfermarktLookupHelp');
  if(!name){status.textContent='먼저 선수 이름을 입력해 주세요.';document.querySelector('#personName').focus();return;}
- const englishName=transfermarktEnglishNames[name]||romanizeKoreanName(name);
- const url='https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query='+encodeURIComponent(englishName);
+ const query='"'+name+'" football player English name Transfermarkt market value';
+ const url='https://www.google.com/search?q='+encodeURIComponent(query);
  window.open(url,'_blank','noopener');
- status.textContent='영문 검색어: '+englishName+' · 검색 결과에서 선수와 소속 구단을 확인한 뒤 시장 가치(€M)를 입력하세요.';
-});
+ status.textContent='Google에서 선수의 공식 영문 이름과 소속 구단을 확인하세요. 확인한 영문 이름을 아래 입력란에 넣고 Transfermarkt 검색을 누르면 됩니다.';
+}
+function openTransfermarktEnglishSearch(){
+ const englishName=document.querySelector('#personEnglishName')?.value.trim()||'';
+ const status=document.querySelector('#transfermarktLookupHelp');
+ if(!englishName){status.textContent='Google에서 확인한 선수 고유 영문 이름을 입력해 주세요.';document.querySelector('#personEnglishName')?.focus();return;}
+ window.open('https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query='+encodeURIComponent(englishName),'_blank','noopener');
+ status.textContent='Transfermarkt 검색 결과에서 선수와 소속 구단이 일치하는지 확인하세요.';
+}
+document.querySelector('#lookupTransfermarktValue').addEventListener('click',openGooglePlayerLookup);
+document.querySelector('#lookupTransfermarktEnglish').addEventListener('click',openTransfermarktEnglishSearch);
 document.querySelector('#rosterForm').addEventListener('submit',async e=>{
  e.preventDefault();const btn=document.querySelector('#savePersonBtn');btn.disabled=true;btn.textContent=editingRosterId?'저장 중...':'등록 중...';
  const val=id=>document.querySelector(id).value.trim();
