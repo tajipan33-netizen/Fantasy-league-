@@ -685,7 +685,6 @@ document.querySelector('#transferBrowseSubmit').addEventListener('click',renderT
 document.querySelector('#transferBrowseJump').addEventListener('click',()=>document.querySelector('.available-market').scrollIntoView({behavior:'smooth'}));
 document.querySelector('#transferHistoryJump').addEventListener('click',()=>document.querySelector('#transferHistory').scrollIntoView({behavior:'smooth'}));
 document.querySelector('#transferClubFilter').addEventListener('change',renderTransferPlayerOptions);
-document.querySelector('#transferPlayerSearch').addEventListener('input',renderTransferPlayerOptions);
 function renderTransferHistory(items){
  const host=document.querySelector('#transferHistory');
  if(!items.length){host.innerHTML='<div class="empty">아직 완료된 이적이 없습니다.</div>';return;}
