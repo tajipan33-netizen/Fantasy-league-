@@ -680,7 +680,7 @@ async function loadTransferMarket(){
  if(teamSession) await loadTransferDashboard();
  if(adminSession) await loadAdminTransfers();
 }
-document.querySelector('#transferBrowseSearch').addEventListener('input',renderTransferBrowseResults);
+document.querySelector('#transferBrowseSearch').addEventListener('input',()=>{renderTransferBrowseResults();renderTransferPlayerOptions();});
 document.querySelector('#transferBrowseSubmit').addEventListener('click',renderTransferBrowseResults);
 document.querySelector('#transferBrowseJump').addEventListener('click',()=>document.querySelector('.available-market').scrollIntoView({behavior:'smooth'}));
 document.querySelector('#transferHistoryJump').addEventListener('click',()=>document.querySelector('#transferHistory').scrollIntoView({behavior:'smooth'}));
