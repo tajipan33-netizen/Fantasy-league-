@@ -230,7 +230,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
    <div class="login-status wide" id="transferFormStatus">선수를 선택하고 이적료를 제시하세요.</div>
   </form>
  </div>
- <section class="available-market"><div class="market-kicker">AVAILABLE PLAYERS</div><h2>시장 등록 선수</h2><p class="market-copy">현재 슈퍼리그에 등록된 선수 목록입니다. 선수 이름, 포지션, 소속 구단으로 검색할 수 있습니다. 로그인한 구단은 선수에게 이적 제안을 보낼 수 있습니다.</p><div class="market-search-row"><input id="transferBrowseSearch" type="search" maxlength="80" placeholder="선수 이름, 포지션, 구단 검색"><button type="button" id="transferBrowseSubmit">검색</button></div><div id="transferBrowseResults"><div class="empty">이적시장 선수를 불러오는 중입니다.</div></div></section>
+ <section class="available-market"><div class="market-kicker">AVAILABLE PLAYERS</div><h2>시장 등록 선수</h2><p class="market-copy">현재 슈퍼리그에 등록된 전체 선수 목록입니다. 검색 없이 모든 선수를 한 번에 확인할 수 있습니다. 로그인한 구단은 선수에게 이적 제안을 보낼 수 있습니다.</p><div id="transferBrowseCount" class="market-copy">등록된 전체 선수를 불러오는 중입니다.</div><div id="transferBrowseResults"><div class="empty">이적시장 선수를 불러오는 중입니다.</div></div></section>
  <div class="transfer-grid">
   <div class="panel"><div class="section-head"><h2>받은 제안 / 보낸 제안</h2><span class="hint">CLUB OFFERS</span></div><div id="clubTransferOffers"><div class="empty">구단 로그인 후 확인할 수 있습니다.</div></div></div>
   <div class="panel"><div class="section-head"><h2>관리자 승인 센터</h2><span class="hint">ADMIN APPROVAL</span></div>
@@ -674,13 +674,11 @@ function moneyText(value){return Number(value||0).toLocaleString('ko-KR',{maximu
 function transferStatusBadge(status){return '<span class="transfer-status">'+esc(transferStatusText[status]||status)+'</span>'}
 function renderTransferPlayerOptions(){
  const clubFilter=document.querySelector('#transferClubFilter');
- const searchInput=document.querySelector('#transferBrowseSearch');
  const select=document.querySelector('#transferPlayerSelect');
- if(!clubFilter||!searchInput||!select)return;
+ if(!clubFilter||!select)return;
  const selectedClub=clubFilter.value;
- const query=searchInput.value.trim().toLocaleLowerCase();
  const eligible=transferPlayers.filter(p=>!currentClubId||p.club_id!==currentClubId);
- const filtered=eligible.filter(p=>(!selectedClub||p.club_id===selectedClub)&&(!query||String(p.name||'').toLocaleLowerCase().includes(query))).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ko'));
+ const filtered=eligible.filter(p=>!selectedClub||p.club_id===selectedClub).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ko'));
  const groups=new Map();
  filtered.forEach(p=>{
   const clubId=p.club_id||'unknown';
@@ -689,16 +687,26 @@ function renderTransferPlayerOptions(){
   groups.get(clubId).players.push(p);
  });
  const previous=select.value;
- select.innerHTML='<option value="">선수를 선택하세요 ('+filtered.length+'명)</option>'+[...groups.entries()].sort((a,b)=>a[1].name.localeCompare(b[1].name,'ko')).map(([id,g])=>'<optgroup label="'+esc(g.name)+' · '+g.players.length+'명">'+g.players.sort((a,b)=>String(a.name).localeCompare(String(b.name),'ko')).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.position||'포지션 미정')+(p.overall?' · OVR '+esc(p.overall):'')+'</option>').join('')+'</optgroup>').join('');
+ select.innerHTML='<option value="">선수를 선택하세요 ('+filtered.length+'명)</option>'+[...groups.entries()].sort((a,b)=>a[1].name.localeCompare(b[1].name,'ko')).map(([id,g])=>'<optgroup label="'+esc(g.name)+' · '+g.players.length+'명">'+g.players.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.position||'포지션 미정')+(p.overall?' · OVR '+esc(p.overall):'')+'</option>').join('')+'</optgroup>').join('');
  if(filtered.some(p=>p.id===previous))select.value=previous;
- if(!filtered.length)select.innerHTML='<option value="">검색 결과가 없습니다.</option>';
+ if(!filtered.length)select.innerHTML='<option value="">등록된 선수가 없습니다.</option>';
 }
 function renderTransferBrowseResults(){
  const host=document.querySelector('#transferBrowseResults');if(!host)return;
- const q=(document.querySelector('#transferBrowseSearch')?.value||'').trim().toLocaleLowerCase();
- const items=transferPlayers.filter(p=>[p.name,p.position,p.club?.name].some(v=>String(v||'').toLocaleLowerCase().includes(q))).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ko'));
- if(!items.length){host.innerHTML='<div class="empty">검색 결과가 없습니다.</div>';return;}
- host.innerHTML=items.slice(0,120).map(p=>'<article class="market-player-card">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'" alt="" loading="lazy">':'<div class="person-photo-placeholder">PLAYER</div>')+'<div class="market-player-info"><h3>'+esc(p.name)+'</h3><p>'+esc([p.position||'포지션 미정',p.club?.name||'소속 미상',p.shirt_number?'#'+p.shirt_number:''].filter(Boolean).join(' · '))+'</p></div>'+'<span class="market-player-ovr">'+(p.overall?'OVR '+esc(p.overall):'OVR —')+'<br>'+(p.market_value_eur!=null?formatMarketValue(p.market_value_eur):'가치 미등록')+'</span>'+'</article>').join('')+(items.length>120?'<div class="empty">검색 결과 '+items.length+'명 중 120명 표시 중입니다. 검색어를 입력해 범위를 좁혀주세요.</div>':'');
+ const items=[...transferPlayers].sort((a,b)=>{
+  const club=String(a.club?.name||'소속 미상').localeCompare(String(b.club?.name||'소속 미상'),'ko');
+  return club||String(a.name||'').localeCompare(String(b.name||''),'ko');
+ });
+ const count=document.querySelector('#transferBrowseCount');
+ if(count)count.textContent='현재 등록 선수 '+items.length+'명 · 전체 선수 표시 중';
+ if(!items.length){host.innerHTML='<div class="empty">아직 등록된 선수가 없습니다.</div>';return;}
+ const groups=new Map();
+ items.forEach(p=>{
+  const key=p.club_id||'unknown';
+  if(!groups.has(key))groups.set(key,{name:p.club?.name||'소속 미상',players:[]});
+  groups.get(key).players.push(p);
+ });
+ host.innerHTML=[...groups.entries()].map(([id,g])=>'<section class="market-club-group"><div class="section-head"><h3>'+esc(g.name)+'</h3><span class="hint">'+g.players.length+'명</span></div><div class="market-player-grid">'+g.players.map(p=>'<article class="market-player-card">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'" alt="" loading="lazy">':'<div class="person-photo-placeholder">PLAYER</div>')+'<div class="market-player-info"><h3>'+esc(p.name)+'</h3><p>'+esc([p.position||'포지션 미정',p.shirt_number?'#'+p.shirt_number:''].filter(Boolean).join(' · '))+'</p></div><span class="market-player-ovr">'+(p.overall?'OVR '+esc(p.overall):'OVR —')+'<br>'+(p.market_value_eur!=null?formatMarketValue(p.market_value_eur):'가치 미등록')+'</span></article>').join('')+'</div></section>').join('');
 }
 async function loadTransferMarket(){
  const playerHost=document.querySelector('#transferBrowseResults'),historyHost=document.querySelector('#transferHistory');
@@ -721,8 +729,6 @@ async function loadTransferMarket(){
  if(teamSession) await loadTransferDashboard();
  if(adminSession) await loadAdminTransfers();
 }
-document.querySelector('#transferBrowseSearch').addEventListener('input',()=>{renderTransferBrowseResults();renderTransferPlayerOptions();});
-document.querySelector('#transferBrowseSubmit').addEventListener('click',renderTransferBrowseResults);
 document.querySelector('#transferBrowseJump').addEventListener('click',()=>document.querySelector('.available-market').scrollIntoView({behavior:'smooth'}));
 document.querySelector('#transferHistoryJump').addEventListener('click',()=>document.querySelector('#transferHistory').scrollIntoView({behavior:'smooth'}));
 document.querySelector('#transferClubFilter').addEventListener('change',renderTransferPlayerOptions);
@@ -1067,4 +1073,6 @@ loadLeague();
 .tabs>.tab{flex:0 1 auto;min-width:max-content}
 .tabs>.transfermarkt-nav-link{color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 @media(max-width:520px){.tabs{position:relative;gap:5px;padding:8px 10px}.tabs>.tab{flex:1 1 calc(33.333% - 5px);min-width:0;padding:11px 7px;font-size:12px}.tabs>.tab[data-tab="ea-ratings"],.tabs>.transfermarkt-nav-link{flex:1 1 calc(50% - 5px)}}
+</style><style>
+.market-club-group{margin:18px 0 26px;padding:16px;border:1px solid var(--line);background:rgba(255,255,255,.015)}.market-club-group>.section-head{margin-bottom:12px}.market-player-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.market-club-group .market-player-card{min-width:0;margin:0}.market-club-group .market-player-card img,.market-club-group .person-photo-placeholder{width:58px;height:58px;object-fit:cover;flex:0 0 58px}@media(max-width:600px){.market-player-grid{grid-template-columns:1fr}.market-club-group{padding:10px}}
 </style></body></html>
