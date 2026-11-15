@@ -1010,7 +1010,7 @@ if(adminSession){document.querySelector("#adminLoginBox").classList.add("hidden"
 loadTransferMarket();
 loadFAMarket();
 loadPublicFriendlies();
-const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="ea-ratings">EA 공식 레이팅</button>';
+const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="ea-ratings">EA 공식 레이팅</button><a class="tab transfermarkt-nav-link" href="https://www.transfermarkt.com/" target="_blank" rel="noopener noreferrer">Transfermarkt ↗</a>';
 let teamWorkspaceMode=false;
 function showTab(id){
  const teamMode=teamWorkspaceMode&&!!teamSession;
@@ -1018,7 +1018,7 @@ function showTab(id){
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  const visibleSection=id==='admin'?'transfers':id;
- ['home','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt'].forEach(key=>document.getElementById(key).classList.toggle('hidden',key!==visibleSection));
+ ['home','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt'].forEach(key=>{const section=document.getElementById(key);if(section)section.classList.toggle('hidden',key!==visibleSection);});
  document.querySelector('#rosterPanel').classList.toggle('hidden',!(teamMode&&id==='team-roster'));
  document.querySelector('#squadBuilderPanel').classList.toggle('hidden',!(teamMode&&id==='squad-builder'));
  if(teamMode&&id==='squad-builder')renderSquadBuilder();
@@ -1048,7 +1048,7 @@ function applyTeamMode(loggedIn){
 }
 document.querySelector('#clubBackHome').addEventListener('click',()=>{if(teamSession){applyTeamMode(false);showTab('home');}else showTab('home');});
 document.querySelector('#clubGoDirectory').addEventListener('click',()=>{if(teamSession){applyTeamMode(true);showTab('team-roster');}else showTab('home');});
-document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)showTab(b.dataset.tab);});
+document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab[data-tab]');if(b){e.preventDefault();showTab(b.dataset.tab);}});
 document.querySelector('#heroFixtures').addEventListener('click',()=>{showTab('home');document.querySelector('#fixtureRoundSelect').scrollIntoView({behavior:'smooth',block:'start'});});
 document.querySelector('#headerTeamLogin').addEventListener('click',()=>{document.querySelector('#team-login').classList.remove('hidden');document.querySelector('#teamCode').focus();});
 document.querySelector('#team-login').addEventListener('click',e=>{if(e.target.closest('[data-close-login]'))document.querySelector('#team-login').classList.add('hidden');});
@@ -1061,4 +1061,10 @@ document.querySelector('#youthTypeSelect').addEventListener('change',refreshYout
 
 
 loadLeague();
-</script></body></html>
+</script><style>
+/* Stable responsive navigation: external links must not trigger in-app tab routing. */
+.tabs{position:relative;top:auto;display:flex;flex-wrap:wrap;overflow:visible;justify-content:center;gap:6px;z-index:20}
+.tabs>.tab{flex:0 1 auto;min-width:max-content}
+.tabs>.transfermarkt-nav-link{color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+@media(max-width:520px){.tabs{position:relative;gap:5px;padding:8px 10px}.tabs>.tab{flex:1 1 calc(33.333% - 5px);min-width:0;padding:11px 7px;font-size:12px}.tabs>.tab[data-tab="ea-ratings"],.tabs>.transfermarkt-nav-link{flex:1 1 calc(50% - 5px)}}
+</style></body></html>
