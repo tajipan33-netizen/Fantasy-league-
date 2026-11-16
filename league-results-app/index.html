@@ -261,7 +261,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
  <div class="section-head"><h2>선수 부상 · 징계 · 수상 등록</h2><span class="hint">ADMIN ONLY</span></div>
  <form id="adminPlayerRecordForm" class="roster-form">
   <div class="field"><label for="adminRecordClub">소속 구단</label><select id="adminRecordClub" required><option value="">구단 선택</option></select></div>
-  <div class="field"><label for="adminRecordPlayerName">선수 이름</label><input id="adminRecordPlayerName" maxlength="100" required placeholder="선수 이름"></div>
+  <div class="field"><label for="adminRecordPlayerName">선수 선택</label><select id="adminRecordPlayerName" required disabled><option value="">먼저 구단을 선택하세요</option></select></div>
   <div class="field"><label for="adminRecordType">기록 종류</label><select id="adminRecordType"><option value="injury">부상</option><option value="suspension">징계</option><option value="award">수상</option></select></div>
   <div class="field"><label for="adminRecordTitle">부상명 / 징계 내용 / 수상명</label><input id="adminRecordTitle" maxlength="120" required placeholder="예: 햄스트링 부상"></div>
   <div class="field"><label for="adminRecordDetails">상세 내용</label><textarea id="adminRecordDetails" rows="3" maxlength="1200" placeholder="상세 내용 (선택)"></textarea></div>
@@ -917,6 +917,7 @@ async function loadAdminManagementData(){
   const opts='<option value="">구단 선택</option>'+adminManagementClubs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('');
   ['manageClubSelect','fundClubSelect','adminPlayerClub','adminGoalClub','adminAssistClub','adminRecordClub'].forEach(id=>{const el=document.getElementById(id);if(el){const old=el.value;el.innerHTML=opts;el.value=old;}});
   renderAdminPlayers();
+  renderAdminRecordPlayers();
   if(document.querySelector('#fundClubSelect')?.value){refreshAdminFundsBalance();loadAdminClubFinanceHistory(document.querySelector('#fundClubSelect').value);}
  }catch(error){document.querySelector('#clubSponsorStatus').textContent=error.message;}
 }
@@ -1498,6 +1499,19 @@ async function loadPlayerRecords(){
   host.innerHTML=r.records.length?r.records.map(x=>'<article class="transfer-offer"><div class="section-head"><b>'+esc(x.club?.name||'구단')+' · '+labels[x.record_type]+'</b><span class="transfer-status">'+(x.status==='active'?'진행 중':'완료')+'</span></div><h3>'+esc(x.player_name)+' — '+esc(x.title)+'</h3><p class="transfer-meta">'+esc(x.details||'상세 내용 없음')+'</p><div class="transfer-meta">'+(x.start_date?'시작/수상일 '+esc(x.start_date):'')+(x.end_date?' · 복귀 예정 '+esc(x.end_date):'')+(x.matches_out!==null?' · 예상 결장 '+x.matches_out+'경기':'')+(x.record_type==='injury'&&x.available_from_round?' · '+x.available_from_round+'R부터 출전 가능':'')+'</div></article>').join(''):'<div class="empty">등록된 부상·징계·수상 기록이 없습니다.</div>';
  }catch(e){host.innerHTML='<div class="empty">'+esc(e.message)+'</div>';}
 }
+
+function renderAdminRecordPlayers(){
+ const clubId=document.querySelector('#adminRecordClub')?.value||'';
+ const select=document.querySelector('#adminRecordPlayerName');if(!select)return;
+ const previous=select.value;
+ const players=adminManagementPlayers.filter(p=>p.club_id===clubId&&p.entry_type==='선수').sort((a,b)=>String(a.name).localeCompare(String(b.name),'ko'));
+ if(!clubId){select.innerHTML='<option value="">먼저 구단을 선택하세요</option>';select.disabled=true;return;}
+ if(!players.length){select.innerHTML='<option value="">이 구단에 등록된 선수가 없습니다</option>';select.disabled=true;return;}
+ select.disabled=false;
+ select.innerHTML='<option value="">선수 선택</option>'+players.map(p=>'<option value="'+esc(p.name)+'">'+esc(p.name)+(p.position?' · '+esc(p.position):'')+(p.shirt_number!==null&&p.shirt_number!==undefined?' · #'+esc(p.shirt_number):'')+'</option>').join('');
+ if(players.some(p=>p.name===previous))select.value=previous;
+}
+document.querySelector('#adminRecordClub').addEventListener('change',renderAdminRecordPlayers);
 
 async function loadAdminPlayerRecords(){
  const host=document.querySelector('#adminPlayerRecordsList');if(!host)return;
