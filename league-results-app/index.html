@@ -255,8 +255,24 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
     <div class="login-status" id="adminLoginStatus">관리자 전용 접속</div>
    </div>
    <div id="adminDashboard" class="hidden"><div class="transfer-actions"><button class="action" id="adminRefresh" type="button">목록 새로고침</button><button class="action" id="adminLogout" type="button">관리자 로그아웃</button></div>
-    <div class="admin-manage-nav"><button class="action active" data-admin-pane="core">이적·친선</button><button class="action" data-admin-pane="teams">팀 관리</button><button class="action" data-admin-pane="funds">자금 관리</button><button class="action" data-admin-pane="players">선수 관리</button><button class="action" data-admin-pane="results">경기 결과</button><button class="action" data-admin-pane="goals">득점 관리</button><button class="action" data-admin-pane="assists">어시스트 관리</button></div>
-    <div id="adminCorePane">
+    <div class="admin-manage-nav"><button class="action active" data-admin-pane="core">이적·친선</button><button class="action" data-admin-pane="teams">팀 관리</button><button class="action" data-admin-pane="funds">자금 관리</button><button class="action" data-admin-pane="players">선수 관리</button><button class="action" data-admin-pane="results">경기 결과</button><button class="action" data-admin-pane="goals">득점 관리</button><button class="action" data-admin-pane="assists">어시스트 관리</button><button class="action" data-admin-pane="records">부상·징계·수상</button></div>
+    
+<div id="adminPaneRecords" class="admin-manage-pane hidden">
+ <div class="section-head"><h2>선수 부상 · 징계 · 수상 등록</h2><span class="hint">ADMIN ONLY</span></div>
+ <form id="adminPlayerRecordForm" class="roster-form">
+  <div class="field"><label for="adminRecordClub">소속 구단</label><select id="adminRecordClub" required><option value="">구단 선택</option></select></div>
+  <div class="field"><label for="adminRecordPlayerName">선수 이름</label><input id="adminRecordPlayerName" maxlength="100" required placeholder="선수 이름"></div>
+  <div class="field"><label for="adminRecordType">기록 종류</label><select id="adminRecordType"><option value="injury">부상</option><option value="suspension">징계</option><option value="award">수상</option></select></div>
+  <div class="field"><label for="adminRecordTitle">부상명 / 징계 내용 / 수상명</label><input id="adminRecordTitle" maxlength="120" required placeholder="예: 햄스트링 부상"></div>
+  <div class="field"><label for="adminRecordDetails">상세 내용</label><textarea id="adminRecordDetails" rows="3" maxlength="1200" placeholder="상세 내용 (선택)"></textarea></div>
+  <div class="field" id="adminInjuryRoundWrap"><label for="adminInjuryRound">부상 발생 라운드</label><select id="adminInjuryRound"><option value="">라운드 선택</option><option value="1">1R</option><option value="2">2R</option><option value="3">3R</option><option value="4">4R</option><option value="5">5R</option><option value="6">6R</option><option value="7">7R</option><option value="8">8R</option><option value="9">9R</option><option value="10">10R</option><option value="11">11R</option><option value="12">12R</option><option value="13">13R</option><option value="14">14R</option><option value="15">15R</option><option value="16">16R</option><option value="17">17R</option><option value="18">18R</option><option value="19">19R</option><option value="20">20R</option><option value="21">21R</option><option value="22">22R</option><option value="23">23R</option><option value="24">24R</option><option value="25">25R</option><option value="26">26R</option><option value="27">27R</option><option value="28">28R</option><option value="29">29R</option><option value="30">30R</option><option value="31">31R</option><option value="32">32R</option><option value="33">33R</option><option value="34">34R</option><option value="35">35R</option><option value="36">36R</option><option value="37">37R</option><option value="38">38R</option><option value="39">39R</option><option value="40">40R</option><option value="41">41R</option><option value="42">42R</option></select><div class="hint" id="adminReturnRoundPreview">부상 라운드를 선택하면 복귀 가능 라운드가 자동 계산됩니다.</div></div>
+  <div class="form-grid"><div class="field"><label for="adminRecordStartDate">시작일 / 수상일</label><input id="adminRecordStartDate" type="date"></div><div class="field"><label for="adminRecordEndDate">복귀 예정일</label><input id="adminRecordEndDate" type="date"></div></div>
+  <div class="field"><label for="adminRecordMatchesOut">예상 결장 경기 수 (선택)</label><input id="adminRecordMatchesOut" type="number" min="0" max="100" placeholder="해당 없으면 비워두기"></div>
+  <button class="action" type="submit" id="adminRecordSubmit">기록 등록</button><div class="login-status" id="adminRecordStatus">관리자 로그인 상태에서만 등록할 수 있습니다.</div>
+ </form>
+ <div class="section-head" style="margin-top:24px"><h2>등록된 선수 기록</h2></div><div id="adminPlayerRecordsList" class="roster-list"></div>
+</div>
+<div id="adminCorePane">
     <div id="adminTransferOffers"></div>
     <div class="divider"></div>
     <div class="section-head"><h2>친선경기 관리</h2><span class="hint">FRIENDLY FIXTURES ADMIN</span></div>
@@ -890,6 +906,7 @@ function setAdminPane(name){
  if(name==='teams'||name==='funds'||name==='players')loadAdminManagementData();
  if(name==='results')loadAdminMatchManager();
  if(name==='goals'||name==='assists')loadAdminStatsManager(name);
+ if(name==='records'){loadAdminManagementData();loadAdminPlayerRecords();}
 }
 document.querySelector('.admin-manage-nav').addEventListener('click',e=>{const b=e.target.closest('[data-admin-pane]');if(b)setAdminPane(b.dataset.adminPane);});
 async function loadAdminManagementData(){
@@ -898,7 +915,7 @@ async function loadAdminManagementData(){
   const [clubs,players]=await Promise.all([teamRequest('adminListManagementClubs',{},adminSession),teamRequest('adminListManagementPlayers',{},adminSession)]);
   adminManagementClubs=clubs.clubs||[];adminManagementPlayers=players.players||[];
   const opts='<option value="">구단 선택</option>'+adminManagementClubs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('');
-  ['manageClubSelect','fundClubSelect','adminPlayerClub','adminGoalClub','adminAssistClub'].forEach(id=>{const el=document.getElementById(id);if(el){const old=el.value;el.innerHTML=opts;el.value=old;}});
+  ['manageClubSelect','fundClubSelect','adminPlayerClub','adminGoalClub','adminAssistClub','adminRecordClub'].forEach(id=>{const el=document.getElementById(id);if(el){const old=el.value;el.innerHTML=opts;el.value=old;}});
   renderAdminPlayers();
   if(document.querySelector('#fundClubSelect')?.value){refreshAdminFundsBalance();loadAdminClubFinanceHistory(document.querySelector('#fundClubSelect').value);}
  }catch(error){document.querySelector('#clubSponsorStatus').textContent=error.message;}
@@ -1411,7 +1428,7 @@ const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><b
 let teamWorkspaceMode=false;
 function showTab(id){
  const teamMode=teamWorkspaceMode&&!!teamSession;
- const valid=teamMode?['team-roster','squad-builder','tactical-planner','community','player-news','team-player-records','club-profile','transfers','fa','team-finance','admin']:['home','community','player-news','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt','admin'];
+ const valid=teamMode?['team-roster','squad-builder','tactical-planner','community','player-news','club-profile','transfers','fa','team-finance','admin']:['home','community','player-news','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt','admin'];
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  const visibleSection=id==='admin'?'transfers':id;
@@ -1423,10 +1440,10 @@ function showTab(id){
  if(teamMode&&id==='squad-builder')renderSquadBuilder();
  document.querySelector('#teamFinancePanel').classList.toggle('hidden',!(teamMode&&id==='team-finance'));
  document.querySelector('#teamProfilePanel').classList.toggle('hidden',!(teamMode&&id==='club-profile'));
- document.querySelector('#teamPlayerRecordsPanel').classList.toggle('hidden',!(teamMode&&id==='team-player-records'));
+ document.querySelector('#teamPlayerRecordsPanel').classList.add('hidden');
  if(id==='community')loadCommunityPosts();
  if(id==='player-news')loadPlayerRecords();
- if(teamMode&&id==='team-player-records'){loadMyPlayerRecords();document.querySelector('#recordClubLabel').textContent=currentTeam;}
+ 
  if(teamMode&&id==='club-profile')refreshClubProfile();
  if(teamMode&&id==='team-finance')loadTeamFinance();
  document.querySelector('#clubShortcuts').classList.toggle('visible',!!teamSession);
@@ -1441,7 +1458,7 @@ function applyTeamMode(loggedIn){
  const nav=document.querySelector('.tabs');
  teamWorkspaceMode=!!loggedIn;
  if(loggedIn){
-  nav.innerHTML='<button class="tab active" data-tab="team-roster">선수단</button><button class="tab" data-tab="squad-builder">스쿼드</button><button class="tab" data-tab="tactical-planner">전술</button><button class="tab" data-tab="community">커뮤니티</button><button class="tab" data-tab="player-news">선수 소식</button><button class="tab" data-tab="team-player-records">기록 등록</button><button class="tab" data-tab="club-profile">구단 프로필</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="team-finance">자금 관리</button>';
+  nav.innerHTML='<button class="tab active" data-tab="team-roster">선수단</button><button class="tab" data-tab="squad-builder">스쿼드</button><button class="tab" data-tab="tactical-planner">전술</button><button class="tab" data-tab="community">커뮤니티</button><button class="tab" data-tab="player-news">선수 소식</button><button class="tab" data-tab="club-profile">구단 프로필</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="team-finance">자금 관리</button>';
   document.querySelector('#clubShortcuts').classList.add('visible');
   showTab('team-roster');
  }else{
@@ -1478,9 +1495,39 @@ async function loadPlayerRecords(){
  try{
   const r=await teamRequest('listPlayerRecords',{},'');
   const labels={injury:'부상',suspension:'징계',award:'수상'};
-  host.innerHTML=r.records.length?r.records.map(x=>'<article class="transfer-offer"><div class="section-head"><b>'+esc(x.club?.name||'구단')+' · '+labels[x.record_type]+'</b><span class="transfer-status">'+(x.status==='active'?'진행 중':'완료')+'</span></div><h3>'+esc(x.player_name)+' — '+esc(x.title)+'</h3><p class="transfer-meta">'+esc(x.details||'상세 내용 없음')+'</p><div class="transfer-meta">'+(x.start_date?'시작/수상일 '+esc(x.start_date):'')+(x.end_date?' · 복귀 예정 '+esc(x.end_date):'')+(x.matches_out!==null?' · 예상 결장 '+x.matches_out+'경기':'')+'</div></article>').join(''):'<div class="empty">등록된 부상·징계·수상 기록이 없습니다.</div>';
+  host.innerHTML=r.records.length?r.records.map(x=>'<article class="transfer-offer"><div class="section-head"><b>'+esc(x.club?.name||'구단')+' · '+labels[x.record_type]+'</b><span class="transfer-status">'+(x.status==='active'?'진행 중':'완료')+'</span></div><h3>'+esc(x.player_name)+' — '+esc(x.title)+'</h3><p class="transfer-meta">'+esc(x.details||'상세 내용 없음')+'</p><div class="transfer-meta">'+(x.start_date?'시작/수상일 '+esc(x.start_date):'')+(x.end_date?' · 복귀 예정 '+esc(x.end_date):'')+(x.matches_out!==null?' · 예상 결장 '+x.matches_out+'경기':'')+(x.record_type==='injury'&&x.available_from_round?' · '+x.available_from_round+'R부터 출전 가능':'')+'</div></article>').join(''):'<div class="empty">등록된 부상·징계·수상 기록이 없습니다.</div>';
  }catch(e){host.innerHTML='<div class="empty">'+esc(e.message)+'</div>';}
 }
+
+async function loadAdminPlayerRecords(){
+ const host=document.querySelector('#adminPlayerRecordsList');if(!host)return;
+ host.innerHTML='<div class="empty">기록을 불러오는 중입니다.</div>';
+ try{
+  const r=await teamRequest('adminListPlayerRecords',{},adminSession),labels={injury:'부상',suspension:'징계',award:'수상'};
+  host.innerHTML=r.records.length?r.records.map(x=>'<article class="transfer-offer"><div class="section-head"><b>'+esc(x.club?.name||'구단')+' · '+labels[x.record_type]+'</b><button class="delete-btn" type="button" data-admin-record-delete="'+x.id+'">삭제</button></div><h3>'+esc(x.player_name)+' — '+esc(x.title)+'</h3><div class="transfer-meta">'+esc(x.details||'')+'</div><div class="transfer-meta">'+(x.record_type==='injury'?'부상 발생 '+(x.injury_round||'-')+'R · '+(x.available_from_round||'-')+'R부터 출전 가능':'')+(x.start_date?' · '+x.start_date:'')+'</div></article>').join(''):'<div class="empty">등록된 기록이 없습니다.</div>';
+ }catch(e){host.innerHTML='<div class="empty">'+esc(e.message)+'</div>';}
+}
+document.querySelector('#adminRecordType').addEventListener('change',()=>{
+ const injury=document.querySelector('#adminRecordType').value==='injury';
+ document.querySelector('#adminInjuryRoundWrap').classList.toggle('hidden',!injury);
+});
+document.querySelector('#adminInjuryRound').addEventListener('change',()=>{
+ const round=Number(document.querySelector('#adminInjuryRound').value);
+ document.querySelector('#adminReturnRoundPreview').textContent=round?'부상 등록 '+round+'R → '+(round+2)+'R부터 출전 가능 (다음 2개 라운드 결장)':'부상 라운드를 선택해 주세요.';
+});
+document.querySelector('#adminPlayerRecordForm').addEventListener('submit',async e=>{
+ e.preventDefault();const btn=document.querySelector('#adminRecordSubmit'),status=document.querySelector('#adminRecordStatus');btn.disabled=true;
+ try{
+  if(!adminSession)throw new Error('관리자 로그인이 필요합니다.');
+  const r=await teamRequest('adminCreatePlayerRecord',{club_id:document.querySelector('#adminRecordClub').value,player_name:document.querySelector('#adminRecordPlayerName').value,record_type:document.querySelector('#adminRecordType').value,title:document.querySelector('#adminRecordTitle').value,details:document.querySelector('#adminRecordDetails').value,injury_round:document.querySelector('#adminInjuryRound').value,start_date:document.querySelector('#adminRecordStartDate').value,end_date:document.querySelector('#adminRecordEndDate').value,matches_out:document.querySelector('#adminRecordMatchesOut').value},adminSession);
+  e.target.reset();document.querySelector('#adminReturnRoundPreview').textContent='부상 라운드를 선택하면 복귀 가능 라운드가 자동 계산됩니다.';status.textContent=r.record.record_type==='injury'?'부상 기록 등록 완료 · '+r.record.available_from_round+'R부터 출전 가능':'선수 기록을 등록했습니다.';await loadAdminPlayerRecords();
+ }catch(err){status.textContent=err.message;}finally{btn.disabled=false;}
+});
+document.querySelector('#adminPlayerRecordsList').addEventListener('click',async e=>{
+ const b=e.target.closest('[data-admin-record-delete]');if(!b||!confirm('이 선수 기록을 삭제할까요?'))return;
+ try{await teamRequest('adminDeletePlayerRecord',{id:b.dataset.adminRecordDelete},adminSession);await loadAdminPlayerRecords();}catch(err){alert(err.message);}
+});
+
 async function loadMyPlayerRecords(){
  const host=document.querySelector('#myPlayerRecords');host.innerHTML='<div class="empty">내 기록을 불러오는 중입니다.</div>';
  try{
