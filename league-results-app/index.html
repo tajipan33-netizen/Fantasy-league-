@@ -976,7 +976,7 @@ document.querySelector('#adminPlayerEditForm').addEventListener('submit',async e
  try{await teamRequest('adminUpdatePlayer',payload,adminSession);document.querySelector('#adminPlayerEditForm').classList.add('hidden');await loadAdminManagementData();}catch(error){alert(error.message);}
 });
 document.querySelector('#adminPlayerCancel').addEventListener('click',()=>document.querySelector('#adminPlayerEditForm').classList.add('hidden'));
-function adminRoundNumber(label){const n=Number.parseInt(String(label||'').match(/\\d+/)?.[0]||'999',10);return Number.isFinite(n)?n:999;}
+function adminRoundNumber(label){const n=Number.parseInt(String(label||'').match(/\d+/)?.[0]||'999',10);return Number.isFinite(n)?n:999;}
 function adminSortMatches(matches){return [...matches].sort((a,b)=>adminRoundNumber(a.round_label)-adminRoundNumber(b.round_label)||(String(a.match_date||'').localeCompare(String(b.match_date||'')))||(String(a.home?.name||'').localeCompare(String(b.home?.name||''),'ko')));}
 function adminGroupedMatchOptions(matches,includePlaceholder=true){
  const sorted=adminSortMatches(matches),rounds=[...new Set(sorted.map(m=>m.round_label||'경기'))];
@@ -986,10 +986,24 @@ function renderAdminRoundMatches(preferredId=''){
  const round=document.querySelector('#adminRoundFilter').value||'1R';
  const matches=adminSortMatches(adminManagementMatches).filter(m=>(m.round_label||'경기')===round);
  const select=document.querySelector('#adminMatchSelect');
- select.innerHTML='<option value="">경기 선택</option>'+matches.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.home?.name||'홈팀')+' vs '+esc(m.away?.name||'원정팀')+'</option>').join('');
- select.value=matches.some(m=>m.id===preferredId)?preferredId:(matches[0]?.id||'');
+ select.innerHTML='<option value="">'+esc(round)+' 경기 선택</option>'+matches.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.home?.name||'홈팀')+' vs '+esc(m.away?.name||'원정팀')+'</option>').join('');
+ const keep=preferredId&&matches.some(m=>m.id===preferredId);
+ select.value=keep?preferredId:'';
  if(select.value)select.dispatchEvent(new Event('change'));
- else{document.querySelector('#adminMatchStatus').value='scheduled';document.querySelector('#adminMatchVenue').value='';document.querySelector('#adminMatchHomeScore').value='';document.querySelector('#adminMatchAwayScore').value='';document.querySelector('#adminMatchMOM').value='';}
+ else{
+  document.querySelector('#adminMatchStatus').value='scheduled';
+  document.querySelector('#adminMatchVenue').value='';
+  document.querySelector('#adminMatchHomeScore').value='';
+  document.querySelector('#adminMatchAwayScore').value='';
+  document.querySelector('#adminMatchMOM').value='';
+  document.querySelector('#adminBulkClub').innerHTML='<option value="">경기를 먼저 선택하세요</option>';
+  document.querySelector('#adminBulkPlayerRows').innerHTML='<tr><td colspan="5">경기와 구단을 선택하세요.</td></tr>';
+  document.querySelector('#adminBulkStatus').textContent=round+' 경기를 선택하면 해당 경기의 두 팀만 표시됩니다.';
+  document.querySelector('#adminMatchEventRows').innerHTML='';
+  document.querySelector('#adminMatchEventRows').appendChild(adminMatchEventRow());
+  document.querySelector('#adminMatchReportText').value='';
+  document.querySelector('#adminMatchStatusText').textContent=round+' 경기 선택 후 결과를 등록하세요.';
+ }
 }
 let seasonPlayerStatsMap=new Map();
 async function loadPublicSeasonStats(){
