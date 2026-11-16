@@ -1513,7 +1513,7 @@ async function openPublicMatchDetail(matchId){
   const report=r.report||{},stats=r.stats||[];
   const events=Array.isArray(report.events)?report.events:[];
   const playerRows=stats.length?'<div class="table-wrap"><table><thead><tr><th>선수</th><th>구단</th><th>평점</th><th>득점</th><th>도움</th><th>선방</th><th>출장</th></tr></thead><tbody>'+stats.map(p=>'<tr><td>'+esc(p.player_name)+'</td><td>'+esc(p.club?.name||'-')+'</td><td>'+(p.rating??'-')+'</td><td>'+Number(p.goals||0)+'</td><td>'+Number(p.assists||0)+'</td><td>'+Number(p.saves||0)+'</td><td>'+((p.minutes_played||0)>0?esc(p.minutes_played)+'분':(p.played?'출전':'-'))+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">등록된 선수별 경기 기록이 없습니다.</div>';
-  const eventRows=events.length?'<h3>경기 주요 이벤트</h3>'+events.map(x=>'<div class="match-report-event">'+esc([x.minute?x.minute+"'":'',x.player_name||x.player||'',x.type||x.event||'',x.description||''].filter(Boolean).join(' · '))+'</div>').join(''):'';
+  const eventRows=events.length?'<h3>경기 주요 이벤트</h3>'+events.map(x=>'<div class="match-report-event">'+esc([x.minute?x.minute+"'":'',x.club||'',x.player_name||x.player||'',x.note||x.description||x.type||x.event||'득점'].filter(Boolean).join(' · '))+'</div>').join(''):'';
   body.innerHTML=(report.match_report?'<p style="white-space:pre-wrap;line-height:1.8">'+esc(report.match_report)+'</p>':'<p class="empty">등록된 경기 내용이 없습니다.</p>')+eventRows+'<h3 style="margin-top:18px">선수별 경기 기록</h3>'+playerRows;
  }catch(err){body.innerHTML='<div class="empty">경기 정보를 불러오지 못했습니다: '+esc(err.message)+'</div>'}
 }
