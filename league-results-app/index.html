@@ -331,6 +331,40 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
   <pre id="tacticPreview" class="tactic-copy-preview">아직 선택한 전술이 없습니다.</pre>
  </div>
 </section>
+
+<section id="community" class="hidden"><div class="page-title">축구 커뮤니티</div><div class="panel">
+ <div class="section-head"><h2>SPFL COMMUNITY</h2><span class="hint">ALL CLUBS</span></div>
+ <form id="communityPostForm" class="roster-form hidden"><div class="field"><label for="communityTitle">게시글 제목</label><input id="communityTitle" maxlength="100" required placeholder="제목을 입력하세요"></div><div class="field"><label for="communityContent">내용</label><textarea id="communityContent" rows="4" maxlength="2000" required placeholder="리그 소식, 경기 이야기, 이적 의견 등을 자유롭게 작성하세요."></textarea></div><button class="action" type="submit" id="communitySubmit">게시글 등록</button><div class="login-status" id="communityStatus"></div></form>
+ <div id="communityPosts" class="roster-list"><div class="empty">커뮤니티를 불러오는 중입니다.</div></div>
+</div></section>
+<section id="player-news" class="hidden"><div class="page-title">선수 부상 · 징계 · 수상</div><div class="panel">
+ <div class="section-head"><h2>PLAYER STATUS & AWARDS</h2><span class="hint">LEAGUE RECORDS</span></div>
+ <div id="playerRecordsList" class="roster-list"><div class="empty">선수 소식을 불러오는 중입니다.</div></div>
+</div></section>
+<section id="teamPlayerRecordsPanel" class="hidden"><div class="page-title">우리 팀 선수 소식 등록</div><div class="panel">
+ <div class="section-head"><h2>PLAYER RECORD MANAGEMENT</h2><span class="hint" id="recordClubLabel"></span></div>
+ <form id="playerRecordForm" class="roster-form">
+  <div class="field"><label for="recordPlayerName">선수 이름</label><input id="recordPlayerName" maxlength="100" required placeholder="선수 이름"></div>
+  <div class="field"><label for="recordType">기록 종류</label><select id="recordType"><option value="injury">부상</option><option value="suspension">징계</option><option value="award">수상</option></select></div>
+  <div class="field"><label for="recordTitle">제목 / 부상명 / 징계 내용 / 수상명</label><input id="recordTitle" maxlength="120" required placeholder="예: 햄스트링 부상 / 2경기 출장 정지 / 이달의 선수"></div>
+  <div class="field"><label for="recordDetails">상세 내용</label><textarea id="recordDetails" rows="3" maxlength="1200" placeholder="상세 내용 (선택)"></textarea></div>
+  <div class="form-grid"><div class="field"><label for="recordStartDate">시작일 / 수상일</label><input id="recordStartDate" type="date"></div><div class="field"><label for="recordEndDate">복귀 예정일</label><input id="recordEndDate" type="date"></div></div>
+  <div class="field"><label for="recordMatchesOut">예상 결장 경기 수 (징계·부상)</label><input id="recordMatchesOut" type="number" min="0" max="100" placeholder="해당 없으면 비워두기"></div>
+  <button class="action" type="submit" id="recordSubmit">선수 기록 등록</button><div class="login-status" id="recordStatus"></div>
+ </form>
+ <div class="section-head" style="margin-top:22px"><h2>내 구단 등록 기록</h2></div><div id="myPlayerRecords" class="roster-list"></div>
+</div></section>
+<section id="teamProfilePanel" class="hidden"><div class="page-title">구단 프로필 관리</div><div class="panel">
+ <div class="section-head"><h2>CLUB IDENTITY</h2><span class="hint" id="profileClubLabel"></span></div>
+ <form id="clubProfileForm" class="roster-form">
+  <div class="field"><label for="clubNewName">팀 이름 변경</label><input id="clubNewName" maxlength="80" minlength="2" required></div>
+  <button class="action" type="submit" id="clubNameSave">팀 이름 저장</button><div class="login-status" id="clubProfileStatus"></div>
+  <div class="divider"></div>
+  <div class="field"><label for="clubLogoFile">구단 로고 업로드 (JPG / PNG / WEBP, 2MB 이하)</label><input id="clubLogoFile" type="file" accept="image/jpeg,image/png,image/webp"></div>
+  <div id="clubLogoPreview" style="margin:12px 0;text-align:center"><div class="club-monogram">?</div></div>
+  <button class="action" type="button" id="clubLogoUpload">로고 업로드 및 저장</button><div class="login-status" id="clubLogoStatus"></div>
+ </form>
+</div></section>
 <section id="teamFinancePanel" class="hidden"><div class="page-title">구단 자금 관리</div><div class="panel"><div class="section-head"><h2 id="teamFinanceClubName">CLUB FINANCE</h2><span class="hint">MY CLUB · FINANCIAL OVERVIEW</span></div><div class="transfer-offer"><div class="transfer-meta">현재 구단 보유 자본</div><h2 id="teamFinanceBalance" style="font-size:clamp(32px,7vw,48px);color:#d5b775;margin:10px 0">불러오는 중...</h2><div class="transfer-meta">단위: M</div></div><div class="section-head" style="margin-top:24px"><h2>수입 및 지출 내역</h2><span class="hint">INCOME · EXPENSE HISTORY</span></div><div id="teamFinanceHistory" class="roster-list"><div class="empty">자금 내역을 불러오는 중입니다.</div></div></div></section>
 </main><footer>SUPER LEAGUE · SPFL</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
@@ -460,14 +494,14 @@ async function loadLeague(){
  showMessage('#matches','Supabase에서 경기 정보를 불러오는 중입니다.');
  try{
   const [clubRes,matchRes,fixtureRes]=await Promise.all([
-   db.from('spfl_clubs').select('id,name,sort_order,funds,main_sponsor,secondary_sponsor').order('sort_order'),
+   db.from('spfl_clubs').select('id,name,logo_url,sort_order,funds,main_sponsor,secondary_sponsor').order('sort_order'),
    db.from('spfl_matches').select('id,match_date,round_label,home_club_id,away_club_id,home_score,away_score,venue,status,home:spfl_clubs!spfl_matches_home_club_id_fkey(name),away:spfl_clubs!spfl_matches_away_club_id_fkey(name)').eq('status','finished').order('match_date',{ascending:false}),
    db.from('spfl_matches').select('id,match_date,round_label,home_club_id,away_club_id,venue,status,home:spfl_clubs!spfl_matches_home_club_id_fkey(name),away:spfl_clubs!spfl_matches_away_club_id_fkey(name)').eq('status','scheduled').order('round_label',{ascending:true})
   ]);
   if(clubRes.error)throw clubRes.error;if(matchRes.error)throw matchRes.error;if(fixtureRes.error)throw fixtureRes.error;
   data.teams=clubRes.data||[];data.matches=matchRes.data||[];data.fixtures=fixtureRes.data||[];renderFixtures();
   const teamSelect=document.querySelector('#teamSelect');teamSelect.innerHTML='<option value="">팀을 선택하세요</option>'+data.teams.map(t=>'<option value="'+esc(t.name)+'">'+esc(t.name)+'</option>').join('');
-  const browseSelect=document.querySelector('#browseTeamSelect');browseSelect.innerHTML='<option value="">팀을 선택하세요</option>'+data.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');const youthSelect=document.querySelector('#youthTeamSelect');youthSelect.innerHTML='<option value="">팀을 선택하세요</option>'+data.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');document.querySelector('#clubDirectory').innerHTML=data.teams.map(t=>'<button class="club-tile" data-club="'+esc(t.id)+'" type="button"><span class="club-monogram">'+esc(t.name.slice(0,1))+'</span><b>'+esc(t.name)+'</b><small>'+esc([t.main_sponsor,t.secondary_sponsor].filter(Boolean).join(' · ')||'SPONSOR TBA')+'</small><small>구단 자금 · '+Number(t.funds||0).toLocaleString('ko-KR')+'M</small></button>').join('');loadPublicClubFinance();if(data.teams.length){browseSelect.value=data.teams[0].id;loadPublicRoster(data.teams[0].id,'선수','#publicRosterList');youthSelect.value=data.teams[0].id;loadPublicRoster(data.teams[0].id,'유스','#youthRosterList');}
+  const browseSelect=document.querySelector('#browseTeamSelect');browseSelect.innerHTML='<option value="">팀을 선택하세요</option>'+data.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');const youthSelect=document.querySelector('#youthTeamSelect');youthSelect.innerHTML='<option value="">팀을 선택하세요</option>'+data.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');document.querySelector('#clubDirectory').innerHTML=data.teams.map(t=>'<button class="club-tile" data-club="'+esc(t.id)+'" type="button">'+(t.logo_url?'<img class="club-monogram" src="'+esc(t.logo_url)+'" alt="">':'<span class="club-monogram">'+esc(t.name.slice(0,1))+'</span>')+'<b>'+esc(t.name)+'</b><small>'+esc([t.main_sponsor,t.secondary_sponsor].filter(Boolean).join(' · ')||'SPONSOR TBA')+'</small><small>구단 자금 · '+Number(t.funds||0).toLocaleString('ko-KR')+'M</small></button>').join('');loadPublicClubFinance();if(data.teams.length){browseSelect.value=data.teams[0].id;loadPublicRoster(data.teams[0].id,'선수','#publicRosterList');youthSelect.value=data.teams[0].id;loadPublicRoster(data.teams[0].id,'유스','#youthRosterList');}
   const ids=data.matches.map(m=>m.id);
   if(ids.length){
    const statRes=await db.from('spfl_match_player_stats').select('match_id,club_id,player_name,goals,assists').in('match_id',ids);
@@ -1373,21 +1407,27 @@ if(adminSession){document.querySelector("#adminLoginBox").classList.add("hidden"
 loadTransferMarket();
 loadFAMarket();
 loadPublicFriendlies();
-const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="ea-ratings">EA 공식 레이팅</button><a class="tab transfermarkt-nav-link" href="https://www.transfermarkt.com/" target="_blank" rel="noopener noreferrer">Transfermarkt ↗</a>';
+const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><button class="tab" data-tab="community">커뮤니티</button><button class="tab" data-tab="player-news">부상·징계·수상</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="players">선수</button><button class="tab" data-tab="clubs">구단</button><button class="tab" data-tab="youth">유스 및 코치</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="ea-ratings">EA 공식 레이팅</button><a class="tab transfermarkt-nav-link" href="https://www.transfermarkt.com/" target="_blank" rel="noopener noreferrer">Transfermarkt ↗</a>';
 let teamWorkspaceMode=false;
 function showTab(id){
  const teamMode=teamWorkspaceMode&&!!teamSession;
- const valid=teamMode?['team-roster','squad-builder','tactical-planner','transfers','fa','team-finance','admin']:['home','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt','admin'];
+ const valid=teamMode?['team-roster','squad-builder','tactical-planner','transfers','fa','team-finance','admin']:['home','community','player-news','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt','admin'];
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  const visibleSection=id==='admin'?'transfers':id;
- ['home','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt'].forEach(key=>{const section=document.getElementById(key);if(section)section.classList.toggle('hidden',key!==visibleSection);});
+ ['home','community','player-news','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt'].forEach(key=>{const section=document.getElementById(key);if(section)section.classList.toggle('hidden',key!==visibleSection);});
  document.querySelector('#rosterPanel').classList.toggle('hidden',!(teamMode&&id==='team-roster'));
  document.querySelector('#squadBuilderPanel').classList.toggle('hidden',!(teamMode&&id==='squad-builder'));
  document.querySelector('#tacticalPlannerPanel').classList.toggle('hidden',!(teamMode&&id==='tactical-planner'));
  if(teamMode&&id==='tactical-planner')renderTacticalPlanner();
  if(teamMode&&id==='squad-builder')renderSquadBuilder();
  document.querySelector('#teamFinancePanel').classList.toggle('hidden',!(teamMode&&id==='team-finance'));
+ document.querySelector('#teamProfilePanel').classList.toggle('hidden',!(teamMode&&id==='club-profile'));
+ document.querySelector('#teamPlayerRecordsPanel').classList.toggle('hidden',!(teamMode&&id==='team-player-records'));
+ if(id==='community')loadCommunityPosts();
+ if(id==='player-news')loadPlayerRecords();
+ if(teamMode&&id==='team-player-records'){loadMyPlayerRecords();document.querySelector('#recordClubLabel').textContent=currentTeam;}
+ if(teamMode&&id==='club-profile')refreshClubProfile();
  if(teamMode&&id==='team-finance')loadTeamFinance();
  document.querySelector('#clubShortcuts').classList.toggle('visible',!!teamSession);
  document.querySelector('#clubBackHome').classList.toggle('hidden',!teamMode);
@@ -1401,7 +1441,7 @@ function applyTeamMode(loggedIn){
  const nav=document.querySelector('.tabs');
  teamWorkspaceMode=!!loggedIn;
  if(loggedIn){
-  nav.innerHTML='<button class="tab active" data-tab="team-roster">팀 등록</button><button class="tab" data-tab="squad-builder">스쿼드</button><button class="tab" data-tab="tactical-planner">전술</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="team-finance">자금 관리</button>';
+  nav.innerHTML='<button class="tab active" data-tab="team-roster">선수단</button><button class="tab" data-tab="squad-builder">스쿼드</button><button class="tab" data-tab="tactical-planner">전술</button><button class="tab" data-tab="community">커뮤니티</button><button class="tab" data-tab="player-news">선수 소식</button><button class="tab" data-tab="team-player-records">기록 등록</button><button class="tab" data-tab="club-profile">구단 프로필</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="team-finance">자금 관리</button>';
   document.querySelector('#clubShortcuts').classList.add('visible');
   showTab('team-roster');
  }else{
@@ -1423,6 +1463,75 @@ function refreshYouthRoster(){const type=document.querySelector('#youthTypeSelec
 document.querySelector('#youthRosterBtn').addEventListener('click',refreshYouthRoster);
 document.querySelector('#youthTeamSelect').addEventListener('change',refreshYouthRoster);
 document.querySelector('#youthTypeSelect').addEventListener('change',refreshYouthRoster);
+
+
+async function loadCommunityPosts(){
+ const host=document.querySelector('#communityPosts');host.innerHTML='<div class="empty">커뮤니티를 불러오는 중입니다.</div>';
+ document.querySelector('#communityPostForm').classList.toggle('hidden',!teamSession);
+ try{
+  const r=await teamRequest('listCommunityPosts',{},'');
+  host.innerHTML=r.posts.length?r.posts.map(p=>'<article class="transfer-offer"><div class="section-head"><b>'+(p.club?.logo_url?'<img src="'+esc(p.club.logo_url)+'" style="width:30px;height:30px;object-fit:contain;vertical-align:middle;margin-right:8px">':'')+esc(p.club?.name||'구단')+'</b><span class="hint">'+esc(new Date(p.created_at).toLocaleString('ko-KR'))+'</span></div><h3>'+esc(p.title)+'</h3><p style="white-space:pre-wrap;line-height:1.7">'+esc(p.content)+'</p></article>').join(''):'<div class="empty">아직 게시글이 없습니다. 첫 글을 작성해 보세요.</div>';
+ }catch(e){host.innerHTML='<div class="empty">'+esc(e.message)+'</div>';}
+}
+async function loadPlayerRecords(){
+ const host=document.querySelector('#playerRecordsList');host.innerHTML='<div class="empty">선수 소식을 불러오는 중입니다.</div>';
+ try{
+  const r=await teamRequest('listPlayerRecords',{},'');
+  const labels={injury:'부상',suspension:'징계',award:'수상'};
+  host.innerHTML=r.records.length?r.records.map(x=>'<article class="transfer-offer"><div class="section-head"><b>'+esc(x.club?.name||'구단')+' · '+labels[x.record_type]+'</b><span class="transfer-status">'+(x.status==='active'?'진행 중':'완료')+'</span></div><h3>'+esc(x.player_name)+' — '+esc(x.title)+'</h3><p class="transfer-meta">'+esc(x.details||'상세 내용 없음')+'</p><div class="transfer-meta">'+(x.start_date?'시작/수상일 '+esc(x.start_date):'')+(x.end_date?' · 복귀 예정 '+esc(x.end_date):'')+(x.matches_out!==null?' · 예상 결장 '+x.matches_out+'경기':'')+'</div></article>').join(''):'<div class="empty">등록된 부상·징계·수상 기록이 없습니다.</div>';
+ }catch(e){host.innerHTML='<div class="empty">'+esc(e.message)+'</div>';}
+}
+async function loadMyPlayerRecords(){
+ const host=document.querySelector('#myPlayerRecords');host.innerHTML='<div class="empty">내 기록을 불러오는 중입니다.</div>';
+ try{
+  const r=await teamRequest('listPlayerRecords',{},'');
+  const mine=r.records.filter(x=>x.club_id===currentClubId);
+  const labels={injury:'부상',suspension:'징계',award:'수상'};
+  host.innerHTML=mine.length?mine.map(x=>'<article class="transfer-offer"><div class="transfer-meta">'+labels[x.record_type]+' · '+(x.status==='active'?'진행 중':'완료')+'</div><h3>'+esc(x.player_name)+' — '+esc(x.title)+'</h3><div class="transfer-meta">'+esc(x.details||'')+'</div><div class="roster-actions"><button type="button" class="action" data-record-status="'+x.id+'" data-status="'+(x.status==='active'?'completed':'active')+'">'+(x.status==='active'?'완료 처리':'진행 중으로 변경')+'</button><button type="button" class="delete-btn" data-record-delete="'+x.id+'">삭제</button></div></article>').join(''):'<div class="empty">우리 팀에서 등록한 기록이 없습니다.</div>';
+ }catch(e){host.innerHTML='<div class="empty">'+esc(e.message)+'</div>';}
+}
+function fileAsBase64(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]||'');reader.onerror=reject;reader.readAsDataURL(file);});}
+document.querySelector('#communityPostForm').addEventListener('submit',async e=>{
+ e.preventDefault();const status=document.querySelector('#communityStatus'),btn=document.querySelector('#communitySubmit');btn.disabled=true;
+ try{await teamRequest('createCommunityPost',{title:document.querySelector('#communityTitle').value,content:document.querySelector('#communityContent').value});e.target.reset();status.textContent='게시글을 등록했습니다.';await loadCommunityPosts();}
+ catch(err){status.textContent=err.message;}finally{btn.disabled=false;}
+});
+document.querySelector('#playerRecordForm').addEventListener('submit',async e=>{
+ e.preventDefault();const status=document.querySelector('#recordStatus'),btn=document.querySelector('#recordSubmit');btn.disabled=true;
+ try{await teamRequest('createPlayerRecord',{player_name:document.querySelector('#recordPlayerName').value,record_type:document.querySelector('#recordType').value,title:document.querySelector('#recordTitle').value,details:document.querySelector('#recordDetails').value,start_date:document.querySelector('#recordStartDate').value,end_date:document.querySelector('#recordEndDate').value,matches_out:document.querySelector('#recordMatchesOut').value});e.target.reset();status.textContent='선수 기록을 등록했습니다.';await loadMyPlayerRecords();}
+ catch(err){status.textContent=err.message;}finally{btn.disabled=false;}
+});
+document.querySelector('#myPlayerRecords').addEventListener('click',async e=>{
+ const statusBtn=e.target.closest('[data-record-status]'),deleteBtn=e.target.closest('[data-record-delete]');
+ try{
+  if(statusBtn){await teamRequest('updatePlayerRecordStatus',{id:statusBtn.dataset.recordStatus,status:statusBtn.dataset.status});await loadMyPlayerRecords();}
+  if(deleteBtn&&confirm('이 선수 기록을 삭제할까요?')){await teamRequest('deletePlayerRecord',{id:deleteBtn.dataset.recordDelete});await loadMyPlayerRecords();}
+ }catch(err){alert(err.message);}
+});
+document.querySelector('#clubProfileForm').addEventListener('submit',async e=>{
+ e.preventDefault();const status=document.querySelector('#clubProfileStatus'),btn=document.querySelector('#clubNameSave');btn.disabled=true;
+ try{
+  const r=await teamRequest('updateClubProfile',{name:document.querySelector('#clubNewName').value});
+  teamSession=r.token;localStorage.setItem('spfl_team_session',teamSession);sessionStorage.removeItem('spfl_team_session');
+  currentTeam=r.club.name;document.querySelector('#rosterTeamName').textContent=currentTeam;document.querySelector('#profileClubLabel').textContent=currentTeam;
+  document.querySelector('#tacticClubLabel').textContent=currentTeam;document.querySelector('#clubNewName').value=currentTeam;
+  status.textContent='팀 이름이 변경되었습니다.';await loadLeague();
+ }catch(err){status.textContent=err.message;}finally{btn.disabled=false;}
+});
+document.querySelector('#clubLogoUpload').addEventListener('click',async()=>{
+ const file=document.querySelector('#clubLogoFile').files[0],status=document.querySelector('#clubLogoStatus'),btn=document.querySelector('#clubLogoUpload');
+ if(!file){status.textContent='먼저 로고 파일을 선택해 주세요.';return;}
+ if(file.size>2*1024*1024){status.textContent='로고는 2MB 이하만 업로드할 수 있습니다.';return;}
+ btn.disabled=true;
+ try{
+  const base64=await fileAsBase64(file),r=await teamRequest('uploadClubLogo',{mime:file.type,base64});
+  document.querySelector('#clubLogoPreview').innerHTML='<img src="'+esc(r.club.logo_url)+'" alt="구단 로고" style="max-width:140px;max-height:140px;object-fit:contain">';
+  status.textContent='구단 로고를 저장했습니다.';await loadLeague();
+ }catch(err){status.textContent=err.message;}finally{btn.disabled=false;}
+});
+async function refreshClubProfile(){
+ try{const me=await teamRequest('me');const club=data.teams.find(c=>c.id===me.club_id);document.querySelector('#clubNewName').value=me.team||currentTeam;document.querySelector('#profileClubLabel').textContent=me.team||currentTeam;document.querySelector('#clubLogoPreview').innerHTML=club?.logo_url?'<img src="'+esc(club.logo_url)+'" alt="구단 로고" style="max-width:140px;max-height:140px;object-fit:contain">':'<div class="club-monogram">?</div>';}catch{}
+}
 
 
 loadLeague();
