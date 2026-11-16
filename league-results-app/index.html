@@ -1411,7 +1411,7 @@ const publicNavMarkup='<button class="tab active" data-tab="home">홈</button><b
 let teamWorkspaceMode=false;
 function showTab(id){
  const teamMode=teamWorkspaceMode&&!!teamSession;
- const valid=teamMode?['team-roster','squad-builder','tactical-planner','transfers','fa','team-finance','admin']:['home','community','player-news','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt','admin'];
+ const valid=teamMode?['team-roster','squad-builder','tactical-planner','community','player-news','team-player-records','club-profile','transfers','fa','team-finance','admin']:['home','community','player-news','transfers','players','clubs','youth','fa','ea-ratings','transfermarkt','admin'];
  if(!valid.includes(id))id=teamMode?'team-roster':'home';
  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
  const visibleSection=id==='admin'?'transfers':id;
