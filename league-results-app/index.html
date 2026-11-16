@@ -1457,6 +1457,7 @@ function showTab(id){
 }
 function applyTeamMode(loggedIn){
  const nav=document.querySelector('.tabs');
+ nav.classList.toggle('team-tabs-inline',!!loggedIn);
  teamWorkspaceMode=!!loggedIn;
  if(loggedIn){
   nav.innerHTML='<button class="tab active" data-tab="team-roster">선수단</button><button class="tab" data-tab="squad-builder">스쿼드</button><button class="tab" data-tab="tactical-planner">전술</button><button class="tab" data-tab="community">커뮤니티</button><button class="tab" data-tab="player-news">선수 소식</button><button class="tab" data-tab="club-profile">구단 프로필</button><button class="tab" data-tab="transfers">이적시장</button><button class="tab" data-tab="fa">FA</button><button class="tab" data-tab="team-finance">자금 관리</button>';
@@ -1604,4 +1605,34 @@ loadLeague();
 @media(max-width:520px){.tabs{position:relative;gap:5px;padding:8px 10px}.tabs>.tab{flex:1 1 calc(33.333% - 5px);min-width:0;padding:11px 7px;font-size:12px}.tabs>.tab[data-tab="ea-ratings"],.tabs>.transfermarkt-nav-link{flex:1 1 calc(50% - 5px)}}
 </style><style>
 .market-club-group{margin:18px 0 26px;padding:16px;border:1px solid var(--line);background:rgba(255,255,255,.015)}.market-club-group>.section-head{margin-bottom:12px}.market-player-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.market-club-group .market-player-card{min-width:0;margin:0}.market-club-group .market-player-card img,.market-club-group .person-photo-placeholder{width:58px;height:58px;object-fit:cover;flex:0 0 58px}@media(max-width:600px){.market-player-grid{grid-template-columns:1fr}.market-club-group{padding:10px}}
-</style></body></html>
+</style>
+<style id="team-tabs-inline-fix">
+.tabs.team-tabs-inline{
+ display:flex!important;
+ flex-wrap:nowrap!important;
+ justify-content:flex-start!important;
+ align-items:stretch;
+ gap:0!important;
+ overflow-x:auto!important;
+ overflow-y:hidden;
+ white-space:nowrap;
+ scrollbar-width:thin;
+ scrollbar-color:#806b43 #171819;
+ padding:0 10px!important;
+}
+.tabs.team-tabs-inline>.tab{
+ flex:0 0 auto!important;
+ min-width:max-content!important;
+ width:auto!important;
+ padding:17px 18px!important;
+ font-size:14px!important;
+ white-space:nowrap;
+ scroll-snap-align:start;
+}
+.tabs.team-tabs-inline>.tab.active{border-bottom:3px solid var(--gold)}
+@media(max-width:600px){
+ .tabs.team-tabs-inline{justify-content:flex-start!important;padding:0 6px!important}
+ .tabs.team-tabs-inline>.tab{padding:15px 13px!important;font-size:13px!important}
+}
+</style>
+</body></html>
