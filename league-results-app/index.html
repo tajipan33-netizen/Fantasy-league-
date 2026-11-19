@@ -220,6 +220,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
 </div></section>
 <section id="home">
  <div class="home-hero"><div class="hero-image-space"><span class="hero-empty">SUPER LEAGUE · OFFICIAL</span></div><div class="hero-copy"><div class="hero-kicker">SUPER LEAGUE NEWS</div><h2>슈퍼리그의 모든 소식을<br>한곳에서 확인하세요.</h2><p>공식 경기 결과와 일정, 구단 소식 및 선수단 정보를 확인할 수 있습니다.</p><button class="hero-link" id="heroFixtures">공식 일정 보기 →</button></div></div>
+ <div class="panel official-news-panel"><div class="section-head"><h2>OFFICIAL · 주요 소식</h2><span class="hint">LEAGUE ANNOUNCEMENTS</span></div><div id="officialNewsList"><div class="empty">공식 소식을 불러오는 중입니다.</div></div></div>
  <div class="panel home-news"><div class="section-head"><h2>SUPER LEAGUE</h2><span class="hint">LATEST RESULTS →</span></div><div id="matches"></div></div>
  <div id="publicMatchDetail" class="panel hidden" style="margin-top:18px;border:1px solid var(--gold)"><div class="section-head"><h2 id="publicMatchTitle">MATCH REPORT</h2><button type="button" class="action" id="closePublicMatchDetail">닫기</button></div><div id="publicMatchDetailBody"><div class="empty">경기 정보를 불러오는 중...</div></div></div>
  <div class="panel"><div class="section-head"><h2>OFFICIAL FIXTURES</h2><span class="hint">22 TEAMS · 42 ROUNDS · 462 MATCHES</span></div><div class="field" style="max-width:240px;margin-bottom:14px"><label for="fixtureRoundSelect">라운드 선택</label><select id="fixtureRoundSelect"><option value="all">전체 라운드</option></select></div><div id="fixtureList"><div class="empty">일정을 불러오는 중입니다.</div></div></div>
@@ -393,7 +394,9 @@ const data={matches:[],fixtures:[],teams:[],scorers:[]};
 const LOGIN_URL=SUPABASE_URL+'/functions/v1/spfl-team-login';
 let teamSession=localStorage.getItem('spfl_team_session')||sessionStorage.getItem('spfl_team_session')||'';
 if(teamSession){localStorage.setItem('spfl_team_session',teamSession);sessionStorage.removeItem('spfl_team_session');}
+async function loadOfficialNews(){const host=document.querySelector('#officialNewsList');if(!host)return;try{const result=await teamRequest('listOfficialNews',{},'');const items=result.news||[];if(!items.length){host.innerHTML='<div class="empty">등록된 공식 소식이 없습니다.</div>';return;}host.innerHTML=items.map(item=>'<article class="official-news-item"><div class="official-news-kicker">OFFICIAL · '+esc(item.category||'NOTICE')+'</div><h3>'+esc(item.title)+'</h3><p>'+esc(item.content)+'</p><div class="official-news-date">'+new Date(item.created_at).toLocaleDateString('ko-KR')+'</div></article>').join('');}catch(error){host.innerHTML='<div class="empty">'+esc(error.message)+'</div>';}}
 async function teamRequest(action,extra={},token=teamSession){const response=await fetch(LOGIN_URL,{method:'POST',headers:{'Content-Type':'application/json',...(token?{'x-sl-session':token}:{})},body:JSON.stringify({action,...extra})});const result=await response.json().catch(()=>({error:'서버 응답을 읽지 못했습니다.'}));if(!response.ok)throw new Error(result.error||'요청에 실패했습니다.');return result}
+loadOfficialNews();
 function setLoginStatus(message,isGood=false){const el=document.querySelector('#loginStatus');el.innerHTML=isGood?'<strong>'+esc(message)+'</strong>':esc(message)}
 async function restoreTeamSession(){if(!teamSession)return;try{const me=await teamRequest('me');setLoginStatus(me.team+' 로그인 상태입니다. 24시간 동안 유지됩니다.',true);document.querySelector('#loginBtn').textContent='로그아웃';await setLoggedIn(me.team); await loadTransferDashboard();await loadFAMarket();}catch{localStorage.removeItem('spfl_team_session');teamSession='';currentClubId='';document.querySelector('#rosterPanel').classList.add('hidden');applyTeamMode(false);}}
 let currentTeam='';
@@ -1855,5 +1858,6 @@ a{color:#c9b5f3}
 .club-shortcuts button{color:#d6b45f!important;border-color:#d6b45f!important}
 .club-shortcuts button.primary{background:#d6b45f!important;color:#17130a!important}
 @media(max-width:600px){.panel{background:#141319!important}}
+.official-news-panel{border:1px solid var(--gold)!important;background:linear-gradient(135deg,#17131e,#100f14)!important}.official-news-item{padding:16px 0;border-bottom:1px solid var(--line)}.official-news-item:last-child{border-bottom:0}.official-news-kicker{font-size:11px;font-weight:900;letter-spacing:1.5px;color:var(--gold);margin-bottom:8px}.official-news-item h3{font-size:19px;margin:0 0 8px;color:var(--cream)}.official-news-item p{margin:0;line-height:1.7;color:var(--ink);white-space:pre-wrap}.official-news-date{font-size:11px;color:var(--muted);margin-top:10px}
 </style>
 </body></html>
