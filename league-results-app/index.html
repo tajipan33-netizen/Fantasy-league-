@@ -225,7 +225,7 @@ footer{border-top:1px solid #292a2b;max-width:none;padding:40px 20px;color:#777;
  <div id="publicMatchDetail" class="panel hidden" style="margin-top:18px;border:1px solid var(--gold)"><div class="section-head"><h2 id="publicMatchTitle">MATCH REPORT</h2><button type="button" class="action" id="closePublicMatchDetail">닫기</button></div><div id="publicMatchDetailBody"><div class="empty">경기 정보를 불러오는 중...</div></div></div>
  <div class="panel"><div class="section-head"><h2>OFFICIAL FIXTURES</h2><span class="hint">22 TEAMS · 42 ROUNDS · 462 MATCHES</span></div><div class="field" style="max-width:240px;margin-bottom:14px"><label for="fixtureRoundSelect">라운드 선택</label><select id="fixtureRoundSelect"><option value="all">전체 라운드</option></select></div><div id="fixtureList"><div class="empty">일정을 불러오는 중입니다.</div></div></div>
  <div class="panel"><div class="section-head"><h2>친선경기</h2><span class="hint">OFFICIAL FRIENDLIES</span></div><div id="publicFriendlies"><div class="empty">친선경기 일정을 불러오는 중입니다.</div></div></div>
- <div class="panel"><div class="section-head"><h2>LEAGUE TABLE</h2><span class="hint">CURRENT STANDINGS</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>승점</th></tr></thead><tbody id="standings"></tbody></table></div></div>
+ <div class="panel"><div class="section-head"><h2>LEAGUE TABLE</h2><span class="hint">DIVISION STANDINGS</span></div><h3>1부 리그</h3><div class="table-wrap"><table><thead><tr><th>순위 / 팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>승점</th></tr></thead><tbody id="standings1"></tbody></table></div><h3 style="margin-top:22px">2부 리그</h3><div class="table-wrap"><table><thead><tr><th>순위 / 팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>승점</th></tr></thead><tbody id="standings2"></tbody></table></div></div>
  <div class="panel"><div class="section-head"><h2>TOP SCORERS</h2><span class="hint">GOAL RANKING</span></div><div class="table-wrap"><table><thead><tr><th>순위 / 선수</th><th>소속팀</th><th>득점</th></tr></thead><tbody id="scorerRows"></tbody></table></div></div>
 </section>
 <section id="player-stats" class="hidden"><div class="page-title">PLAYER SEASON LEADERS</div><div class="panel"><div class="section-head"><h2>득점왕 순위</h2><span class="hint">TOP SCORERS</span></div><div class="table-wrap"><table><thead><tr><th>순위</th><th>선수</th><th>구단</th><th>득점</th></tr></thead><tbody id="topScorerRows"></tbody></table></div></div><div class="panel"><div class="section-head"><h2>어시스트왕 순위</h2><span class="hint">TOP ASSISTS</span></div><div class="table-wrap"><table><thead><tr><th>순위</th><th>선수</th><th>구단</th><th>도움</th></tr></thead><tbody id="topAssistRows"></tbody></table></div></div><div class="panel"><div class="section-head"><h2>선방 순위</h2><span class="hint">TOP SAVES</span></div><div class="table-wrap"><table><thead><tr><th>순위</th><th>선수</th><th>구단</th><th>선방</th></tr></thead><tbody id="topSaveRows"></tbody></table></div></div><div class="panel"><div class="section-head"><h2>선수 누적 기록</h2><span class="hint">REGISTERED MATCH STATS ONLY</span></div><div class="table-wrap"><table><thead><tr><th>선수</th><th>구단</th><th>출장</th><th>득점</th><th>도움</th><th>평균 평점</th><th>선방</th></tr></thead><tbody id="seasonPlayerStats"></tbody></table></div></div></section><section id="players" class="hidden"><div class="page-title">선수단</div><div class="panel"><div class="section-head"><h2>PLAYER DIRECTORY</h2><span class="hint">ALL CLUB PLAYERS</span></div><div class="public-roster-tools"><div class="field"><label for="browseTeamSelect">구단 선택</label><select id="browseTeamSelect"><option value="">구단을 불러오는 중...</option></select></div><button class="action" id="browseRosterBtn" type="button">선수단 보기</button></div><div class="field" style="max-width:240px"><label for="publicRosterSort">정렬 기준</label><select id="publicRosterSort"><option value="registered">등록순</option><option value="position">포지션순</option><option value="number">등번호순</option></select></div><div id="publicRosterList" class="roster-list" style="margin-top:16px"><div class="empty">구단을 선택해 선수단을 확인하세요.</div></div></div></section>
@@ -458,32 +458,29 @@ async function setLoggedIn(team){
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function showMessage(selector,message){document.querySelector(selector).innerHTML='<div class="empty">'+esc(message)+'</div>'}
+function clubLabel(club){return club?.display_name||club?.name||'팀';}
 function renderFixtures(){
- const rounds=new Map();
- data.fixtures.forEach(m=>{
-  const label=m.round_label||'일정 미정';
-  if(!rounds.has(label))rounds.set(label,[]);
-  rounds.get(label).push(m);
- });
- const select=document.querySelector('#fixtureRoundSelect');
- const previous=select.value||'all';
- const sorted=[...rounds.keys()].sort((a,b)=>parseInt(a)-parseInt(b));
- select.innerHTML='<option value="all">전체 라운드</option>'+sorted.map(r=>'<option value="'+esc(r)+'">'+esc(r)+'</option>').join('');
- select.value=sorted.includes(previous)?previous:'all';
- const chosen=select.value;
- const visible=chosen==='all'?sorted:sorted.filter(r=>r===chosen);
- const host=document.querySelector('#fixtureList');
+ const groups=new Map();
+ data.fixtures.forEach(m=>{const div=m.division||'리그';const round=m.round_label||'일정 미정';const key=div+'|'+round;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(m);});
+ const select=document.querySelector('#fixtureRoundSelect'),previous=select.value||'all';
+ const sorted=[...groups.keys()].sort((a,b)=>{const [ad,ar]=a.split('|'),[bd,br]=b.split('|');return (ad==='1부'?0:1)-(bd==='1부'?0:1)||parseInt(ar)-parseInt(br);});
+ select.innerHTML='<option value="all">전체 라운드</option>'+sorted.map(k=>'<option value="'+esc(k)+'">'+esc(k.replace('|',' · '))+'</option>').join('');
+ select.value=sorted.includes(previous)?previous:'all';const chosen=select.value;
+ const visible=chosen==='all'?sorted:sorted.filter(k=>k===chosen);const host=document.querySelector('#fixtureList');
  if(!data.fixtures.length){host.innerHTML='<div class="empty">등록된 경기 일정이 없습니다.</div>';return;}
- host.innerHTML=visible.map(round=>'<div class="roster-group"><h3>'+esc(round)+' · '+(rounds.get(round)||[]).length+'경기</h3>'+(rounds.get(round)||[]).map(m=>'<article class="match"><div><div class="team">'+esc(m.home?.name||'홈팀')+'</div><div class="meta">HOME'+(m.match_date?' · '+esc(m.match_date):'')+'</div></div><div class="score" style="font-size:13px;letter-spacing:0;color:var(--gold)">VS</div><div class="right"><div class="team">'+esc(m.away?.name||'원정팀')+'</div><div class="meta">AWAY</div></div></article>').join('')+'</div>').join('');
+ host.innerHTML=visible.map(key=>{const [div,round]=key.split('|'),list=groups.get(key)||[];return '<div class="roster-group"><h3>'+esc(div)+' 리그 · '+esc(round)+' · '+list.length+'경기</h3>'+list.map(m=>'<article class="match"><div><div class="team">'+esc(clubLabel(m.home))+'</div><div class="meta">HOME</div></div><div class="score" style="font-size:13px;letter-spacing:0;color:var(--gold)">VS</div><div class="right"><div class="team">'+esc(clubLabel(m.away))+'</div><div class="meta">AWAY</div></div></article>').join('')+'</div>';}).join('');
 }
 document.querySelector('#fixtureRoundSelect').addEventListener('change',renderFixtures);
 function render(){
- document.querySelector('#matches').innerHTML=data.matches.length?data.matches.map(m=>`<article class="match match-clickable" role="button" tabindex="0" data-match-detail="${esc(m.id)}" aria-label="${esc(m.home?.name)} 대 ${esc(m.away?.name)} 경기 상세 보기"><div><div class="team">${esc(m.home?.name)}</div><div class="meta">${esc(m.match_date||'')}${m.venue?' · '+esc(m.venue):''}</div></div><div class="score">${Number(m.home_score)} : ${Number(m.away_score)}</div><div class="right"><div class="team">${esc(m.away?.name)}</div><div class="meta">${esc(m.round_label||'')} · 경기 정보 보기</div></div></article>`).join(''):'<div class="empty">등록된 경기 결과가 없습니다.</div>';
- const stats=new Map(data.teams.map(t=>[t.id,{...t,played:0,w:0,d:0,l:0,gf:0,ga:0,points:0}]));
- data.matches.forEach(m=>{const h=stats.get(m.home_club_id),a=stats.get(m.away_club_id);if(!h||!a||m.home_score===null||m.away_score===null)return;const hs=Number(m.home_score),as=Number(m.away_score);h.played++;a.played++;h.gf+=hs;h.ga+=as;a.gf+=as;a.ga+=hs;if(hs>as){h.w++;h.points+=3;a.l++}else if(hs<as){a.w++;a.points+=3;h.l++}else{h.d++;a.d++;h.points++;a.points++}});
- const sorted=[...stats.values()].map(t=>({...t,gd:t.gf-t.ga})).sort((a,b)=>b.points-a.points||b.gd-a.gd||b.gf-a.gf||a.sort_order-b.sort_order);
- document.querySelector('#standings').innerHTML=sorted.map((t,i)=>`<tr><td class="club"><span class="rank">${i+1}</span>　${esc(t.name)}</td><td>${t.played}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gd>0?'+':''}${t.gd}</td><td class="top"><b>${t.points}</b></td></tr>`).join('');
- document.querySelector('#scorerRows').innerHTML=data.scorers.length?data.scorers.map((p,i)=>`<tr><td class="club"><span class="rank">${i+1}</span>　${esc(p.player_name)}</td><td>${esc(p.club_name)}</td><td class="top"><b>${p.goals}</b></td></tr>`).join(''):'<tr><td colspan="3" class="empty">등록된 득점 기록이 없습니다.</td></tr>';
+ document.querySelector('#matches').innerHTML=data.matches.length?data.matches.map(m=>'<article class="match match-clickable" role="button" tabindex="0" data-match-detail="'+esc(m.id)+'" aria-label="'+esc(clubLabel(m.home))+' 대 '+esc(clubLabel(m.away))+' 경기 상세 보기"><div><div class="team">'+esc(clubLabel(m.home))+'</div><div class="meta">'+esc(m.match_date||'')+(m.division==='ARCHIVE'?' · 이전 시즌 기록':'')+'</div></div><div class="score">'+Number(m.home_score)+' : '+Number(m.away_score)+'</div><div class="right"><div class="team">'+esc(clubLabel(m.away))+'</div><div class="meta">'+esc(m.round_label||'')+' · 경기 정보 보기</div></div></article>').join(''):'<div class="empty">등록된 경기 결과가 없습니다.</div>';
+ const standings=(division,target)=>{
+  const stats=new Map(data.teams.filter(t=>t.division===division).map(t=>[t.id,{...t,played:0,w:0,d:0,l:0,gf:0,ga:0,points:0}]));
+  data.matches.filter(m=>m.division===division).forEach(m=>{const h=stats.get(m.home_club_id),a=stats.get(m.away_club_id);if(!h||!a||m.home_score===null||m.away_score===null)return;const hs=Number(m.home_score),as=Number(m.away_score);h.played++;a.played++;h.gf+=hs;h.ga+=as;a.gf+=as;a.ga+=hs;if(hs>as){h.w++;h.points+=3;a.l++;}else if(hs<as){a.w++;a.points+=3;h.l++;}else{h.d++;a.d++;h.points++;a.points++;}});
+  const sorted=[...stats.values()].map(t=>({...t,gd:t.gf-t.ga})).sort((a,b)=>b.points-a.points||b.gd-a.gd||b.gf-a.gf||a.sort_order-b.sort_order);
+  document.querySelector(target).innerHTML=sorted.map((t,i)=>'<tr><td class="club"><span class="rank">'+(i+1)+'</span>　'+esc(clubLabel(t))+'</td><td>'+t.played+'</td><td>'+t.w+'</td><td>'+t.d+'</td><td>'+t.l+'</td><td>'+(t.gd>0?'+':'')+t.gd+'</td><td class="top"><b>'+t.points+'</b></td></tr>').join('');
+ };
+ standings('1부','#standings1');standings('2부','#standings2');
+ document.querySelector('#scorerRows').innerHTML=data.scorers.length?data.scorers.map((p,i)=>'<tr><td class="club"><span class="rank">'+(i+1)+'</span>　'+esc(p.player_name)+'</td><td>'+esc(p.club_name)+'</td><td class="top"><b>'+p.goals+'</b></td></tr>').join(''):'<tr><td colspan="3" class="empty">등록된 득점 기록이 없습니다.</td></tr>';
 }
 let publicFinanceData={clubs:[],transactions:[]};
 function renderPublicClubFinance(clubId){
@@ -514,9 +511,9 @@ async function loadLeague(){
  showMessage('#matches','Supabase에서 경기 정보를 불러오는 중입니다.');
  try{
   const [clubRes,matchRes,fixtureRes]=await Promise.all([
-   db.from('spfl_clubs').select('id,name,logo_url,sort_order,funds,main_sponsor,secondary_sponsor').order('sort_order'),
-   db.from('spfl_matches').select('id,match_date,round_label,home_club_id,away_club_id,home_score,away_score,venue,status,home:spfl_clubs!spfl_matches_home_club_id_fkey(name),away:spfl_clubs!spfl_matches_away_club_id_fkey(name)').eq('status','finished').order('match_date',{ascending:false}),
-   db.from('spfl_matches').select('id,match_date,round_label,home_club_id,away_club_id,venue,status,home:spfl_clubs!spfl_matches_home_club_id_fkey(name),away:spfl_clubs!spfl_matches_away_club_id_fkey(name)').eq('status','scheduled').order('round_label',{ascending:true})
+   db.from('spfl_clubs').select('id,name,display_name,division,logo_url,sort_order,funds,main_sponsor,secondary_sponsor').order('sort_order'),
+   db.from('spfl_matches').select('id,match_date,round_label,division,home_club_id,away_club_id,home_score,away_score,venue,status,home:spfl_clubs!spfl_matches_home_club_id_fkey(name,display_name),away:spfl_clubs!spfl_matches_away_club_id_fkey(name,display_name)').eq('status','finished').order('match_date',{ascending:false}),
+   db.from('spfl_matches').select('id,match_date,round_label,division,home_club_id,away_club_id,venue,status,home:spfl_clubs!spfl_matches_home_club_id_fkey(name,display_name),away:spfl_clubs!spfl_matches_away_club_id_fkey(name,display_name)').eq('status','scheduled').order('round_label',{ascending:true})
   ]);
   if(clubRes.error)throw clubRes.error;if(matchRes.error)throw matchRes.error;if(fixtureRes.error)throw fixtureRes.error;
   data.teams=clubRes.data||[];data.matches=matchRes.data||[];data.fixtures=fixtureRes.data||[];renderFixtures();
